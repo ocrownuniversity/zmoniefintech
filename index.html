@@ -105,8 +105,8 @@ input,select,textarea,button{font-family:inherit}
 .page.active{display:block}
 
 /* HOMEPAGE */
-#home-page{display:none}
-#home-page.active{display:block}
+#home-page{display:none!important}
+#home-page.active{display:block!important}
 
 .hero{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:80px 24px 44px;position:relative;overflow:hidden;background:linear-gradient(160deg,#0d0424 0%,#1e0857 50%,#0d0424 100%);}
 .particle{position:absolute;border-radius:50%;pointer-events:none;animation:float 4s ease-in-out infinite;}
@@ -1921,6 +1921,7 @@ async function doGoogleAuth(){
     if(gUser){
       currentUser = {uid:gUser.uid, email:gUser.email};
       document.getElementById('loading-screen').style.display='none';
+      _appEntered = false;
       enterApp();
     }
   } catch(err){
@@ -1958,11 +1959,12 @@ async function doAuth(){
     }
     closeAuth();
     toast('Welcome'+(authMode==='register'?' to Z Monie':' back')+'! 🎉');
-    // Immediately enter app without waiting for onAuthStateChanged timeout
+    // Immediately enter app
     const user = auth.currentUser;
     if(user){
       currentUser = {uid:user.uid, email:user.email};
       document.getElementById('loading-screen').style.display='none';
+      _appEntered = false; // reset so enterApp can run
       enterApp();
     }
   } catch(err){
@@ -1976,10 +1978,11 @@ async function doLogout(){
   await auth.signOut();
   currentUser=null; userData=null;
   _pageHistory = [];
+  _appEntered = false;
   const sh = document.getElementById('app-shell');
   const hp = document.getElementById('home-page');
   if(sh) sh.style.display='none';
-  if(hp){ hp.style.display=''; hp.classList.add('active'); }
+  if(hp){ hp.style.cssText = ''; hp.classList.add('active'); }
   initBanner();
   toast('Logged out successfully');
 }
@@ -2010,18 +2013,23 @@ function showAdminControls(){
   }
 }
 
+var _appEntered = false;
 async function enterApp(){
-  // Immediately hide homepage and show app shell (synchronous, no delay)
+  if(_appEntered) return; // prevent double-entry
+  _appEntered = true;
+
+  // 1. Force hide homepage completely
   const hp = document.getElementById('home-page');
   const sh = document.getElementById('app-shell');
-  if(hp) hp.style.display = 'none';
-  if(hp) hp.classList.remove('active');
-  if(sh) sh.style.display = 'block';
+  if(hp){ hp.style.cssText = 'display:none!important'; hp.classList.remove('active'); }
+  if(sh){ sh.style.display = 'block'; }
+
+  // 2. Hide loading screen
+  const ls = document.getElementById('loading-screen');
+  if(ls) ls.style.display = 'none';
+
   _pageHistory = [];
-  // Set base history state — next back press after this will exit app
-  window.history.replaceState({zmoniePage:'dashboard',histLen:0}, '', window.location.pathname);
   _activatePage('dashboard');
-  initBanner();
   initPromoSlider();
   // Load pricing data and refresh service menus
   ensurePricingSeeded().then(function(){ refreshServicePrices(); });
@@ -2128,14 +2136,18 @@ function goBack(){
 // Intercept Android/browser back button — stay inside app
 window.addEventListener('popstate', function(e){
   var shell = document.getElementById('app-shell');
-  // Only intercept if app shell is fully visible and we have a current user
-  if(shell && shell.style.display === 'block' && currentUser){
+  if(shell && shell.style.display === 'block' && currentUser && _appEntered){
+    // User pressed hardware back inside app
     if(_pageHistory.length > 0){
       var prev = _pageHistory.pop();
-      _navigatingBack = false;
       _activatePage(prev);
+      // Prevent browser from actually navigating back
+      window.history.pushState(null, '', window.location.pathname);
+    } else {
+      // At root page - allow exit on next back press
+      // Push a state so one more back press is needed to exit
+      // (standard Android app behavior)
     }
-    // If no history, let browser handle it naturally (exits app)
   }
 });
 
@@ -4158,25 +4170,23 @@ window.addEventListener('DOMContentLoaded', ()=>{
   auth.onAuthStateChanged(async user=>{
     if(user){
       currentUser = {uid:user.uid, email:user.email};
-      setTimeout(()=>{
+      setTimeout(function(){
         document.getElementById('loading-screen').style.display='none';
-        // Only enter app if not already in app shell (avoid double enterApp)
-        const shell = document.getElementById('app-shell');
-        if(!shell || shell.style.display === 'none' || shell.style.display === ''){
-          enterApp();
-        }
-      }, 900);
+        if(!_appEntered){ enterApp(); }
+      }, 600);
     } else {
-      setTimeout(()=>{
+      currentUser = null;
+      _appEntered = false;
+      setTimeout(function(){
         document.getElementById('loading-screen').style.display='none';
-        const shell = document.getElementById('app-shell');
-        // Only show home if app shell is not already visible
-        if(!shell || shell.style.display === 'none' || shell.style.display === ''){
-          document.getElementById('home-page').classList.add('active');
-          document.getElementById('home-page').style.display = '';
+        // Show homepage only if app shell is not visible
+        var sh = document.getElementById('app-shell');
+        if(!sh || sh.style.display !== 'block'){
+          var hp = document.getElementById('home-page');
+          if(hp){ hp.style.cssText = ''; hp.classList.add('active'); }
           initBanner();
         }
-      }, 900);
+      }, 600);
     }
   });
 });
