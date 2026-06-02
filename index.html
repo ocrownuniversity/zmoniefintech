@@ -14,47 +14,53 @@
 html,body{width:100%;overflow-x:hidden;}
 body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100vh;}
 .page{display:none;min-height:100vh;}.page.active{display:block;}
+
+/* SPLASH */
 #splashPage{position:relative;min-height:100vh;background:#000;overflow:hidden;}
-.splash-track{position:absolute;inset:0;display:flex;transition:transform 0.6s ease;}
-.splash-slide{min-width:100vw;min-height:100vh;position:relative;background-size:cover;background-position:center;}
-.splash-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.15) 40%,rgba(0,0,0,0.82) 100%);}
-.splash-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:0 22px 30px;}
-.splash-logo-box{position:absolute;top:18px;right:18px;z-index:10;background:#fff;border-radius:10px;padding:8px 14px;text-align:center;}
-.splash-logo-box .lz{font-size:24px;font-weight:900;color:#111;line-height:1;}
-.splash-logo-box .lz span{color:#C9A84C;}
-.splash-logo-box .lt{font-size:8px;font-weight:700;color:#aaa;letter-spacing:1px;}
-.splash-notif{position:absolute;right:22px;bottom:260px;z-index:10;width:46px;height:46px;border-radius:50%;background:#fff;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 10px rgba(0,0,0,0.2);}
-.splash-title{font-size:28px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:5px;}
-.splash-sub{font-size:14px;color:rgba(255,255,255,0.82);margin-bottom:14px;line-height:1.5;max-width:260px;}
-.splash-dots{display:flex;gap:5px;margin-bottom:24px;}
+.sp-track{position:absolute;inset:0;display:flex;transition:transform 0.6s ease;}
+.sp-slide{min-width:100vw;min-height:100vh;position:relative;background-size:cover;background-position:center;}
+.sp-slide::after{content:'';position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,0.05) 0%,rgba(0,0,0,0.1) 40%,rgba(0,0,0,0.82) 100%);}
+.sp-bottom{position:absolute;bottom:0;left:0;right:0;z-index:10;padding:0 22px 28px;}
+.sp-logo{position:absolute;top:18px;right:18px;z-index:10;background:#fff;border-radius:10px;padding:7px 13px;text-align:center;}
+.sp-logo .lz{font-size:22px;font-weight:900;color:#111;line-height:1;}
+.sp-logo .lz span{color:#C9A84C;}
+.sp-logo .lt{font-size:8px;font-weight:700;color:#aaa;letter-spacing:1px;}
+.sp-title{font-size:28px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:5px;}
+.sp-sub{font-size:14px;color:rgba(255,255,255,0.82);margin-bottom:14px;line-height:1.5;max-width:260px;}
+.sp-dots{display:flex;gap:5px;margin-bottom:22px;}
 .sp-dot{width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.35);cursor:pointer;transition:all 0.3s;}
 .sp-dot.active{background:#fff;width:20px;border-radius:4px;}
-.btn-login{width:100%;padding:15px;background:#fff;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#111;cursor:pointer;margin-bottom:11px;}
-.btn-register{width:100%;padding:14px;background:transparent;border:2px solid rgba(255,255,255,0.55);border-radius:12px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-bottom:22px;}
-.splash-links{display:flex;justify-content:space-around;padding-top:14px;border-top:1px solid rgba(255,255,255,0.15);margin-bottom:12px;}
-.splash-link{font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;cursor:pointer;}
-.splash-copy{text-align:center;font-size:10px;color:rgba(255,255,255,0.35);}
+.btn-wh{width:100%;padding:15px;background:#fff;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#111;cursor:pointer;margin-bottom:11px;}
+.btn-out{width:100%;padding:14px;background:transparent;border:2px solid rgba(255,255,255,0.55);border-radius:12px;font-family:'Inter',sans-serif;font-size:16px;font-weight:700;color:#fff;cursor:pointer;margin-bottom:20px;}
+.sp-links{display:flex;justify-content:space-around;padding-top:13px;border-top:1px solid rgba(255,255,255,0.15);margin-bottom:10px;}
+.sp-link{font-size:13px;color:rgba(255,255,255,0.7);font-weight:500;cursor:pointer;}
+.sp-copy{text-align:center;font-size:10px;color:rgba(255,255,255,0.35);}
+
+/* AUTH */
 .auth-bg{min-height:100vh;background:#fff;display:flex;flex-direction:column;}
-.auth-hdr{padding:14px 18px;display:flex;align-items:center;gap:10px;}
+.auth-hdr{padding:13px 18px;display:flex;align-items:center;gap:10px;}
 .auth-back{background:none;border:none;cursor:pointer;width:36px;height:36px;display:flex;align-items:center;justify-content:center;}
-.auth-logo-row{display:flex;align-items:center;gap:8px;}
-.auth-logo-ic{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#C9A84C,#E8C97A);display:flex;align-items:center;justify-content:center;}
-.auth-logo-nm{font-size:20px;font-weight:800;color:#111;}
+.al-row{display:flex;align-items:center;gap:8px;}
+.al-ic{width:33px;height:33px;border-radius:9px;background:linear-gradient(135deg,#C9A84C,#E8C97A);display:flex;align-items:center;justify-content:center;}
+.al-nm{font-size:20px;font-weight:800;color:#111;}
 .auth-body{flex:1;padding:14px 22px 36px;}
-.auth-title{font-size:25px;font-weight:800;margin-bottom:5px;}
-.auth-sub{font-size:14px;color:#888;margin-bottom:24px;}
+.atitle{font-size:25px;font-weight:800;margin-bottom:5px;}
+.asub{font-size:14px;color:#888;margin-bottom:22px;}
 .lbl{font-size:13px;font-weight:500;color:#555;display:block;margin-bottom:5px;}
 .inp{width:100%;border:1.5px solid #e0e0e0;border-radius:10px;padding:13px 14px;font-family:'Inter',sans-serif;font-size:15px;outline:none;color:#111;background:#fff;transition:border-color 0.2s;}
 .inp:focus{border-color:#C9A84C;box-shadow:0 0 0 3px rgba(201,168,76,0.1);}
-.fg{margin-bottom:14px;}
+.inp-sm{padding:11px 13px;font-size:14px;}
+.fg{margin-bottom:13px;}
 .pw-w{position:relative;}
-.pw-t{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px;}
-.btn-pri{width:100%;padding:14px;border-radius:11px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:15px;cursor:pointer;}
+.pw-t{position:absolute;right:11px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#aaa;padding:4px;}
+.btn-pri{width:100%;padding:14px;border-radius:11px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;font-size:15px;cursor:pointer;transition:background 0.2s;}
 .btn-pri:active{background:#b8973e;}
-.btn-ggl{width:100%;padding:12px;border-radius:11px;border:1.5px solid #e0e0e0;background:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:10px;}
-.auth-sw{text-align:center;margin-top:18px;font-size:14px;color:#888;}
-.auth-sw span{color:#C9A84C;font-weight:600;cursor:pointer;}
-.lnk{color:#C9A84C;font-weight:600;cursor:pointer;}
+.btn-ggl{width:100%;padding:12px;border-radius:11px;border:1.5px solid #e0e0e0;background:#fff;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;margin-top:9px;}
+.auth-sw{text-align:center;margin-top:16px;font-size:14px;color:#888;}
+.auth-sw span,.lnk{color:#C9A84C;font-weight:600;cursor:pointer;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px;}
+
+/* MAIN APP */
 #mainApp{background:#f5f5f5;min-height:100vh;}
 .app-hdr{background:#fff;border-bottom:1px solid #f0f0f0;position:sticky;top:0;z-index:50;}
 .hdr-in{max-width:520px;margin:0 auto;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;}
@@ -62,23 +68,29 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100
 .hlv{font-size:14px;font-weight:600;color:#111;margin-left:9px;}
 .ico-btn{width:37px;height:37px;border-radius:50%;border:none;background:#f5f5f5;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative;}
 .nb{position:absolute;top:6px;right:6px;width:8px;height:8px;background:#C9A84C;border-radius:50%;border:1.5px solid #fff;}
-.mc{max-width:520px;margin:0 auto;padding:0 0 85px;}
+.mc{max-width:520px;margin:0 auto;padding:0 0 88px;}
+
+/* WALLET CARD */
 .wcard{background:linear-gradient(160deg,#1a2340 0%,#1e2a4a 100%);border-radius:16px;padding:17px 19px;color:#fff;position:relative;overflow:hidden;}
 .wcard::before{content:'';position:absolute;top:-30px;right:-30px;width:120px;height:120px;background:radial-gradient(circle,rgba(201,168,76,0.22),transparent 70%);border-radius:50%;}
-.wacct{font-size:13px;color:rgba(255,255,255,0.68);display:flex;align-items:center;gap:7px;margin-bottom:13px;flex-wrap:wrap;}
+.wacct{font-size:12px;color:rgba(255,255,255,0.65);display:flex;align-items:center;gap:7px;margin-bottom:12px;flex-wrap:wrap;}
 .wacct strong{color:#fff;}
-.wcpy{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.55);display:flex;}
-.wbal{font-size:29px;font-weight:700;letter-spacing:-0.5px;}
+.wcpy{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.5);display:flex;}
+.wbal{font-size:28px;font-weight:700;letter-spacing:-0.5px;}
 .weye{background:rgba(255,255,255,0.14);border:none;cursor:pointer;width:27px;height:27px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.wup{font-size:12px;color:rgba(255,255,255,0.42);margin-bottom:15px;}
-.wbtns{display:flex;gap:7px;}
-.wbtn{display:flex;align-items:center;gap:5px;padding:8px 12px;border-radius:20px;background:rgba(255,255,255,0.12);border:none;color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+.wup{font-size:11px;color:rgba(255,255,255,0.4);margin-bottom:14px;}
+.wbtns{display:flex;gap:7px;flex-wrap:wrap;}
+.wbtn{display:flex;align-items:center;gap:5px;padding:8px 11px;border-radius:20px;background:rgba(255,255,255,0.12);border:none;color:#fff;font-family:'Inter',sans-serif;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+
+/* PROMO SLIDER */
 .pslider{overflow:hidden;border-radius:13px;}
-.ptrack{display:flex;transition:transform 0.45s cubic-bezier(0.25,0.46,0.45,0.94);}
+.ptrack{display:flex;transition:transform 0.45s ease;}
 .pslide{min-width:100%;padding:15px 17px;min-height:96px;display:flex;align-items:center;gap:13px;}
 .cdots{display:flex;justify-content:center;gap:5px;margin-top:6px;}
 .cdot{width:6px;height:6px;border-radius:50%;background:#ddd;cursor:pointer;transition:all 0.25s;}
 .cdot.active{background:#C9A84C;width:18px;border-radius:3px;}
+
+/* SECTIONS */
 .sec{padding:0 16px;margin-top:15px;}
 .sch{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
 .stl{font-size:14px;font-weight:500;color:#888;}
@@ -94,83 +106,113 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100
 .ri{font-size:21px;margin-bottom:3px;}
 .rl{font-size:13px;color:#888;}
 .ra{font-size:16px;font-weight:700;color:#111;margin-top:2px;}
+
+/* TX */
 .txi{background:#fff;border-radius:12px;padding:12px;display:flex;align-items:center;gap:10px;margin-bottom:7px;}
 .txic{width:39px;height:39px;border-radius:50%;background:#f5f5f5;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
 .txd{flex:1;min-width:0;}
 .txn{font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .txdt{font-size:11px;color:#aaa;margin-top:2px;}
 .txa{font-size:14px;font-weight:700;flex-shrink:0;}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:50;padding:7px 0 10px;}
+
+/* FINANCE CARDS */
+.fin-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;}
+.fin-card-gold{background:linear-gradient(135deg,#C9A84C,#E8C97A);border-radius:14px;padding:16px;margin-bottom:10px;}
+.fin-stat{background:#fff;border-radius:12px;padding:14px;text-align:center;}
+.fin-val{font-size:20px;font-weight:800;color:#C9A84C;margin-top:3px;}
+.fin-tab{padding:8px 16px;border-radius:20px;border:1.5px solid #e0e0e0;font-family:'Inter',sans-serif;font-weight:600;font-size:13px;cursor:pointer;white-space:nowrap;background:#fff;color:#555;transition:all 0.2s;}
+.fin-tab.active{background:#C9A84C;color:#fff;border-color:#C9A84C;}
+.loan-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;border-left:4px solid #C9A84C;}
+.inv-card{background:#fff;border-radius:12px;padding:14px;margin-bottom:8px;border-left:4px solid #22c55e;}
+.status-badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;}
+.sb-pending{background:#fef9c3;color:#ca8a04;}
+.sb-approved{background:#dcfce7;color:#16a34a;}
+.sb-active{background:#dbeafe;color:#1d4ed8;}
+.sb-rejected{background:#fee2e2;color:#dc2626;}
+.sb-repaid{background:#f0fdf4;color:#15803d;}
+.sb-matured{background:#ede9fe;color:#7c3aed;}
+.sb-paid{background:#d1fae5;color:#065f46;}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eee;z-index:50;padding:6px 0 10px;}
 .bni{max-width:520px;margin:0 auto;display:flex;justify-content:space-around;}
-.ni{display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 9px;}
-.ni span{font-size:11px;font-weight:500;color:#aaa;}
+.ni{display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer;padding:4px 8px;min-width:52px;}
+.ni span{font-size:10px;font-weight:500;color:#aaa;}
 .ni svg{color:#aaa;}
 .ni.active span{color:#C9A84C;}
 .ni.active svg{color:#C9A84C;}
+
+/* MODALS */
 .mo{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;}
 .mo.open{display:flex;}
 .ms{background:#fff;border-radius:20px 20px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;padding:19px;animation:sup 0.3s ease;}
 @keyframes sup{from{transform:translateY(100%)}to{transform:translateY(0)}}
-.mh{width:38px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 15px;}
+.mh{width:38px;height:4px;background:#e0e0e0;border-radius:2px;margin:0 auto 14px;}
 .mt{font-size:18px;font-weight:700;margin-bottom:4px;text-align:center;}
-.prow{display:flex;gap:11px;justify-content:center;margin:17px 0;}
+.prow{display:flex;gap:11px;justify-content:center;margin:16px 0;}
 .pbox{width:50px;height:56px;border:2px solid #e0e0e0;border-radius:11px;font-size:24px;text-align:center;font-family:'Inter',sans-serif;font-weight:700;outline:none;transition:border-color 0.2s;}
 .pbox:focus{border-color:#C9A84C;}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;display:none;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
+
+/* TOAST */
+.toast{position:fixed;bottom:92px;left:50%;transform:translateX(-50%);background:#111;color:#fff;padding:10px 20px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;display:none;white-space:nowrap;max-width:88vw;overflow:hidden;text-overflow:ellipsis;}
 .toast.show{display:block;}
+
+/* CHIPS */
 .chip{display:inline-block;padding:2px 7px;border-radius:20px;font-size:11px;font-weight:600;}
 .ck{background:#dcfce7;color:#16a34a;}.cp{background:#fef9c3;color:#ca8a04;}.cf{background:#fee2e2;color:#dc2626;}
+
+/* FUND */
 .fcard{border:1.5px solid #eee;border-radius:13px;padding:14px;margin-bottom:11px;background:#fafafa;}
 .fnum{font-size:19px;font-weight:700;letter-spacing:1.5px;color:#111;}
 .cbtn{padding:7px 13px;border-radius:8px;background:#C9A84C;color:#fff;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;cursor:pointer;}
-.asp{background:#fff;border-radius:11px;padding:13px;margin-bottom:7px;}
-.asp-lbl{font-size:12px;color:#888;margin-bottom:2px;}
-.asp-val{font-size:14px;font-weight:600;}
-.atb{padding:7px 13px;border-radius:20px;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;background:#f0f0f0;color:#555;}
-.atb.active{background:#C9A84C;color:#fff;}
+
+/* ADMIN */
 .adms{background:#fff;border-radius:11px;padding:13px;text-align:center;}
 .admv{font-size:22px;font-weight:800;color:#C9A84C;margin-top:3px;}
+.atb{padding:7px 13px;border-radius:20px;border:none;font-family:'Inter',sans-serif;font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;background:#f0f0f0;color:#555;}
+.atb.active{background:#C9A84C;color:#fff;}
+
+/* MISC */
 .spnr{width:17px;height:17px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:sp 0.7s linear infinite;display:inline-block;vertical-align:middle;}
+.spnr-g{width:17px;height:17px;border:2px solid rgba(201,168,76,0.3);border-top-color:#C9A84C;border-radius:50%;animation:sp 0.7s linear infinite;display:inline-block;vertical-align:middle;}
 @keyframes sp{to{transform:rotate(360deg)}}
 .faq-i{background:#fff;border-radius:11px;margin-bottom:7px;overflow:hidden;}
 .faq-q{padding:13px 15px;font-weight:600;font-size:14px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;}
 .faq-a{display:none;padding:0 15px 13px;font-size:13px;color:#555;line-height:1.7;}
 .phdr{background:linear-gradient(135deg,#1a2340,#1e2a4a);padding:26px 18px 18px;}
+.divider{height:1px;background:#f0f0f0;margin:12px 0;}
+.section-card{background:#fff;border-radius:14px;padding:16px;margin-bottom:10px;}
+.info-box{background:#f8f8f8;border-radius:10px;padding:12px;margin-bottom:12px;}
+.info-box.gold{background:#fff8e8;border:1px solid #ffe8a0;}
+.info-box.blue{background:#f0f9ff;border:1px solid #bae6fd;}
+.info-box.green{background:#f0fdf4;border:1px solid #bbf7d0;}
+textarea.inp{resize:vertical;min-height:80px;}
 </style>
 </head>
 <body>
 <div id="toast" class="toast"></div>
 <!-- SPLASH -->
 <div id="splashPage" class="page active">
-  <div class="splash-track" id="spTrack"></div>
-  <div class="splash-logo-box"><div class="lz">Z<span>M</span></div><div class="lt">ZMONIE</div></div>
-  <button class="splash-notif"><svg width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="#111" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></button>
-  <div class="splash-bottom">
-    <div id="spTitle" class="splash-title">Eazy Banking</div>
-    <div id="spSub" class="splash-sub">Experience a whole new world of banking, simplified.</div>
-    <div class="splash-dots" id="spDots"></div>
-    <button class="btn-login" onclick="showPage('loginPage')">Log In</button>
-    <button class="btn-register" onclick="showPage('registerPage')">Register</button>
-    <div class="splash-links">
-      <span class="splash-link">Internet Banking</span>
-      <span class="splash-link">Open Account</span>
-      <span class="splash-link">Help</span>
-    </div>
-    <p class="splash-copy">ZMONIE (CAC No: 9576761) — Licensed Fintech Platform</p>
+  <div class="sp-track" id="spTrack"></div>
+  <div class="sp-logo"><div class="lz">Z<span>M</span></div><div class="lt">ZMONIE</div></div>
+  <div class="sp-bottom">
+    <div id="spTitle" class="sp-title">Eazy Banking</div>
+    <div id="spSub" class="sp-sub">Experience a whole new world of fintech, simplified.</div>
+    <div class="sp-dots" id="spDots"></div>
+    <button class="btn-wh" onclick="showPage('loginPage')">Log In</button>
+    <button class="btn-out" onclick="showPage('registerPage')">Register</button>
+    <div class="sp-links"><span class="sp-link">VTU Services</span><span class="sp-link">Finance</span><span class="sp-link">Help</span></div>
+    <p class="sp-copy">ZMONIE (CAC No: 9576761) — Licensed Fintech Platform</p>
   </div>
 </div>
 
 <!-- LOGIN -->
 <div id="loginPage" class="page">
 <div class="auth-bg">
-  <div class="auth-hdr">
-    <button class="auth-back" onclick="showPage('splashPage')"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#111" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-    <div class="auth-logo-row"><div class="auth-logo-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="auth-logo-nm">ZMONIE</span></div>
-  </div>
+  <div class="auth-hdr"><button class="auth-back" onclick="showPage('splashPage')"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#111" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><div class="al-row"><div class="al-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="al-nm">ZMONIE</span></div></div>
   <div class="auth-body">
-    <h2 class="auth-title">Welcome back 👋</h2>
-    <p class="auth-sub">Sign in to your ZMONIE account</p>
-    <div class="fg"><label class="lbl">Email Address</label><input type="email" id="loginEmail" class="inp" placeholder="you@example.com"/></div>
+    <h2 class="atitle">Welcome back 👋</h2><p class="asub">Sign in to your ZMONIE account</p>
+    <div class="fg"><label class="lbl">Email</label><input type="email" id="loginEmail" class="inp" placeholder="you@example.com"/></div>
     <div class="fg"><label class="lbl">Password</label><div class="pw-w"><input type="password" id="loginPass" class="inp" placeholder="Your password" style="padding-right:42px;"/><button class="pw-t" onclick="tpw('loginPass')"><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <p style="text-align:right;margin-bottom:14px;"><span class="lnk" onclick="doFPW()" style="font-size:13px;">Forgot password?</span></p>
     <button class="btn-pri" id="loginBtn" onclick="doLogin()">Log In</button>
@@ -183,23 +225,16 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100
 <!-- REGISTER -->
 <div id="registerPage" class="page">
 <div class="auth-bg">
-  <div class="auth-hdr">
-    <button class="auth-back" onclick="showPage('splashPage')"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#111" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
-    <div class="auth-logo-row"><div class="auth-logo-ic"><svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="auth-logo-nm">ZMONIE</span></div>
-  </div>
+  <div class="auth-hdr"><button class="auth-back" onclick="showPage('splashPage')"><svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#111" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button><div class="al-row"><div class="al-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="al-nm">ZMONIE</span></div></div>
   <div class="auth-body">
-    <h2 class="auth-title">Create Account ✨</h2>
-    <p class="auth-sub">Join ZMONIE — fast, easy, secure</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;">
-      <div class="fg"><label class="lbl">First Name</label><input type="text" id="regFirst" class="inp" placeholder="John"/></div>
-      <div class="fg"><label class="lbl">Last Name</label><input type="text" id="regLast" class="inp" placeholder="Doe"/></div>
-    </div>
+    <h2 class="atitle">Create Account ✨</h2><p class="asub">Join ZMONIE — fast, easy, secure</p>
+    <div class="grid2"><div class="fg"><label class="lbl">First Name</label><input type="text" id="regFirst" class="inp" placeholder="John"/></div><div class="fg"><label class="lbl">Last Name</label><input type="text" id="regLast" class="inp" placeholder="Doe"/></div></div>
     <div class="fg"><label class="lbl">Phone Number</label><input type="tel" id="regPhone" class="inp" placeholder="08012345678"/></div>
     <div class="fg"><label class="lbl">Email Address</label><input type="email" id="regEmail" class="inp" placeholder="you@example.com"/></div>
     <div class="fg"><label class="lbl">Password (min 8)</label><div class="pw-w"><input type="password" id="regPass" class="inp" placeholder="Create password" style="padding-right:42px;"/><button class="pw-t" onclick="tpw('regPass')"><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
     <button class="btn-pri" id="regBtn" onclick="doRegister()" style="margin-bottom:9px;">Create Account</button>
     <button class="btn-ggl" onclick="doGoogle()"><svg width="17" height="17" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>Continue with Google</button>
-    <p class="auth-sw">Have an account? <span onclick="showPage('loginPage')">Log In</span></p>
+    <p class="auth-sw">Have account? <span onclick="showPage('loginPage')">Log In</span></p>
   </div>
 </div>
 </div>
@@ -219,12 +254,10 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100
 <div id="mainApp" class="page">
   <div class="app-hdr"><div class="hdr-in"><div style="display:flex;align-items:center;"><div class="hav" id="hdrAv">U</div><span class="hlv" id="hdrLv">Level 1</span></div><button class="ico-btn" onclick="openM('notifModal')"><svg width="19" height="19" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="2"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="nb" id="nDot" style="display:none;"></span></button></div></div>
   <div class="mc">
-    <!-- HOME -->
+
+    <!-- HOME SECTION -->
     <div id="homeSection">
-      <div style="padding:11px 16px 0;">
-        <div class="pslider"><div class="ptrack" id="ptrack"></div></div>
-        <div class="cdots" id="pdots"></div>
-      </div>
+      <div style="padding:11px 16px 0;"><div class="pslider"><div class="ptrack" id="ptrack"></div></div><div class="cdots" id="pdots"></div></div>
       <div style="padding:9px 16px 0;">
         <div class="wcard">
           <div class="wacct"><strong id="wAcct">—</strong><span>| ZMONIE</span><button class="wcpy" onclick="cpWallet()"><svg width="13" height="13" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg></button></div>
@@ -233,38 +266,42 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100
           <div class="wbtns">
             <button class="wbtn" onclick="openM('fundModal')"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Fund Account</button>
             <button class="wbtn" onclick="showSec('history')"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>History</button>
-            <button class="wbtn" onclick="openM('fundModal')"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 014-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 01-4 4H3"/></svg>Accounts</button>
+            <button class="wbtn" onclick="showSec('finance')"><svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg>Finance</button>
           </div>
         </div>
       </div>
       <div class="sec" style="margin-top:17px;">
-        <div class="sch"><span class="stl">Services</span><span class="sac" onclick="showSec('services')">Edit</span></div>
+        <div class="sch"><span class="stl">VTU Services</span><span class="sac" onclick="showSec('services')">See all</span></div>
         <div style="background:#fff;border-radius:13px;padding:3px 0;">
           <div class="sgrid">
             <div class="si" onclick="openSvc('airtime')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.46 9.81a19.79 19.79 0 01-3-8.57A2 2 0 012.43 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 9.94a16 16 0 006.15 6.15l1.3-1.3a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div><span class="slb">Airtime</span></div>
             <div class="si" onclick="openSvc('data')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><path d="M1 6l11-4 11 4M1 12l11-4 11 4M1 18l11-4 11 4"/></svg></div><span class="slb">Data</span></div>
             <div class="si" onclick="openSvc('cable')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><rect x="2" y="7" width="20" height="15" rx="2"/><polyline points="17 2 12 7 7 2"/></svg></div><span class="slb">Cable TV</span></div>
-            <div class="si" onclick="openSvc('loan')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><span class="slb">Loans</span></div>
+            <div class="si" onclick="openSvc('electricity')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="slb">Electricity</span></div>
           </div>
           <div class="sdiv"></div>
           <div class="sgrid">
-            <div class="si" onclick="openSvc('electricity')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><span class="slb">Electricity</span></div>
             <div class="si" onclick="openSvc('result')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div><span class="slb">Result Checker</span></div>
             <div class="si" onclick="openSvc('education')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><span class="slb">Education</span></div>
-            <div class="si" onclick="showSec('services')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><circle cx="5" cy="12" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/></svg></div><span class="slb">More</span></div>
+            <div class="si" onclick="showSec('finance')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><span class="slb">Loans</span></div>
+            <div class="si" onclick="showSec('finance')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg></div><span class="slb">Invest</span></div>
           </div>
         </div>
       </div>
-      <div class="sec"><div class="sch"><span class="stl">Rewards</span></div>
-        <div class="rg"><div class="rc"><div class="ri">🎁</div><div class="rl">Cashback</div><div class="ra">₦0.00</div></div><div class="rc"><div class="ri">📣</div><div class="rl">Referrals</div><div class="ra">₦0.00</div></div></div>
+      <!-- FINANCE QUICK CARDS -->
+      <div class="sec">
+        <div class="sch"><span class="stl">Finance</span><span class="sac" onclick="showSec('finance')">Open Finance →</span></div>
+        <div class="rg">
+          <div class="rc" style="cursor:pointer;" onclick="showSec('finance')"><div class="ri">🏦</div><div class="rl">Loans</div><div class="ra" id="userActiveLoanBadge">Apply Now</div></div>
+          <div class="rc" style="cursor:pointer;" onclick="showSec('finance')"><div class="ri">📈</div><div class="rl">Invest &amp; Earn</div><div class="ra" id="userActiveInvBadge">Start Now</div></div>
+        </div>
       </div>
-      <div class="sec"><div class="sch"><span class="stl">Recent transactions</span><span class="sac" onclick="showSec('history')">View All</span></div>
-        <div id="rTxL"><p style="text-align:center;color:#aaa;font-size:13px;padding:22px 0;">No transactions yet</p></div>
-      </div>
+      <div class="sec"><div class="sch"><span class="stl">Recent transactions</span><span class="sac" onclick="showSec('history')">View All</span></div><div id="rTxL"><p style="text-align:center;color:#aaa;font-size:13px;padding:22px 0;">No transactions yet</p></div></div>
     </div>
-    <!-- SERVICES -->
+
+    <!-- SERVICES SECTION -->
     <div id="servicesSection" style="display:none;padding:16px;">
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:13px;">All Services</h2>
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:13px;">VTU Services</h2>
       <div style="background:#fff;border-radius:13px;padding:3px 0;">
         <div class="sgrid">
           <div class="si" onclick="openSvc('airtime')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.46 9.81a19.79 19.79 0 01-3-8.57A2 2 0 012.43 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.91 9.94a16 16 0 006.15 6.15l1.3-1.3a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg></div><span class="slb">Airtime</span></div>
@@ -274,62 +311,66 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100
         </div>
         <div class="sdiv"></div>
         <div class="sgrid">
-          <div class="si" onclick="openSvc('loan')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><span class="slb">Loans</span></div>
           <div class="si" onclick="openSvc('result')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/></svg></div><span class="slb">Result Checker</span></div>
           <div class="si" onclick="openSvc('education')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg></div><span class="slb">Education</span></div>
           <div class="si" onclick="openM('fundModal')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div><span class="slb">Fund Account</span></div>
+          <div class="si" onclick="showSec('finance')"><div class="sic"><svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#555" stroke-width="1.8"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div><span class="slb">Finance</span></div>
         </div>
       </div>
     </div>
-    <!-- HISTORY -->
-    <div id="historySection" style="display:none;padding:16px;">
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:13px;">Transaction History</h2>
-      <div id="fTxL"><p style="text-align:center;color:#aaa;font-size:13px;padding:28px 0;">No transactions yet</p></div>
+
+    <!-- HISTORY SECTION -->
+    <div id="historySection" style="display:none;padding:16px;"><h2 style="font-size:18px;font-weight:700;margin-bottom:13px;">Transaction History</h2><div id="fTxL"><p style="text-align:center;color:#aaa;font-size:13px;padding:28px 0;">No transactions yet</p></div></div>
+
+    <!-- FINANCE SECTION -->
+    <div id="financeSection" style="display:none;padding:16px;">
+      <h2 style="font-size:18px;font-weight:700;margin-bottom:4px;">Finance Module</h2>
+      <p style="font-size:13px;color:#888;margin-bottom:14px;">Loans &amp; Investments</p>
+      <!-- Finance Quick Stats -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;" id="finStats">
+        <div class="fin-stat"><p style="font-size:12px;color:#888;">Active Loans</p><p class="fin-val" id="fStatLoans">0</p></div>
+        <div class="fin-stat"><p style="font-size:12px;color:#888;">Active Investments</p><p class="fin-val" id="fStatInvs">0</p></div>
+        <div class="fin-stat" style="background:linear-gradient(135deg,#1a2340,#1e2a4a);"><p style="font-size:12px;color:rgba(255,255,255,0.6);">Total Borrowed</p><p style="font-size:17px;font-weight:800;color:#E8C97A;margin-top:3px;" id="fStatBorrowed">₦0</p></div>
+        <div class="fin-stat" style="background:linear-gradient(135deg,#0d2211,#0d3318);"><p style="font-size:12px;color:rgba(255,255,255,0.6);">Expected Returns</p><p style="font-size:17px;font-weight:800;color:#86efac;margin-top:3px;" id="fStatReturns">₦0</p></div>
+      </div>
+      <!-- Finance Tabs -->
+      <div style="display:flex;gap:7px;overflow-x:auto;margin-bottom:14px;padding-bottom:2px;">
+        <button class="fin-tab active" id="ft-loans" onclick="showFinTab('loans')">🏦 Loans</button>
+        <button class="fin-tab" id="ft-invest" onclick="showFinTab('invest')">📈 Invest</button>
+        <button class="fin-tab" id="ft-active" onclick="showFinTab('active')">⚡ Active</button>
+        <button class="fin-tab" id="ft-history" onclick="showFinTab('history')">📋 History</button>
+        <button class="fin-tab" id="ft-notif" onclick="showFinTab('notif')">🔔 Alerts</button>
+      </div>
+      <div id="finTabContent"></div>
     </div>
-    <!-- REWARDS -->
-    <div id="rewardsSection" style="display:none;padding:16px;">
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:13px;">Rewards</h2>
-      <div class="rg" style="margin-bottom:13px;"><div class="rc"><div class="ri">🎁</div><div class="rl">Cashback</div><div class="ra">₦0.00</div></div><div class="rc"><div class="ri">📣</div><div class="rl">Referrals</div><div class="ra">₦0.00</div></div></div>
-      <div style="background:#fff;border-radius:13px;padding:18px;text-align:center;"><div style="font-size:34px;margin-bottom:9px;">🏆</div><p style="font-weight:700;font-size:15px;margin-bottom:5px;">Earn More Rewards</p><p style="font-size:13px;color:#888;margin-bottom:14px;">Invite friends to ZMONIE and earn ₦200 per referral</p><button class="btn-pri" onclick="toast2('Referral link copied!')" style="max-width:190px;margin:0 auto;">Share Invite Link</button></div>
-    </div>
+
     <!-- PROFILE -->
     <div id="profileSection" style="display:none;">
       <div class="phdr"><div style="display:flex;align-items:center;gap:13px;"><div style="width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,0.14);display:flex;align-items:center;justify-content:center;font-size:21px;font-weight:700;color:#C9A84C;" id="pAvB">U</div><div><h3 id="pNm" style="font-size:17px;font-weight:700;color:#fff;"></h3><p id="pEm" style="font-size:13px;color:rgba(255,255,255,0.6);margin-top:2px;"></p><p id="pPh" style="font-size:12px;color:rgba(255,255,255,0.43);margin-top:2px;"></p></div></div></div>
-      <div style="padding:0 16px;display:flex;flex-direction:column;gap:7px;margin-top:12px;">
+      <div style="padding:12px 16px;display:flex;flex-direction:column;gap:7px;">
         <div onclick="openM('changePinModal')" style="background:#fff;border-radius:11px;padding:13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:37px;height:37px;border-radius:10px;background:#fff8e8;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#C9A84C" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><div><p style="font-size:14px;font-weight:600;">Change PIN</p><p style="font-size:12px;color:#aaa;">Update 4-digit PIN</p></div></div><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ccc" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
         <div onclick="openM('forgotPinModal')" style="background:#fff;border-radius:11px;padding:13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:37px;height:37px;border-radius:10px;background:#fff0f0;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#ef4444" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div><div><p style="font-size:14px;font-weight:600;">Forgot PIN</p><p style="font-size:12px;color:#aaa;">Admin reset</p></div></div><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ccc" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
         <div onclick="window.open('https://wa.me/2348068886569','_blank')" style="background:#fff;border-radius:11px;padding:13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:37px;height:37px;border-radius:10px;background:#f0fff4;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="#22c55e"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div><div><p style="font-size:14px;font-weight:600;">WhatsApp Support</p><p style="font-size:12px;color:#aaa;">08068886569</p></div></div><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ccc" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
-        <div onclick="showSec('faq')" style="background:#fff;border-radius:11px;padding:13px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:37px;height:37px;border-radius:10px;background:#f5f0ff;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#8b5cf6" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div><span style="font-size:14px;font-weight:600;">FAQ &amp; Help</span></div><svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#ccc" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></div>
         <button onclick="doLogout()" style="width:100%;padding:13px;border-radius:11px;background:#fff0f0;border:none;color:#ef4444;font-family:'Inter',sans-serif;font-weight:600;font-size:14px;cursor:pointer;margin-top:3px;">Sign Out</button>
         <p style="text-align:center;font-size:11px;color:#ccc;padding:6px 0 3px;">CAC No: 9576761 · ZMONIE<br/>No.1 Ibijoke St, Oregun, Ikeja, Lagos</p>
       </div>
     </div>
-    <!-- FAQ -->
-    <div id="faqSection" style="display:none;padding:16px;">
-      <button onclick="showSec('profile')" style="display:flex;align-items:center;gap:5px;background:none;border:none;cursor:pointer;margin-bottom:14px;font-size:14px;font-weight:600;color:#555;"><svg width="17" height="17" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>Back</button>
-      <h2 style="font-size:18px;font-weight:700;margin-bottom:13px;">FAQ &amp; Help</h2>
-      <div id="faqList" style="margin-bottom:14px;"></div>
-      <div style="background:linear-gradient(135deg,#1a2340,#1e2a4a);border-radius:13px;padding:18px;color:#fff;">
-        <p style="font-weight:700;font-size:15px;margin-bottom:9px;">Contact Us</p>
-        <p style="font-size:13px;color:rgba(255,255,255,0.68);margin-bottom:2px;">📧 zmonieservice@gmail.com</p>
-        <p style="font-size:13px;color:rgba(255,255,255,0.68);margin-bottom:2px;">📱 08068886569</p>
-        <p style="font-size:12px;color:rgba(255,255,255,0.43);margin-bottom:14px;">📍 No.1 Ibijoke Street, Oregun, Ikeja, Lagos</p>
-        <div style="display:flex;gap:9px;"><button onclick="window.open('https://wa.me/2348068886569','_blank')" style="flex:1;padding:10px;border-radius:9px;background:#25D366;border:none;color:#fff;font-weight:600;font-size:13px;cursor:pointer;">WhatsApp</button><button onclick="window.open('tel:08068886569')" style="flex:1;padding:10px;border-radius:9px;background:rgba(255,255,255,0.12);border:none;color:#fff;font-weight:600;font-size:13px;cursor:pointer;">Call</button></div>
-      </div>
-    </div>
-    <!-- ADMIN -->
+
+    <!-- ADMIN SECTION -->
     <div id="adminSection" style="display:none;padding:16px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;"><h2 style="font-size:18px;font-weight:700;">Admin</h2><span style="background:#C9A84C;color:#fff;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;">ADMIN</span></div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:13px;"><h2 style="font-size:18px;font-weight:700;">Admin Dashboard</h2><span style="background:#C9A84C;color:#fff;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;">ADMIN</span></div>
       <div id="admStats" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px;"></div>
       <div style="display:flex;gap:6px;overflow-x:auto;margin-bottom:13px;padding-bottom:2px;" id="admTabs"></div>
       <div id="admContent"></div>
     </div>
+
   </div>
+  <!-- BOTTOM NAV -->
   <div class="bnav"><div class="bni">
     <div class="ni active" id="nav-home" onclick="showSec('home')"><svg width="21" height="21" fill="currentColor" viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Home</span></div>
     <div class="ni" id="nav-services" onclick="showSec('services')"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="8" height="8" rx="1"/><rect x="14" y="3" width="8" height="8" rx="1"/><rect x="2" y="14" width="8" height="8" rx="1"/><rect x="14" y="14" width="8" height="8" rx="1"/></svg><span>Services</span></div>
-    <div class="ni" id="nav-history" onclick="showSec('history')"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Card</span></div>
-    <div class="ni" id="nav-rewards" onclick="showSec('rewards')"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 010-5C7 4 12 8 12 8s-5 4-7.5 4A2.5 2.5 0 014.5 9H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5C17 4 12 8 12 8s5 4 7.5 4A2.5 2.5 0 0019.5 9H18"/><path d="M12 8v13M8 21h8"/></svg><span>Rewards</span></div>
+    <div class="ni" id="nav-finance" onclick="showSec('finance')"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg><span>Finance</span></div>
+    <div class="ni" id="nav-fund" onclick="openM('fundModal')"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg><span>Fund</span></div>
     <div class="ni" id="nav-profile" onclick="showSec('profile')"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></div>
     <div class="ni" id="nav-admin" onclick="showSec('admin')" style="display:none;"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg><span>Admin</span></div>
   </div></div>
@@ -343,36 +384,60 @@ body{font-family:'Inter',sans-serif;background:#f5f5f5;color:#111;min-height:100
 
 <div id="svcModal" class="mo" onclick="if(event.target===this)closeM('svcModal')"><div class="ms" id="svcBody"></div></div>
 
-<div id="pinModal" class="mo"><div class="ms" style="text-align:center;"><div class="mh"></div><div style="width:48px;height:48px;border-radius:13px;background:#fff8e8;display:flex;align-items:center;justify-content:center;margin:0 auto 11px;"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="#C9A84C" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><p style="font-size:18px;font-weight:700;margin-bottom:4px;">Enter PIN</p><p style="font-size:13px;color:#888;margin-bottom:2px;">4-digit transaction PIN</p><div class="prow"><input class="pbox" type="password" maxlength="1" id="tp1" oninput="pf('tp',1,4)" onkeydown="pb(event,'tp',1)"/><input class="pbox" type="password" maxlength="1" id="tp2" oninput="pf('tp',2,4)" onkeydown="pb(event,'tp',2)"/><input class="pbox" type="password" maxlength="1" id="tp3" oninput="pf('tp',3,4)" onkeydown="pb(event,'tp',3)"/><input class="pbox" type="password" maxlength="1" id="tp4" oninput="pf('tp',4,4)" onkeydown="pb(event,'tp',4)"/></div><button class="btn-pri" onclick="verifyPin()">Confirm</button><button onclick="closeM('pinModal');clrP('tp',4)" style="width:100%;padding:11px;border-radius:10px;background:#f5f5f5;border:none;font-family:'Inter',sans-serif;font-weight:600;cursor:pointer;margin-top:7px;">Cancel</button></div></div>
+<div id="pinModal" class="mo"><div class="ms" style="text-align:center;"><div class="mh"></div><div style="width:48px;height:48px;border-radius:13px;background:#fff8e8;display:flex;align-items:center;justify-content:center;margin:0 auto 11px;"><svg width="21" height="21" fill="none" viewBox="0 0 24 24" stroke="#C9A84C" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div><p style="font-size:18px;font-weight:700;margin-bottom:4px;">Enter PIN</p><p style="font-size:13px;color:#888;">4-digit transaction PIN</p><div class="prow"><input class="pbox" type="password" maxlength="1" id="tp1" oninput="pf('tp',1,4)" onkeydown="pb(event,'tp',1)"/><input class="pbox" type="password" maxlength="1" id="tp2" oninput="pf('tp',2,4)" onkeydown="pb(event,'tp',2)"/><input class="pbox" type="password" maxlength="1" id="tp3" oninput="pf('tp',3,4)" onkeydown="pb(event,'tp',3)"/><input class="pbox" type="password" maxlength="1" id="tp4" oninput="pf('tp',4,4)" onkeydown="pb(event,'tp',4)"/></div><button class="btn-pri" onclick="verifyPin()">Confirm</button><button onclick="closeM('pinModal');clrP('tp',4)" style="width:100%;padding:11px;border-radius:10px;background:#f5f5f5;border:none;font-family:'Inter',sans-serif;font-weight:600;cursor:pointer;margin-top:7px;">Cancel</button></div></div>
 
 <div id="changePinModal" class="mo" onclick="if(event.target===this)closeM('changePinModal')"><div class="ms"><div class="mh"></div><p class="mt">Change PIN</p><p style="font-size:13px;color:#888;text-align:center;margin-bottom:3px;">Current PIN</p><div class="prow"><input class="pbox" type="password" maxlength="1" id="cp1" oninput="pf('cp',1,4)" onkeydown="pb(event,'cp',1)"/><input class="pbox" type="password" maxlength="1" id="cp2" oninput="pf('cp',2,4)" onkeydown="pb(event,'cp',2)"/><input class="pbox" type="password" maxlength="1" id="cp3" oninput="pf('cp',3,4)" onkeydown="pb(event,'cp',3)"/><input class="pbox" type="password" maxlength="1" id="cp4" oninput="pf('cp',4,4)" onkeydown="pb(event,'cp',4)"/></div><p style="font-size:13px;color:#888;text-align:center;margin-bottom:3px;">New PIN</p><div class="prow"><input class="pbox" type="password" maxlength="1" id="np1" oninput="pf('np',1,4)" onkeydown="pb(event,'np',1)"/><input class="pbox" type="password" maxlength="1" id="np2" oninput="pf('np',2,4)" onkeydown="pb(event,'np',2)"/><input class="pbox" type="password" maxlength="1" id="np3" oninput="pf('np',3,4)" onkeydown="pb(event,'np',3)"/><input class="pbox" type="password" maxlength="1" id="np4" oninput="pf('np',4,4)" onkeydown="pb(event,'np',4)"/></div><button class="btn-pri" onclick="doChgPin()" style="margin-top:5px;">Update PIN</button></div></div>
 
-<div id="forgotPinModal" class="mo" onclick="if(event.target===this)closeM('forgotPinModal')"><div class="ms" style="text-align:center;"><div class="mh"></div><div style="font-size:42px;margin-bottom:10px;">🔐</div><p style="font-size:18px;font-weight:700;margin-bottom:5px;">Reset PIN</p><p style="font-size:13px;color:#888;margin-bottom:18px;">Request will be sent to admin. You'll be notified once approved.</p><button class="btn-pri" onclick="reqReset()">Send Reset Request</button><button onclick="closeM('forgotPinModal')" style="width:100%;padding:11px;border-radius:10px;background:#f5f5f5;border:none;font-family:'Inter',sans-serif;font-weight:600;cursor:pointer;margin-top:7px;">Cancel</button></div></div>
+<div id="forgotPinModal" class="mo" onclick="if(event.target===this)closeM('forgotPinModal')"><div class="ms" style="text-align:center;"><div class="mh"></div><div style="font-size:42px;margin-bottom:10px;">🔐</div><p style="font-size:18px;font-weight:700;margin-bottom:5px;">Reset PIN</p><p style="font-size:13px;color:#888;margin-bottom:18px;">Request sent to admin. You'll be notified once approved.</p><button class="btn-pri" onclick="reqReset()">Send Reset Request</button><button onclick="closeM('forgotPinModal')" style="width:100%;padding:11px;border-radius:10px;background:#f5f5f5;border:none;font-family:'Inter',sans-serif;font-weight:600;cursor:pointer;margin-top:7px;">Cancel</button></div></div>
 
 <div id="notifModal" class="mo" onclick="if(event.target===this)closeM('notifModal')"><div class="ms"><div class="mh"></div><p class="mt">Notifications</p><div id="notifList"><p style="text-align:center;color:#aaa;font-size:13px;padding:22px;">No notifications yet</p></div></div></div>
 
 <div id="adminCreditModal" class="mo" onclick="if(event.target===this)closeM('adminCreditModal')"><div class="ms"><div class="mh"></div><p class="mt">Credit / Debit Wallet</p><input type="hidden" id="crUID"/><div class="fg"><label class="lbl">Amount (₦)</label><input type="number" id="crAmt" class="inp" placeholder="Enter amount"/></div><div class="fg" style="margin-bottom:17px;"><label class="lbl">Note</label><input type="text" id="crNote" class="inp" placeholder="e.g. Wallet funding confirmed"/></div><div style="display:flex;gap:9px;"><button onclick="admWallet('credit')" class="btn-pri" style="margin:0;">Credit</button><button onclick="admWallet('debit')" style="flex:1;padding:13px;border-radius:10px;background:#fff0f0;border:none;color:#ef4444;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;">Debit</button></div></div></div>
 
-<div id="splashSlideModal" class="mo" onclick="if(event.target===this)closeM('splashSlideModal')"><div class="ms"><div class="mh"></div><p class="mt" id="ssModalT">Add Splash Slide</p><input type="hidden" id="ssEID"/><div class="fg"><label class="lbl">Title</label><input type="text" id="ssT" class="inp" placeholder="e.g. Eazy Banking"/></div><div class="fg"><label class="lbl">Subtitle</label><input type="text" id="ssS" class="inp" placeholder="Short tagline"/></div><div class="fg"><label class="lbl">Background Image URL</label><input type="text" id="ssBG" class="inp" placeholder="https://...image.jpg"/></div><div class="fg"><label class="lbl">Overlay Color (e.g. #00000066)</label><input type="text" id="ssOV" class="inp" placeholder="#00000066" value="#00000066"/></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:15px;"><input type="checkbox" id="ssAct" checked style="width:14px;height:14px;accent-color:#C9A84C;"/><label for="ssAct" style="font-size:13px;font-weight:500;cursor:pointer;">Active (show on splash)</label></div><button class="btn-pri" onclick="saveSplashSlide()">Save Slide</button></div></div>
+<div id="splashSlideModal" class="mo" onclick="if(event.target===this)closeM('splashSlideModal')"><div class="ms"><div class="mh"></div><p class="mt" id="ssModalT">Add Splash Slide</p><input type="hidden" id="ssEID"/><div class="fg"><label class="lbl">Title</label><input type="text" id="ssT" class="inp" placeholder="e.g. Eazy Banking"/></div><div class="fg"><label class="lbl">Subtitle</label><input type="text" id="ssS" class="inp" placeholder="Short tagline"/></div><div class="fg"><label class="lbl">Background Image URL</label><input type="text" id="ssBG" class="inp" placeholder="https://...image.jpg"/></div><div class="fg"><label class="lbl">Overlay (e.g. #00000066)</label><input type="text" id="ssOV" class="inp" value="#00000066"/></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:15px;"><input type="checkbox" id="ssAct" checked style="width:14px;height:14px;accent-color:#C9A84C;"/><label for="ssAct" style="font-size:13px;font-weight:500;cursor:pointer;">Active</label></div><button class="btn-pri" onclick="saveSplashSlide()">Save Slide</button></div></div>
 
-<div id="adminSlideModal" class="mo" onclick="if(event.target===this)closeM('adminSlideModal')"><div class="ms"><div class="mh"></div><p class="mt" id="psModalT">Add Promo Slide</p><input type="hidden" id="psEID"/><div class="fg"><label class="lbl">Title</label><input type="text" id="psT" class="inp" placeholder="e.g. Fast Funding"/></div><div class="fg"><label class="lbl">Description</label><input type="text" id="psD" class="inp" placeholder="Short description"/></div><div class="fg"><label class="lbl">CTA Button</label><input type="text" id="psCTA" class="inp" placeholder="e.g. Fund Now"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;"><div class="fg"><label class="lbl">BG Color</label><input type="text" id="psBG" class="inp" value="#1a2340"/></div><div class="fg"><label class="lbl">Emoji</label><input type="text" id="psEM" class="inp" value="💰"/></div></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:15px;"><input type="checkbox" id="psAct" checked style="width:14px;height:14px;accent-color:#C9A84C;"/><label for="psAct" style="font-size:13px;font-weight:500;cursor:pointer;">Active</label></div><button class="btn-pri" onclick="savePromoSlide()">Save Slide</button></div></div>
+<div id="adminSlideModal" class="mo" onclick="if(event.target===this)closeM('adminSlideModal')"><div class="ms"><div class="mh"></div><p class="mt" id="psModalT">Add Promo Slide</p><input type="hidden" id="psEID"/><div class="fg"><label class="lbl">Title</label><input type="text" id="psT" class="inp"/></div><div class="fg"><label class="lbl">Description</label><input type="text" id="psD" class="inp"/></div><div class="fg"><label class="lbl">CTA Button</label><input type="text" id="psCTA" class="inp" placeholder="e.g. Apply Now"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;"><div class="fg"><label class="lbl">BG Color</label><input type="text" id="psBG" class="inp" value="#1a2340"/></div><div class="fg"><label class="lbl">Emoji</label><input type="text" id="psEM" class="inp" value="💰"/></div></div><div style="display:flex;align-items:center;gap:8px;margin-bottom:15px;"><input type="checkbox" id="psAct" checked style="width:14px;height:14px;accent-color:#C9A84C;"/><label for="psAct" style="font-size:13px;cursor:pointer;">Active</label></div><button class="btn-pri" onclick="savePromoSlide()">Save</button></div></div>
+
+<!-- LOAN MODAL -->
+<div id="loanModal" class="mo" onclick="if(event.target===this)closeM('loanModal')"><div class="ms"><div class="mh"></div>
+<div style="text-align:center;margin-bottom:14px;"><div style="font-size:34px;">🏦</div><p class="mt" style="margin:0;">Apply for Loan</p></div>
+<div class="info-box gold" style="margin-bottom:13px;"><p style="font-size:13px;color:#7a5800;">A guarantor is <strong>required</strong> for all loans. Admin will verify guarantor details before approval.</p></div>
+<p style="font-size:13px;font-weight:700;color:#555;margin-bottom:10px;">Loan Details</p>
+<div class="fg"><label class="lbl">Loan Amount (₦)</label><input type="number" id="lnAmt" class="inp" placeholder="₦5,000 – ₦500,000"/></div>
+<div class="fg"><label class="lbl">Purpose</label><select id="lnPurpose" class="inp"><option>Business Capital</option><option>Personal Emergency</option><option>Medical</option><option>Education</option><option>Housing</option><option>Agriculture</option><option>Other</option></select></div>
+<div class="fg"><label class="lbl">Duration</label><select id="lnDuration" class="inp"><option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option><option value="180">6 months</option><option value="365">1 year</option></select></div>
+<div class="fg"><label class="lbl">Additional Notes (optional)</label><textarea id="lnNotes" class="inp" placeholder="Any relevant details..."></textarea></div>
+<div class="divider"></div>
+<p style="font-size:13px;font-weight:700;color:#555;margin-bottom:10px;">Guarantor Details (Required)</p>
+<div class="fg"><label class="lbl">Guarantor Full Name *</label><input type="text" id="gnName" class="inp" placeholder="Full legal name"/></div>
+<div class="fg"><label class="lbl">Guarantor Phone Number *</label><input type="tel" id="gnPhone" class="inp" placeholder="08012345678"/></div>
+<div class="fg"><label class="lbl">Relationship *</label><select id="gnRel" class="inp"><option>Spouse</option><option>Parent</option><option>Sibling</option><option>Friend</option><option>Colleague</option><option>Employer</option><option>Other</option></select></div>
+<div class="fg"><label class="lbl">Guarantor Address (optional)</label><input type="text" id="gnAddr" class="inp" placeholder="Street, City, State"/></div>
+<div class="fg"><label class="lbl">Guarantor NIN / ID Number (optional)</label><input type="text" id="gnID" class="inp" placeholder="NIN or ID number"/></div>
+<button class="btn-pri" onclick="submitLoan()" style="margin-top:6px;">Submit Loan Application</button>
+</div></div>
+
+<!-- INVESTMENT MODAL -->
+<div id="investModal" class="mo" onclick="if(event.target===this)closeM('investModal')"><div class="ms"><div class="mh"></div>
+<div style="text-align:center;margin-bottom:14px;"><div style="font-size:34px;">📈</div><p class="mt" style="margin:0;">Invest &amp; Earn</p></div>
+<div class="info-box green" style="margin-bottom:13px;"><p style="font-size:13px;color:#065f46;">Earn guaranteed returns on your investment. Admin sets your interest rate and maturity date.</p></div>
+<div class="fg"><label class="lbl">Investment Amount (₦)</label><input type="number" id="invAmt" class="inp" placeholder="Min ₦5,000"/></div>
+<div class="fg"><label class="lbl">Preferred Duration</label><select id="invDur" class="inp"><option value="30">30 days</option><option value="60">60 days</option><option value="90">90 days</option><option value="180">6 months</option><option value="365">1 year</option></select></div>
+<div class="fg"><label class="lbl">Investment Goal (optional)</label><select id="invGoal" class="inp"><option>Savings</option><option>Business Growth</option><option>Education</option><option>Housing</option><option>Retirement</option></select></div>
+<div class="info-box" style="margin-top:4px;margin-bottom:13px;"><p style="font-size:12px;color:#555;">💡 Interest rate and exact maturity date will be confirmed by admin after review. Funds deducted from your wallet on approval.</p></div>
+<button class="btn-pri" onclick="submitInvestment()">Submit Investment Request</button>
+</div></div>
+
+<!-- ADMIN LOAN DETAIL MODAL -->
+<div id="adminLoanModal" class="mo" onclick="if(event.target===this)closeM('adminLoanModal')"><div class="ms"><div class="mh"></div><p class="mt">Loan Request Details</p><div id="adminLoanBody"></div></div></div>
+
+<!-- ADMIN INVEST DETAIL MODAL -->
+<div id="adminInvModal" class="mo" onclick="if(event.target===this)closeM('adminInvModal')"><div class="ms"><div class="mh"></div><p class="mt">Investment Details</p><div id="adminInvBody"></div></div></div>
 <script>
 firebase.initializeApp({apiKey:"AIzaSyCHOa7B3BWSdNGak4NMNLG0kc_s57K2uYo",authDomain:"sunrise-7f82c.firebaseapp.com",projectId:"sunrise-7f82c",storageBucket:"sunrise-7f82c.firebasestorage.app",messagingSenderId:"518496778912",appId:"1:518496778912:web:3415aa8b061bce632c27c5"});
 const auth=firebase.auth(),db=firebase.firestore();
 const SALT='ZMONIE_SEC_2024',ADMINS=['zmonieservice@gmail.com'];
-const VT={
-  BASE:'https://sandbox.vtpass.com/api',
-  AK:'03f401bf628bf9bc9013a324f3865c4a',
-  PK:'PK_510dca003bdefc29d919142e5a66452fefd459dcea3',
-  SK:'SK_3602c9fce88b8bd84978e1bc3dfd411ca3e87100193',
-  async post(ep,body){
-    try{
-      const r=await fetch(VT.BASE+ep,{method:'POST',headers:{'Content-Type':'application/json','api-key':VT.AK,'public-key':VT.PK,'secret-key':VT.SK},body:JSON.stringify(body)});
-      return r.json();
-    }catch(e){return{code:'ERR',response_description:e.message};}
-  },
-  ref(){return'ZM'+Date.now()+Math.random().toString(36).slice(2,5).toUpperCase();}
-};
+const VT={BASE:'https://sandbox.vtpass.com/api',AK:'03f401bf628bf9bc9013a324f3865c4a',PK:'PK_510dca003bdefc29d919142e5a66452fefd459dcea3',SK:'SK_3602c9fce88b8bd84978e1bc3dfd411ca3e87100193',async post(ep,body){try{const r=await fetch(VT.BASE+ep,{method:'POST',headers:{'Content-Type':'application/json','api-key':VT.AK,'public-key':VT.PK,'secret-key':VT.SK},body:JSON.stringify(body)});return r.json();}catch(e){return{code:'ERR',response_description:e.message};}},ref(){return'ZM'+Date.now()+Math.random().toString(36).slice(2,5).toUpperCase();}};
 let CU=null,UP=null,pinCB=null,balH=false,pIdx=0,pTimer=null,pSlides=[],spIdx=0,spTimer=null,spData=[];
 
 function toast2(m){const t=document.getElementById('toast');t.textContent=m;t.className='toast show';clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),3400);}
@@ -384,27 +449,12 @@ function pf(p,c,m){if(document.getElementById(p+c).value&&c<m)document.getElemen
 function pb(e,p,c){if(e.key==='Backspace'&&!document.getElementById(p+c).value&&c>1)document.getElementById(p+(c-1)).focus();}
 function clrP(p,n){for(let i=1;i<=n;i++){const el=document.getElementById(p+i);if(el)el.value='';}}
 function fmt(n){return'₦'+Number(n).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'});}
 
 // SPLASH
-const DEF_SP=[
-  {id:'s1',title:'Eazy Banking',subtitle:'Experience a whole new world of banking, simplified.',bg:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80',overlay:'#00000055',active:true},
-  {id:'s2',title:'Send Money Fast',subtitle:'Transfer funds instantly to anyone, anywhere.',bg:'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80',overlay:'#0a0a2a99',active:true},
-  {id:'s3',title:'Pay Bills Easily',subtitle:'Airtime, data, electricity, cable — all in one tap.',bg:'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80',overlay:'#00000066',active:true},
-];
-async function loadSplash(){
-  try{const s=await db.collection('splashSlides').orderBy('order','asc').get();spData=s.empty?DEF_SP:s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false);if(!spData.length)spData=DEF_SP;}
-  catch(e){spData=DEF_SP;}
-  buildSplash();
-}
-function buildSplash(){
-  const tr=document.getElementById('spTrack'),dt=document.getElementById('spDots');if(!tr)return;
-  tr.style.width=(spData.length*100)+'%';
-  tr.innerHTML=spData.map(s=>`<div class="splash-slide" style="background-image:url('${s.bg}');width:${100/spData.length}%;"><div style="position:absolute;inset:0;background:${s.overlay||'#00000055'};"></div></div>`).join('');
-  dt.innerHTML=spData.map((_,i)=>`<div class="sp-dot${i===0?' active':''}" onclick="goSP(${i})"></div>`).join('');
-  updSPText();
-  if(spTimer)clearInterval(spTimer);
-  spTimer=setInterval(()=>{spIdx=(spIdx+1)%spData.length;goSP(spIdx);},5000);
-}
+const DEF_SP=[{id:'s1',title:'Eazy Banking',subtitle:'A whole new world of fintech, simplified.',bg:'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800&q=80',overlay:'#00000055',active:true},{id:'s2',title:'Grow Your Money',subtitle:'Invest and earn guaranteed returns.',bg:'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=800&q=80',overlay:'#0a0a2a99',active:true},{id:'s3',title:'Pay Bills Instantly',subtitle:'Airtime, data, electricity — all in one tap.',bg:'https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?w=800&q=80',overlay:'#00000066',active:true}];
+async function loadSplash(){try{const s=await db.collection('splashSlides').orderBy('order','asc').get();spData=s.empty?DEF_SP:s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false);if(!spData.length)spData=DEF_SP;}catch(e){spData=DEF_SP;}buildSplash();}
+function buildSplash(){const tr=document.getElementById('spTrack'),dt=document.getElementById('spDots');if(!tr)return;tr.style.width=(spData.length*100)+'%';tr.innerHTML=spData.map(s=>`<div class="sp-slide" style="background-image:url('${s.bg}');width:${100/spData.length}%;"><div style="position:absolute;inset:0;background:${s.overlay||'#00000055'};"></div></div>`).join('');dt.innerHTML=spData.map((_,i)=>`<div class="sp-dot${i===0?' active':''}" onclick="goSP(${i})"></div>`).join('');updSPText();if(spTimer)clearInterval(spTimer);spTimer=setInterval(()=>{spIdx=(spIdx+1)%spData.length;goSP(spIdx);},5000);}
 function goSP(i){spIdx=i;const tr=document.getElementById('spTrack');if(tr)tr.style.transform=`translateX(-${i*(100/spData.length)}%)`;document.querySelectorAll('.sp-dot').forEach((d,idx)=>d.className='sp-dot'+(idx===i?' active':''));updSPText();}
 function updSPText(){const s=spData[spIdx]||spData[0];if(!s)return;const t=document.getElementById('spTitle'),sb=document.getElementById('spSub');if(t)t.textContent=s.title||'ZMONIE';if(sb)sb.textContent=s.subtitle||'';}
 
@@ -416,27 +466,182 @@ async function doRegister(){const fn=document.getElementById('regFirst').value.t
 async function doGoogle(){try{const p=new firebase.auth.GoogleAuthProvider();const r=await auth.signInWithPopup(p);const doc=await db.collection('users').doc(r.user.uid).get();if(!doc.exists){const nm=(r.user.displayName||'').split(' ');await db.collection('users').doc(r.user.uid).set({firstName:nm[0]||'',lastName:nm.slice(1).join(' ')||'',phone:'',email:r.user.email||'',walletBalance:0,pin:null,role:'user',createdAt:firebase.firestore.FieldValue.serverTimestamp(),notifications:[]});}}catch(e){toast2(e.message.replace('Firebase:','').trim());}}
 function doFPW(){const em=document.getElementById('loginEmail').value.trim();if(!em){toast2('Enter email first');return;}auth.sendPasswordResetEmail(em).then(()=>toast2('Reset email sent!')).catch(e=>toast2(e.message));}
 async function doLogout(){if(confirm('Sign out?'))await auth.signOut();}
-
 async function savePin(){const pin=[1,2,3,4].map(i=>document.getElementById('sp'+i).value).join('');if(pin.length<4){toast2('Enter complete PIN');return;}const h=btoa(pin+SALT);await db.collection('users').doc(CU.uid).update({pin:h});UP.pin=h;toast2('PIN set! Welcome 🎉');showPage('mainApp');initApp();}
 
-function initApp(){loadUD();loadTx();loadPromo();loadNotifs();if(ADMINS.includes(CU.email))document.getElementById('nav-admin').style.display='flex';}
+function initApp(){loadUD();loadTx();loadPromo();loadNotifs();loadFinanceStats();if(ADMINS.includes(CU.email))document.getElementById('nav-admin').style.display='flex';}
 async function loadUD(){if(!CU)return;try{const d=await db.collection('users').doc(CU.uid).get();if(!d.exists)return;UP={id:d.id,...d.data()};}catch(e){return;}const nm=UP.firstName||'User';document.getElementById('hdrAv').textContent=nm.charAt(0).toUpperCase();document.getElementById('hdrLv').textContent='Level '+(UP.level||1);document.getElementById('wAcct').textContent=UP.acctNumber||CU.uid.slice(0,10).toUpperCase();if(document.getElementById('pAvB'))document.getElementById('pAvB').textContent=nm.charAt(0).toUpperCase();if(document.getElementById('pNm'))document.getElementById('pNm').textContent=(UP.firstName||'')+' '+(UP.lastName||'');if(document.getElementById('pEm'))document.getElementById('pEm').textContent=UP.email||'';if(document.getElementById('pPh'))document.getElementById('pPh').textContent=UP.phone||'';updBal();}
 function updBal(){if(!UP)return;document.getElementById('wBal').textContent=balH?'₦ ••••••':fmt(UP.walletBalance||0);}
 function tBal(){balH=!balH;updBal();}
 function cpWallet(){doCp(document.getElementById('wAcct').textContent,null);}
 
+// TRANSACTIONS
 async function loadTx(){if(!CU)return;try{const s=await db.collection('transactions').where('userId','==',CU.uid).orderBy('createdAt','desc').limit(30).get();const txs=s.docs.map(d=>({id:d.id,...d.data()}));rndrTx(txs,'rTxL',5);rndrTx(txs,'fTxL',30);}catch(e){}}
-function rndrTx(txs,cid,lim){const el=document.getElementById(cid);if(!el)return;const lst=txs.slice(0,lim);if(!lst.length){el.innerHTML='<p style="text-align:center;color:#aaa;font-size:13px;padding:22px 0;">No transactions yet</p>';return;}el.innerHTML=lst.map(tx=>{const ico={airtime:'📱',data:'📶',cable:'📺',electricity:'⚡',wallet:'💰',loan:'🏦',result:'📋',education:'📚'}[tx.type]||'💳';const cls=tx.status==='success'?'ck':tx.status==='pending'?'cp':'cf';const sign=tx.type==='wallet'?'+':'-';const clr=tx.type==='wallet'?'#22c55e':'#ef4444';const dt=tx.createdAt?.toDate?tx.createdAt.toDate().toLocaleDateString('en-NG',{day:'2-digit',month:'short'}):'—';return`<div class="txi"><div class="txic">${ico}</div><div class="txd"><p class="txn">${tx.description||tx.type}</p><p class="txdt">${dt} · <span class="chip ${cls}">${tx.status}</span></p></div><p class="txa" style="color:${clr};">${sign}${fmt(tx.amount)}</p></div>`;}).join('');}
+function rndrTx(txs,cid,lim){const el=document.getElementById(cid);if(!el)return;const lst=txs.slice(0,lim);if(!lst.length){el.innerHTML='<p style="text-align:center;color:#aaa;font-size:13px;padding:22px 0;">No transactions yet</p>';return;}el.innerHTML=lst.map(tx=>{const ico={airtime:'📱',data:'📶',cable:'📺',electricity:'⚡',wallet:'💰',result:'📋',education:'📚'}[tx.type]||'💳';const cls=tx.status==='success'?'ck':tx.status==='pending'?'cp':'cf';const sign=tx.type==='wallet'?'+':'-';const clr=tx.type==='wallet'?'#22c55e':'#ef4444';const dt=tx.createdAt?.toDate?tx.createdAt.toDate().toLocaleDateString('en-NG',{day:'2-digit',month:'short'}):'—';return`<div class="txi"><div class="txic">${ico}</div><div class="txd"><p class="txn">${tx.description||tx.type}</p><p class="txdt">${dt} · <span class="chip ${cls}">${tx.status}</span></p></div><p class="txa" style="color:${clr};">${sign}${fmt(tx.amount)}</p></div>`;}).join('');}
 
-// PROMO
-const DEF_PR=[{id:'p1',emoji:'💸',title:'Fast Account Funding',description:'Credited in under 5 minutes',cta:'Fund Now',bgColor:'#1a2340',active:true},{id:'p2',emoji:'📶',title:'Data at Cheap Rates',description:'All networks, always discounted',cta:'Buy Data',bgColor:'#0d2211',active:true},{id:'p3',emoji:'🏦',title:'Instant Loans',description:'Quick loans, no paperwork',cta:'Apply',bgColor:'#001a2b',active:true},{id:'p4',emoji:'🎁',title:'Refer & Earn ₦200',description:'Earn on every referral',cta:'Invite',bgColor:'#1a0d2b',active:true}];
+// PROMO SLIDES
+const DEF_PR=[{id:'p1',emoji:'💸',title:'Fast Account Funding',description:'Credited in under 5 minutes',cta:'Fund Now',bgColor:'#1a2340',active:true},{id:'p2',emoji:'📈',title:'Invest & Earn',description:'Grow your money with ZMONIE',cta:'Invest',bgColor:'#0d2211',active:true},{id:'p3',emoji:'🏦',title:'Quick Loans',description:'Get funds with guarantor',cta:'Apply',bgColor:'#001a2b',active:true},{id:'p4',emoji:'🎁',title:'Refer & Earn ₦200',description:'Earn on every referral',cta:'Invite',bgColor:'#1a0d2b',active:true}];
 async function loadPromo(){try{const s=await db.collection('promoSlides').orderBy('order','asc').get();pSlides=s.empty?DEF_PR:s.docs.map(d=>({id:d.id,...d.data()})).filter(x=>x.active!==false);if(!pSlides.length)pSlides=DEF_PR;}catch(e){pSlides=DEF_PR;}buildPromo();}
-function buildPromo(){const t=document.getElementById('ptrack'),d=document.getElementById('pdots');if(!t)return;t.innerHTML=pSlides.map(s=>`<div class="pslide" style="background:${s.bgColor||'#1a2340'};"><div style="font-size:38px;">${s.emoji||'💰'}</div><div style="flex:1;"><p style="font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;">${s.title}</p><p style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:7px;">${s.description}</p>${s.cta?`<button style="padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.17);border:1px solid rgba(255,255,255,0.28);color:#fff;font-size:11px;font-weight:600;cursor:pointer;">${s.cta}</button>`:''}</div></div>`).join('');d.innerHTML=pSlides.map((_,i)=>`<div class="cdot${i===0?' active':''}" onclick="goPr(${i})"></div>`).join('');if(pTimer)clearInterval(pTimer);pTimer=setInterval(()=>{pIdx=(pIdx+1)%pSlides.length;goPr(pIdx);},4500);}
+function buildPromo(){const t=document.getElementById('ptrack'),d=document.getElementById('pdots');if(!t)return;t.innerHTML=pSlides.map(s=>`<div class="pslide" style="background:${s.bgColor||'#1a2340'};"><div style="font-size:36px;">${s.emoji||'💰'}</div><div style="flex:1;"><p style="font-size:15px;font-weight:700;color:#fff;margin-bottom:2px;">${s.title}</p><p style="font-size:11px;color:rgba(255,255,255,0.6);margin-bottom:7px;">${s.description}</p>${s.cta?`<button style="padding:5px 12px;border-radius:20px;background:rgba(255,255,255,0.17);border:1px solid rgba(255,255,255,0.28);color:#fff;font-size:11px;font-weight:600;cursor:pointer;">${s.cta}</button>`:''}</div></div>`).join('');d.innerHTML=pSlides.map((_,i)=>`<div class="cdot${i===0?' active':''}" onclick="goPr(${i})"></div>`).join('');if(pTimer)clearInterval(pTimer);pTimer=setInterval(()=>{pIdx=(pIdx+1)%pSlides.length;goPr(pIdx);},4500);}
 function goPr(i){pIdx=i;const t=document.getElementById('ptrack');if(t)t.style.transform=`translateX(-${i*100}%)`;document.querySelectorAll('.cdot').forEach((d,idx)=>d.className='cdot'+(idx===i?' active':''));}
 
-function showSec(sec){['home','services','history','rewards','profile','admin','faq'].forEach(s=>{const el=document.getElementById(s+'Section');if(el)el.style.display=s===sec?'block':'none';});['home','services','history','rewards','profile','admin'].forEach(s=>{const n=document.getElementById('nav-'+s);if(n)n.classList.toggle('active',s===sec);});if(sec==='admin')loadAdmData();if(sec==='history')loadTx();if(sec==='profile')loadUD();if(sec==='faq')buildFAQ();window.scrollTo(0,0);}
+// NAVIGATION
+function showSec(sec){['home','services','history','finance','profile','admin'].forEach(s=>{const el=document.getElementById(s+'Section');if(el)el.style.display=s===sec?'block':'none';});['home','services','history','finance','profile','admin'].forEach(s=>{const n=document.getElementById('nav-'+s);if(n)n.classList.toggle('active',s===sec);});if(sec==='admin')loadAdmData();if(sec==='history')loadTx();if(sec==='profile')loadUD();if(sec==='finance'){loadFinanceStats();showFinTab('loans');}window.scrollTo(0,0);}
 
-// SERVICES
+// ===== FINANCE MODULE =====
+async function loadFinanceStats(){
+  if(!CU)return;
+  try{
+    const [ls,is]=await Promise.all([
+      db.collection('loans').where('userId','==',CU.uid).get(),
+      db.collection('investments').where('userId','==',CU.uid).get()
+    ]);
+    const loans=ls.docs.map(d=>({id:d.id,...d.data()}));
+    const invs=is.docs.map(d=>({id:d.id,...d.data()}));
+    const activeLoans=loans.filter(l=>l.status==='active').length;
+    const activeInvs=invs.filter(i=>i.status==='active').length;
+    const totalBorrowed=loans.filter(l=>['active','approved'].includes(l.status)).reduce((s,l)=>s+(l.approvedAmount||l.amount||0),0);
+    const totalReturns=invs.filter(i=>['active','matured'].includes(i.status)).reduce((s,i)=>s+(i.expectedReturn||0),0);
+    const el=id=>document.getElementById(id);
+    if(el('fStatLoans'))el('fStatLoans').textContent=activeLoans;
+    if(el('fStatInvs'))el('fStatInvs').textContent=activeInvs;
+    if(el('fStatBorrowed'))el('fStatBorrowed').textContent=fmt(totalBorrowed);
+    if(el('fStatReturns'))el('fStatReturns').textContent=fmt(totalReturns);
+    if(el('userActiveLoanBadge'))el('userActiveLoanBadge').textContent=activeLoans>0?`${activeLoans} Active`:'Apply Now';
+    if(el('userActiveInvBadge'))el('userActiveInvBadge').textContent=activeInvs>0?`${activeInvs} Active`:'Start Now';
+  }catch(e){}
+}
+
+function showFinTab(tab){
+  document.querySelectorAll('.fin-tab').forEach(b=>b.classList.remove('active'));
+  const ab=document.getElementById('ft-'+tab);if(ab)ab.classList.add('active');
+  const c=document.getElementById('finTabContent');if(!c)return;
+  if(tab==='loans'){
+    c.innerHTML=`
+      <div class="section-card" style="text-align:center;background:linear-gradient(135deg,#1a2340,#1e2a4a);color:#fff;margin-bottom:10px;">
+        <div style="font-size:36px;margin-bottom:8px;">🏦</div>
+        <p style="font-size:16px;font-weight:700;margin-bottom:4px;">Loan Center</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:14px;">Quick loans with guarantor verification. Admin reviews within 24hrs.</p>
+        <button onclick="openM('loanModal')" style="padding:11px 28px;background:linear-gradient(135deg,#C9A84C,#E8C97A);border:none;border-radius:10px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;cursor:pointer;color:#111;">Apply for Loan</button>
+      </div>
+      <p style="font-size:13px;font-weight:600;color:#555;margin-bottom:9px;">My Loan Applications</p>
+      <div id="userLoansList"><div style="text-align:center;padding:20px;color:#aaa;font-size:13px;"><span class="spnr-g"></span></div></div>`;
+    loadUserLoans();
+  }else if(tab==='invest'){
+    c.innerHTML=`
+      <div class="section-card" style="text-align:center;background:linear-gradient(135deg,#0d2211,#0d3318);color:#fff;margin-bottom:10px;">
+        <div style="font-size:36px;margin-bottom:8px;">📈</div>
+        <p style="font-size:16px;font-weight:700;margin-bottom:4px;">Invest &amp; Earn</p>
+        <p style="font-size:13px;color:rgba(255,255,255,0.65);margin-bottom:14px;">Earn guaranteed returns on your investment. Admin sets your rate.</p>
+        <button onclick="openM('investModal')" style="padding:11px 28px;background:linear-gradient(135deg,#22c55e,#16a34a);border:none;border-radius:10px;font-family:'Inter',sans-serif;font-weight:700;font-size:14px;cursor:pointer;color:#fff;">Start Investing</button>
+      </div>
+      <p style="font-size:13px;font-weight:600;color:#555;margin-bottom:9px;">My Investments</p>
+      <div id="userInvsList"><div style="text-align:center;padding:20px;color:#aaa;font-size:13px;"><span class="spnr-g"></span></div></div>`;
+    loadUserInvestments();
+  }else if(tab==='active'){
+    c.innerHTML=`<p style="font-size:13px;font-weight:600;color:#555;margin-bottom:9px;">Active Loans</p><div id="activeLoansL"><div style="text-align:center;padding:16px;color:#aaa;font-size:13px;"><span class="spnr-g"></span></div></div><p style="font-size:13px;font-weight:600;color:#555;margin:14px 0 9px;">Active Investments</p><div id="activeInvsL"><div style="text-align:center;padding:16px;color:#aaa;font-size:13px;"><span class="spnr-g"></span></div></div>`;
+    loadActiveItems();
+  }else if(tab==='history'){
+    c.innerHTML=`<p style="font-size:13px;font-weight:600;color:#555;margin-bottom:9px;">Loan History</p><div id="loanHistL"><div style="text-align:center;padding:16px;color:#aaa;"><span class="spnr-g"></span></div></div><p style="font-size:13px;font-weight:600;color:#555;margin:14px 0 9px;">Investment History</p><div id="invHistL"><div style="text-align:center;padding:16px;color:#aaa;"><span class="spnr-g"></span></div></div>`;
+    loadFinHistory();
+  }else if(tab==='notif'){
+    c.innerHTML=`<p style="font-size:13px;font-weight:600;color:#555;margin-bottom:9px;">Finance Notifications</p><div id="finNotifL"><div style="text-align:center;padding:16px;color:#aaa;"><span class="spnr-g"></span></div></div>`;
+    loadFinNotifs();
+  }
+}
+
+async function loadUserLoans(){
+  const el=document.getElementById('userLoansList');if(!el)return;
+  try{const s=await db.collection('loans').where('userId','==',CU.uid).orderBy('createdAt','desc').get();
+  const ls=s.docs.map(d=>({id:d.id,...d.data()}));
+  if(!ls.length){el.innerHTML='<p style="text-align:center;color:#aaa;font-size:13px;padding:16px;">No loan applications yet</p>';return;}
+  el.innerHTML=ls.map(l=>loanCard(l)).join('');}catch(e){el.innerHTML='<p style="color:#aaa;text-align:center;padding:16px;">Error loading loans</p>';}
+}
+function loanCard(l){const sb=statusBadge(l.status);const amt=l.approvedAmount||l.amount||0;return`<div class="loan-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;"><div><p style="font-weight:700;font-size:14px;">${fmt(amt)}</p><p style="font-size:12px;color:#888;">${l.purpose||'Loan'} · ${l.duration||30} days</p></div>${sb}</div><p style="font-size:11px;color:#aaa;margin-bottom:4px;">Guarantor: ${l.guarantor?.name||'—'} (${l.guarantor?.relationship||'—'})</p>${l.adminNote?`<p style="font-size:12px;color:#555;background:#f5f5f5;padding:6px 8px;border-radius:7px;margin-top:4px;">📝 ${l.adminNote}</p>`:''}<p style="font-size:10px;color:#bbb;margin-top:5px;">${fmtDate(l.createdAt)}</p></div>`;}
+
+async function loadUserInvestments(){
+  const el=document.getElementById('userInvsList');if(!el)return;
+  try{const s=await db.collection('investments').where('userId','==',CU.uid).orderBy('createdAt','desc').get();
+  const is=s.docs.map(d=>({id:d.id,...d.data()}));
+  if(!is.length){el.innerHTML='<p style="text-align:center;color:#aaa;font-size:13px;padding:16px;">No investments yet</p>';return;}
+  el.innerHTML=is.map(i=>investCard(i)).join('');}catch(e){el.innerHTML='<p style="color:#aaa;text-align:center;padding:16px;">Error loading</p>';}
+}
+function investCard(i){const sb=statusBadge(i.status);return`<div class="inv-card"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;"><div><p style="font-weight:700;font-size:14px;">${fmt(i.amount||0)}</p><p style="font-size:12px;color:#888;">${i.goal||'Investment'} · ${i.duration||30} days</p></div>${sb}</div>${i.interestRate?`<p style="font-size:12px;color:#16a34a;font-weight:600;">📈 ${i.interestRate}% interest · Returns: ${fmt(i.expectedReturn||0)}</p>`:'<p style="font-size:12px;color:#aaa;">Rate to be set by admin</p>'}${i.maturityDate?`<p style="font-size:11px;color:#555;margin-top:3px;">📅 Matures: ${i.maturityDate}</p>`:''}${i.adminNote?`<p style="font-size:12px;color:#555;background:#f5f5f5;padding:6px 8px;border-radius:7px;margin-top:4px;">📝 ${i.adminNote}</p>`:''}<p style="font-size:10px;color:#bbb;margin-top:5px;">${fmtDate(i.createdAt)}</p></div>`;}
+
+async function loadActiveItems(){
+  const lEl=document.getElementById('activeLoansL'),iEl=document.getElementById('activeInvsL');
+  try{
+    const [ls,is]=await Promise.all([db.collection('loans').where('userId','==',CU.uid).where('status','==','active').get(),db.collection('investments').where('userId','==',CU.uid).where('status','==','active').get()]);
+    const loans=ls.docs.map(d=>({id:d.id,...d.data()}));const invs=is.docs.map(d=>({id:d.id,...d.data()}));
+    if(lEl)lEl.innerHTML=loans.length?loans.map(l=>loanCard(l)).join(''):'<p style="text-align:center;color:#aaa;font-size:13px;padding:14px;">No active loans</p>';
+    if(iEl)iEl.innerHTML=invs.length?invs.map(i=>investCard(i)).join(''):'<p style="text-align:center;color:#aaa;font-size:13px;padding:14px;">No active investments</p>';
+  }catch(e){}
+}
+async function loadFinHistory(){
+  try{
+    const [ls,is]=await Promise.all([db.collection('loans').where('userId','==',CU.uid).orderBy('createdAt','desc').get(),db.collection('investments').where('userId','==',CU.uid).orderBy('createdAt','desc').get()]);
+    const lEl=document.getElementById('loanHistL'),iEl=document.getElementById('invHistL');
+    const loans=ls.docs.map(d=>({id:d.id,...d.data()}));const invs=is.docs.map(d=>({id:d.id,...d.data()}));
+    if(lEl)lEl.innerHTML=loans.length?loans.map(l=>loanCard(l)).join(''):'<p style="text-align:center;color:#aaa;font-size:13px;padding:14px;">No loan history</p>';
+    if(iEl)iEl.innerHTML=invs.length?invs.map(i=>investCard(i)).join(''):'<p style="text-align:center;color:#aaa;font-size:13px;padding:14px;">No investment history</p>';
+  }catch(e){}
+}
+async function loadFinNotifs(){
+  const el=document.getElementById('finNotifL');if(!el)return;
+  try{const d=await db.collection('users').doc(CU.uid).get();const ns=[...(d.data()?.financeNotifications||[])].reverse();el.innerHTML=ns.length?ns.map(n=>`<div style="background:#fff;border-radius:11px;padding:13px;margin-bottom:8px;display:flex;gap:9px;"><div style="font-size:22px;">${n.icon||'💰'}</div><div><p style="font-size:13px;font-weight:600;">${n.title}</p><p style="font-size:12px;color:#888;margin-top:2px;">${n.message}</p><p style="font-size:11px;color:#bbb;margin-top:3px;">${new Date(n.time).toLocaleString('en-NG')}</p></div></div>`).join(''):'<p style="text-align:center;color:#aaa;font-size:13px;padding:20px;">No finance notifications</p>';}catch(e){}
+}
+
+function statusBadge(s){const m={pending:'sb-pending',approved:'sb-approved',active:'sb-active',rejected:'sb-rejected',repaid:'sb-repaid',matured:'sb-matured',paid:'sb-paid'};return`<span class="status-badge ${m[s]||'sb-pending'}">${(s||'pending').charAt(0).toUpperCase()+(s||'pending').slice(1)}</span>`;}
+
+// LOAN SUBMISSION
+async function submitLoan(){
+  const amt=parseFloat(document.getElementById('lnAmt').value);
+  const purpose=document.getElementById('lnPurpose').value;
+  const duration=document.getElementById('lnDuration').value;
+  const notes=document.getElementById('lnNotes').value.trim();
+  const gnName=document.getElementById('gnName').value.trim();
+  const gnPhone=document.getElementById('gnPhone').value.trim();
+  const gnRel=document.getElementById('gnRel').value;
+  const gnAddr=document.getElementById('gnAddr').value.trim();
+  const gnID=document.getElementById('gnID').value.trim();
+  if(!amt||amt<5000){toast2('Minimum loan amount is ₦5,000');return;}
+  if(!gnName||!gnPhone){toast2('Guarantor name and phone are required');return;}
+  try{
+    await db.collection('loans').add({userId:CU.uid,email:CU.email,name:(UP?.firstName||'')+' '+(UP?.lastName||''),phone:UP?.phone||'',amount:amt,purpose,duration:parseInt(duration),notes,guarantor:{name:gnName,phone:gnPhone,relationship:gnRel,address:gnAddr,idNumber:gnID},status:'pending',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await addFinNotif(CU.uid,'🏦','Loan Application Submitted',`Your loan request of ${fmt(amt)} is under review. We'll notify you once processed.`);
+    closeM('loanModal');toast2('✅ Loan application submitted! Admin will review shortly.');
+    showFinTab('loans');loadFinanceStats();
+  }catch(e){toast2('Submission failed: '+e.message);}
+}
+
+// INVESTMENT SUBMISSION
+async function submitInvestment(){
+  const amt=parseFloat(document.getElementById('invAmt').value);
+  const dur=document.getElementById('invDur').value;
+  const goal=document.getElementById('invGoal').value;
+  if(!amt||amt<5000){toast2('Minimum investment is ₦5,000');return;}
+  if((UP?.walletBalance||0)<amt){toast2(`Insufficient balance. Need ${fmt(amt)}, have ${fmt(UP?.walletBalance||0)}`);return;}
+  try{
+    await db.collection('investments').add({userId:CU.uid,email:CU.email,name:(UP?.firstName||'')+' '+(UP?.lastName||''),amount:amt,duration:parseInt(dur),goal,status:'pending',interestRate:null,expectedReturn:null,maturityDate:null,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await addFinNotif(CU.uid,'📈','Investment Request Submitted',`Your investment of ${fmt(amt)} is pending admin review. Rate and maturity date will be confirmed.`);
+    closeM('investModal');toast2('✅ Investment request submitted!');
+    showFinTab('invest');loadFinanceStats();
+  }catch(e){toast2('Submission failed: '+e.message);}
+}
+
+async function addFinNotif(uid,icon,title,message){
+  await db.collection('users').doc(uid).update({financeNotifications:firebase.firestore.FieldValue.arrayUnion({icon,title,message,time:new Date().toISOString(),read:false})});
+}
+
+// PIN
+function needPin(cb){pinCB=cb;clrP('tp',4);openM('pinModal');setTimeout(()=>document.getElementById('tp1').focus(),280);}
+async function verifyPin(){const pin=[1,2,3,4].map(i=>document.getElementById('tp'+i).value).join('');if(pin.length<4){toast2('Enter complete PIN');return;}if(btoa(pin+SALT)===UP?.pin){closeM('pinModal');clrP('tp',4);if(pinCB){pinCB();pinCB=null;}}else{toast2('Incorrect PIN');clrP('tp',4);document.getElementById('tp1').focus();}}
+async function doChgPin(){const c=[1,2,3,4].map(i=>document.getElementById('cp'+i).value).join(''),n=[1,2,3,4].map(i=>document.getElementById('np'+i).value).join('');if(c.length<4||n.length<4){toast2('Fill all fields');return;}if(btoa(c+SALT)!==UP?.pin){toast2('Current PIN wrong');return;}await db.collection('users').doc(CU.uid).update({pin:btoa(n+SALT)});UP.pin=btoa(n+SALT);closeM('changePinModal');toast2('PIN updated!');}
+async function reqReset(){await db.collection('pinRequests').add({userId:CU.uid,email:CU.email,name:(UP?.firstName||'')+' '+(UP?.lastName||''),status:'pending',requestedAt:firebase.firestore.FieldValue.serverTimestamp()});closeM('forgotPinModal');toast2('Reset request sent!');}
+
+// NOTIFICATIONS
+async function loadNotifs(){if(!CU)return;try{const d=await db.collection('users').doc(CU.uid).get();const ns=[...(d.data()?.notifications||[])].reverse();const u=ns.filter(n=>!n.read).length;const dot=document.getElementById('nDot');if(dot)dot.style.display=u?'block':'none';document.getElementById('notifList').innerHTML=ns.length?ns.map(n=>`<div style="padding:11px 0;border-bottom:1px solid #f5f5f5;display:flex;gap:9px;"><div style="width:34px;height:34px;border-radius:50%;background:${n.read?'#f5f5f5':'#fff8e8'};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">${n.read?'📫':'🔔'}</div><div><p style="font-size:13px;font-weight:600;">${n.title}</p><p style="font-size:12px;color:#888;margin-top:2px;">${n.message}</p><p style="font-size:11px;color:#bbb;margin-top:2px;">${new Date(n.time).toLocaleString('en-NG')}</p></div></div>`).join(''):`<p style="text-align:center;color:#aaa;padding:22px;">No notifications yet</p>`;}catch(e){}}
+
+// VTU SERVICES
 const NETS=['MTN','Airtel','Glo','9mobile'];
 const DISCOS=['EKEDC (Eko)','IKEDC (Ikeja)','AEDC (Abuja)','PHEDC (Port Harcourt)','EEDC (Enugu)','KEDCO (Kano)','BEDC (Benin)','IBEDC (Ibadan)'];
 const DISCO_ID={'EKEDC (Eko)':'eko-electric','IKEDC (Ikeja)':'ikeja-electric','AEDC (Abuja)':'abuja-electric','PHEDC (Port Harcourt)':'phed','EEDC (Enugu)':'enugu-electric','KEDCO (Kano)':'kano-electric','BEDC (Benin)':'benin-electric','IBEDC (Ibadan)':'ibadan-electric'};
@@ -446,87 +651,122 @@ function netG(hid){return`<div style="display:grid;grid-template-columns:repeat(
 function pickN(el,name,hid){el.closest('[id]').querySelectorAll('div').forEach(d=>{d.style.borderColor='#e0e0e0';d.style.background='';});el.style.borderColor='#C9A84C';el.style.background='#fff8e8';document.getElementById(hid).value=name;if(hid==='dNet')loadDB(name);}
 async function loadDB(net){const sel=document.getElementById('dBndl');sel.innerHTML='<option>Loading...</option>';try{const r=await fetch(`${VT.BASE}/service-variations?serviceID=${NET_D[net]||'mtn-data'}`,{headers:{'api-key':VT.AK,'public-key':VT.PK}});const data=await r.json();if(data.content?.variations){sel.innerHTML=data.content.variations.map(v=>`<option value="${v.variation_code}|${v.variation_amount}">${v.name} — ₦${v.variation_amount}</option>`).join('');}else sel.innerHTML=fbDB(net);}catch(e){sel.innerHTML=fbDB(net);}}
 function fbDB(n){const b={MTN:['500MB — ₦150|vtu-500mb|150','1GB — ₦280|vtu-1gb|280','2GB — ₦500|vtu-2gb|500','5GB — ₦1200|vtu-5gb|1200'],Airtel:['500MB — ₦200|ar-500|200','1GB — ₦350|ar-1gb|350','2GB — ₦600|ar-2gb|600'],Glo:['1GB — ₦200|gl-1gb|200','2GB — ₦400|gl-2gb|400'],'9mobile':['1GB — ₦300|et-1gb|300','2GB — ₦500|et-2gb|500']};return(b[n]||b.MTN).map(x=>{const[l,c,v]=x.split('|');return`<option value="${c}|${v}">${l}</option>`;}).join('');}
+function updRP(){const s=document.getElementById('rType');const q=parseInt(document.getElementById('rQty').value)||1;const base=parseInt((s.value||'waec|800').split('|')[1])||800;document.getElementById('rPrice').textContent=fmt(base*q);}
 
 function openSvc(type){
   const H=(t,e)=>`<div class="mh"></div><div style="text-align:center;margin-bottom:13px;"><div style="font-size:34px;">${e}</div><p class="mt" style="margin:0;">${t}</p></div>`;
   let html='';
-  if(type==='airtime'){html=H('Buy Airtime','📱')+netG('aNet')+`<div class="fg"><label class="lbl">Phone Number</label><input type="tel" id="aPh" class="inp" placeholder="08012345678"/></div><div class="fg"><label class="lbl">Quick Amounts</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:7px;">${[100,200,500,1000,2000,5000].map(a=>`<button onclick="document.getElementById('aAmt').value=${a};this.closest('[style*=grid]').querySelectorAll('button').forEach(b=>{b.style.background='';b.style.color='';});this.style.background='#C9A84C';this.style.color='#fff';" style="padding:9px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;transition:all 0.2s;">₦${a.toLocaleString()}</button>`).join('')}</div></div><div class="fg"><label class="lbl">Amount (₦)</label><input type="number" id="aAmt" class="inp" placeholder="Min ₦50"/></div><button class="btn-pri" onclick="doAirtime()">Buy Airtime</button>`;}
-  else if(type==='data'){html=H('Buy Data','📶')+netG('dNet')+`<div class="fg"><label class="lbl">Phone Number</label><input type="tel" id="dPh" class="inp" placeholder="08012345678"/></div><div class="fg"><label class="lbl">Select Bundle</label><select id="dBndl" class="inp"><option value="">— Select network first —</option></select></div><button class="btn-pri" onclick="doData()" style="margin-top:7px;">Buy Data</button>`;}
-  else if(type==='cable'){html=H('Cable TV','📺')+`<div class="fg"><label class="lbl">Provider</label><select id="cPrv" class="inp"><option value="dstv">DStv</option><option value="gotv">GOtv</option><option value="startimes">Startimes</option></select></div><div class="fg"><label class="lbl">Smart Card / IUC No.</label><input type="text" id="cCard" class="inp" placeholder="Smart card number"/></div><div class="fg"><label class="lbl">Package</label><select id="cPlan" class="inp"><option value="3600">DStv Compact — ₦3,600/mo</option><option value="8300">DStv Compact+ — ₦8,300/mo</option><option value="15700">DStv Premium — ₦15,700/mo</option><option value="2900">GOtv Max — ₦2,900/mo</option><option value="1900">GOtv Jolli — ₦1,900/mo</option><option value="900">GOtv Lite — ₦900/mo</option><option value="1100">Startimes Nova — ₦1,100/mo</option><option value="1900">Startimes Basic — ₦1,900/mo</option></select></div><button class="btn-pri" onclick="doCable()">Subscribe Now</button>`;}
+  if(type==='airtime'){html=H('Buy Airtime','📱')+netG('aNet')+`<div class="fg"><label class="lbl">Phone Number</label><input type="tel" id="aPh" class="inp" placeholder="08012345678"/></div><div class="fg"><label class="lbl">Quick Amounts</label><div style="display:grid;grid-template-columns:repeat(3,1fr);gap:7px;margin-bottom:7px;">${[100,200,500,1000,2000,5000].map(a=>`<button onclick="document.getElementById('aAmt').value=${a};this.closest('[style*=grid]').querySelectorAll('button').forEach(b=>{b.style.background='';b.style.color='';});this.style.background='#C9A84C';this.style.color='#fff';" style="padding:9px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;background:#fff;">₦${a.toLocaleString()}</button>`).join('')}</div></div><div class="fg"><label class="lbl">Amount (₦)</label><input type="number" id="aAmt" class="inp" placeholder="Min ₦50"/></div><button class="btn-pri" onclick="doAirtime()">Buy Airtime</button>`;}
+  else if(type==='data'){html=H('Buy Data','📶')+netG('dNet')+`<div class="fg"><label class="lbl">Phone Number</label><input type="tel" id="dPh" class="inp" placeholder="08012345678"/></div><div class="fg"><label class="lbl">Select Bundle</label><select id="dBndl" class="inp"><option value="">— Pick network first —</option></select></div><button class="btn-pri" onclick="doData()" style="margin-top:7px;">Buy Data</button>`;}
+  else if(type==='cable'){html=H('Cable TV','📺')+`<div class="fg"><label class="lbl">Provider</label><select id="cPrv" class="inp"><option value="dstv">DStv</option><option value="gotv">GOtv</option><option value="startimes">Startimes</option></select></div><div class="fg"><label class="lbl">Smart Card / IUC No.</label><input type="text" id="cCard" class="inp" placeholder="Smart card number"/></div><div class="fg"><label class="lbl">Package</label><select id="cPlan" class="inp"><option value="3600">DStv Compact — ₦3,600</option><option value="8300">DStv Compact+ — ₦8,300</option><option value="15700">DStv Premium — ₦15,700</option><option value="2900">GOtv Max — ₦2,900</option><option value="1900">GOtv Jolli — ₦1,900</option><option value="900">GOtv Lite — ₦900</option><option value="1100">Startimes Nova — ₦1,100</option></select></div><button class="btn-pri" onclick="doCable()">Subscribe Now</button>`;}
   else if(type==='electricity'){html=H('Electricity','⚡')+`<div class="fg"><label class="lbl">DisCo</label><select id="eDisco" class="inp">${DISCOS.map(d=>`<option>${d}</option>`).join('')}</select></div><div class="fg"><label class="lbl">Meter Type</label><div style="display:flex;gap:9px;"><label style="flex:1;display:flex;align-items:center;gap:7px;padding:11px;border:1.5px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;"><input type="radio" name="mType" value="prepaid" checked style="accent-color:#C9A84C;"/>Prepaid</label><label style="flex:1;display:flex;align-items:center;gap:7px;padding:11px;border:1.5px solid #e0e0e0;border-radius:8px;cursor:pointer;font-size:13px;font-weight:500;"><input type="radio" name="mType" value="postpaid" style="accent-color:#C9A84C;"/>Postpaid</label></div></div><div class="fg"><label class="lbl">Meter Number</label><input type="text" id="eMeter" class="inp" placeholder="Meter number"/></div><div class="fg"><label class="lbl">Amount (₦) — Min ₦500</label><input type="number" id="eAmt" class="inp" placeholder="500"/></div><button class="btn-pri" onclick="doElec()">Pay Bill</button>`;}
-  else if(type==='loan'){html=H('Quick Loans','🏦')+`<div style="background:#fff8e8;border:1px solid #ffe8a0;border-radius:11px;padding:13px;margin-bottom:13px;"><p style="font-size:13px;color:#888;">Get instant funds. Admin reviews within 24hrs. No paperwork.</p></div><div class="fg"><label class="lbl">Loan Amount (₦)</label><input type="number" id="lAmt" class="inp" placeholder="₦1,000 – ₦50,000"/></div><div class="fg"><label class="lbl">Repayment</label><select id="lPer" class="inp"><option value="7">7 days (5% interest)</option><option value="14">14 days (8% interest)</option><option value="30">30 days (12% interest)</option></select></div><div class="fg"><label class="lbl">Purpose</label><select id="lPur" class="inp"><option>Personal</option><option>Business</option><option>Education</option><option>Emergency</option></select></div><button class="btn-pri" onclick="doLoan()">Apply for Loan</button>`;}
-  else if(type==='result'){html=H('Result Checker PIN','📋')+`<div style="background:#f0f9ff;border:1px solid #bae6fd;border-radius:11px;padding:12px;margin-bottom:13px;"><p style="font-size:13px;color:#0369a1;">Purchase official exam scratch PINs via VTpass.</p></div><div class="fg"><label class="lbl">Exam Type</label><select id="rType" class="inp" onchange="updRP()"><option value="waec-registration|800">WAEC Result Checker — ₦800</option><option value="neco|700">NECO Result Checker — ₦700</option><option value="nabteb|700">NABTEB Result Checker — ₦700</option></select></div><div class="fg"><label class="lbl">Quantity</label><select id="rQty" class="inp" onchange="updRP()"><option value="1">1 PIN</option><option value="2">2 PINs</option><option value="3">3 PINs</option><option value="5">5 PINs</option></select></div><div style="background:#f5f5f5;border-radius:9px;padding:11px;margin-bottom:13px;display:flex;justify-content:space-between;"><span style="font-size:13px;color:#888;">Total:</span><span id="rPrice" style="font-size:16px;font-weight:700;">₦800</span></div><button class="btn-pri" onclick="doResult()">Purchase PIN(s)</button>`;}
+  else if(type==='result'){html=H('Result Checker PIN','📋')+`<div class="info-box blue" style="margin-bottom:12px;"><p style="font-size:13px;color:#0369a1;">Official exam scratch PINs via VTpass.</p></div><div class="fg"><label class="lbl">Exam Type</label><select id="rType" class="inp" onchange="updRP()"><option value="waec-registration|800">WAEC Result Checker — ₦800</option><option value="neco|700">NECO Result Checker — ₦700</option><option value="nabteb|700">NABTEB Result Checker — ₦700</option></select></div><div class="fg"><label class="lbl">Quantity</label><select id="rQty" class="inp" onchange="updRP()"><option value="1">1 PIN</option><option value="2">2 PINs</option><option value="3">3 PINs</option><option value="5">5 PINs</option></select></div><div style="background:#f5f5f5;border-radius:9px;padding:11px;margin-bottom:13px;display:flex;justify-content:space-between;"><span style="font-size:13px;color:#888;">Total:</span><span id="rPrice" style="font-size:16px;font-weight:700;">₦800</span></div><button class="btn-pri" onclick="doResult()">Purchase PIN(s)</button>`;}
   else if(type==='education'){html=H('Education Payment','📚')+`<div class="fg"><label class="lbl">Service</label><select id="eduType" class="inp"><option value="jamb|3500">JAMB PIN — ₦3,500</option><option value="edu|0">Post-UTME / School Fees</option></select></div><div class="fg"><label class="lbl">Phone / Reg Number</label><input type="tel" id="eduPh" class="inp" placeholder="08012345678"/></div><div class="fg"><label class="lbl">Amount (₦)</label><input type="number" id="eduAmt" class="inp" placeholder="Enter amount"/></div><button class="btn-pri" onclick="doEdu()">Pay Now</button>`;}
   document.getElementById('svcBody').innerHTML=html;openM('svcModal');
 }
-function updRP(){const s=document.getElementById('rType');const q=parseInt(document.getElementById('rQty').value)||1;const base=parseInt((s.value||'waec|800').split('|')[1])||800;document.getElementById('rPrice').textContent=fmt(base*q);}
 
-function chkBal(a){if(!UP||(UP.walletBalance||0)<a){toast2(`Insufficient balance. Need ${fmt(a)}, have ${fmt(UP?.walletBalance||0)}`);return false;}return true;}
-function needPin(cb){pinCB=cb;clrP('tp',4);openM('pinModal');setTimeout(()=>document.getElementById('tp1').focus(),280);}
-async function verifyPin(){const pin=[1,2,3,4].map(i=>document.getElementById('tp'+i).value).join('');if(pin.length<4){toast2('Enter complete PIN');return;}if(btoa(pin+SALT)===UP?.pin){closeM('pinModal');clrP('tp',4);if(pinCB){pinCB();pinCB=null;}}else{toast2('Incorrect PIN');clrP('tp',4);document.getElementById('tp1').focus();}}
-async function doChgPin(){const c=[1,2,3,4].map(i=>document.getElementById('cp'+i).value).join(''),n=[1,2,3,4].map(i=>document.getElementById('np'+i).value).join('');if(c.length<4||n.length<4){toast2('Fill all fields');return;}if(btoa(c+SALT)!==UP?.pin){toast2('Current PIN wrong');return;}await db.collection('users').doc(CU.uid).update({pin:btoa(n+SALT)});UP.pin=btoa(n+SALT);closeM('changePinModal');toast2('PIN updated!');}
-async function reqReset(){await db.collection('pinRequests').add({userId:CU.uid,email:CU.email,name:(UP?.firstName||'')+' '+(UP?.lastName||''),status:'pending',requestedAt:firebase.firestore.FieldValue.serverTimestamp()});closeM('forgotPinModal');toast2('Reset request sent!');}
-
+function chkBal(a){if(!UP||(UP.walletBalance||0)<a){toast2(`Insufficient balance. Need ${fmt(a)}`);return false;}return true;}
 async function vtExec(type,amount,desc,meta,svcID,varCode,billCode,phone,qty=1){
-  closeM('svcModal');closeM('pinModal');
-  if(!chkBal(amount))return;
-  toast2('Processing...');
+  closeM('svcModal');closeM('pinModal');if(!chkBal(amount))return;toast2('Processing...');
   const r=await VT.post('/pay',{request_id:VT.ref(),serviceID:svcID,billersCode:billCode,variation_code:varCode,amount,phone:phone||UP?.phone||'08000000000',quantity:qty});
   const ok=(r?.code==='000')||(r?.content?.transactions?.status||'').toLowerCase()==='delivered';
   const st=ok?'success':'failed';
   if(ok){await db.collection('users').doc(CU.uid).update({walletBalance:firebase.firestore.FieldValue.increment(-amount)});UP.walletBalance=(UP.walletBalance||0)-amount;updBal();}
-  const ref=await db.collection('transactions').add({userId:CU.uid,type,amount,description:desc,meta:{...meta,vtCode:r?.code||'',vtRef:r?.content?.transactions?.transactionId||''},status:st,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+  const ref=await db.collection('transactions').add({userId:CU.uid,type,amount,description:desc,meta:{...meta,vtCode:r?.code||''},status:st,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
   await db.collection('users').doc(CU.uid).update({notifications:firebase.firestore.FieldValue.arrayUnion({id:ref.id,title:ok?`${type} Successful ✅`:`${type} Failed`,message:ok?`${desc} — ${fmt(amount)}`:`Failed: ${r?.response_description||'Error'}`,time:new Date().toISOString(),read:false})});
   toast2(ok?`✅ ${type} successful!`:`❌ Failed: ${r?.response_description||'Error'}`);
-  if(ok&&type==='result'&&r?.content?.cards){setTimeout(()=>toast2('PINs: '+r.content.cards.map(c=>c.Pin).join(' | ')),1500);}
+  if(ok&&type==='result'&&r?.content?.cards)setTimeout(()=>toast2('PINs: '+r.content.cards.map(c=>c.Pin).join(' | ')),1500);
   loadTx();loadNotifs();
 }
 function doAirtime(){const net=document.getElementById('aNet').value,ph=document.getElementById('aPh').value.trim(),a=parseFloat(document.getElementById('aAmt').value);if(!net){toast2('Select network');return;}if(!ph||ph.length<11){toast2('Enter valid phone');return;}if(!a||a<50){toast2('Min ₦50');return;}needPin(()=>vtExec('airtime',a,`${net} Airtime → ${ph}`,{net,ph},NET_A[net]||'mtn','prepaid',ph,ph));}
 function doData(){const net=document.getElementById('dNet').value,ph=document.getElementById('dPh').value.trim();const sel=document.getElementById('dBndl');const[vc,a]=(sel.value||'').split('|');const amt=parseFloat(a)||0;if(!net){toast2('Select network');return;}if(!ph||ph.length<11){toast2('Enter valid phone');return;}if(!vc){toast2('Select bundle');return;}needPin(()=>vtExec('data',amt,`${net} Data → ${ph}`,{net,ph},NET_D[net]||'mtn-data',vc,ph,ph));}
 function doCable(){const prov=document.getElementById('cPrv').value,card=document.getElementById('cCard').value.trim();const sel=document.getElementById('cPlan');const amt=parseFloat(sel.value),plan=sel.options[sel.selectedIndex].text;if(!card){toast2('Enter smart card number');return;}needPin(()=>vtExec('cable',amt,`${prov.toUpperCase()} ${plan.split('—')[0].trim()} → ${card}`,{prov,card},prov,'change',card,UP?.phone||'08000000000'));}
 function doElec(){const disco=document.getElementById('eDisco').value,meter=document.getElementById('eMeter').value.trim(),amt=parseFloat(document.getElementById('eAmt').value),mt=document.querySelector('input[name="mType"]:checked')?.value||'prepaid';if(!meter){toast2('Enter meter number');return;}if(!amt||amt<500){toast2('Min ₦500');return;}needPin(()=>vtExec('electricity',amt,`${disco} (${mt}) → ${meter}`,{disco,meter,mt},DISCO_ID[disco]||'ikeja-electric',mt,meter,UP?.phone||'08000000000'));}
-async function doLoan(){const a=parseFloat(document.getElementById('lAmt').value),per=document.getElementById('lPer').value,pur=document.getElementById('lPur').value;if(!a||a<1000){toast2('Min ₦1,000');return;}if(a>50000){toast2('Max ₦50,000');return;}try{await db.collection('loanRequests').add({userId:CU.uid,email:CU.email,name:(UP?.firstName||'')+' '+(UP?.lastName||''),amount:a,period:per,purpose:pur,status:'pending',requestedAt:firebase.firestore.FieldValue.serverTimestamp()});closeM('svcModal');toast2('Loan application submitted! Reply within 24hrs.');}catch(e){toast2('Failed to submit');}}
 function doResult(){const sel=document.getElementById('rType');const[svc,base]=(sel.value||'waec-registration|800').split('|');const qty=parseInt(document.getElementById('rQty').value)||1;const amt=(parseFloat(base)||800)*qty;needPin(()=>vtExec('result',amt,`${sel.options[sel.selectedIndex].text.split('—')[0].trim()} x${qty}`,{qty,svc},svc,'pin','none',UP?.phone||'08000000000',qty));}
 function doEdu(){const sel=document.getElementById('eduType');const[svc,base]=(sel.value||'edu|0').split('|');const ph=document.getElementById('eduPh').value.trim();const amt=parseFloat(document.getElementById('eduAmt').value)||(parseFloat(base)||0);if(!ph){toast2('Enter phone/reg number');return;}if(!amt||amt<100){toast2('Enter valid amount');return;}needPin(()=>vtExec('education',amt,`${sel.options[sel.selectedIndex].text.split('—')[0].trim()} → ${ph}`,{svc,ph},svc==='edu'?'jamb':svc,'utme',ph,ph));}
 
-async function loadNotifs(){if(!CU)return;try{const d=await db.collection('users').doc(CU.uid).get();const ns=[...(d.data()?.notifications||[])].reverse();const u=ns.filter(n=>!n.read).length;const dot=document.getElementById('nDot');if(dot)dot.style.display=u?'block':'none';document.getElementById('notifList').innerHTML=ns.length?ns.map(n=>`<div style="padding:11px 0;border-bottom:1px solid #f5f5f5;display:flex;gap:9px;"><div style="width:34px;height:34px;border-radius:50%;background:${n.read?'#f5f5f5':'#fff8e8'};display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;">${n.read?'📫':'🔔'}</div><div><p style="font-size:13px;font-weight:600;">${n.title}</p><p style="font-size:12px;color:#888;margin-top:2px;">${n.message}</p><p style="font-size:11px;color:#bbb;margin-top:2px;">${new Date(n.time).toLocaleString('en-NG')}</p></div></div>`).join(''):`<p style="text-align:center;color:#aaa;padding:22px;">No notifications yet</p>`;}catch(e){}}
+// ===== ADMIN =====
+async function loadAdmData(){
+  try{
+    const [us,ts,ls,is]=await Promise.all([db.collection('users').get(),db.collection('transactions').orderBy('createdAt','desc').get(),db.collection('loans').get(),db.collection('investments').get()]);
+    window._AU=us.docs.map(d=>({id:d.id,...d.data()}));
+    window._AT=ts.docs.map(d=>({id:d.id,...d.data()}));
+    window._AL=ls.docs.map(d=>({id:d.id,...d.data()}));
+    window._AI=is.docs.map(d=>({id:d.id,...d.data()}));
+    const rev=window._AT.filter(t=>t.status==='success'&&t.type!=='wallet').reduce((s,t)=>s+(t.amount||0),0);
+    const totalLoans=window._AL.filter(l=>l.status==='active').reduce((s,l)=>s+(l.approvedAmount||l.amount||0),0);
+    const totalInvs=window._AI.filter(i=>i.status==='active').reduce((s,i)=>s+(i.amount||0),0);
+    document.getElementById('admStats').innerHTML=`
+      <div class="adms"><p style="font-size:11px;color:#888;">Users</p><p class="admv">${us.size}</p></div>
+      <div class="adms"><p style="font-size:11px;color:#888;">Transactions</p><p class="admv">${window._AT.length}</p></div>
+      <div class="adms" style="background:linear-gradient(135deg,#1a2340,#1e2a4a);"><p style="font-size:11px;color:rgba(255,255,255,0.6);">VTU Revenue</p><p style="font-size:17px;font-weight:800;color:#E8C97A;margin-top:2px;">${fmt(rev)}</p></div>
+      <div class="adms"><p style="font-size:11px;color:#888;">Active Loans</p><p class="admv">${window._AL.filter(l=>l.status==='active').length}</p></div>
+      <div class="adms" style="background:linear-gradient(135deg,#0d2211,#0d3318);"><p style="font-size:11px;color:rgba(255,255,255,0.6);">Loans Issued</p><p style="font-size:17px;font-weight:800;color:#86efac;margin-top:2px;">${fmt(totalLoans)}</p></div>
+      <div class="adms" style="background:linear-gradient(135deg,#0d2211,#0d3318);"><p style="font-size:11px;color:rgba(255,255,255,0.6);">Active Investments</p><p style="font-size:17px;font-weight:800;color:#86efac;margin-top:2px;">${fmt(totalInvs)}</p></div>`;
+    const tabs=[['users','Users'],['tx','Transactions'],['loans','Loans'],['investments','Investments'],['funding','Funding'],['pin','PIN Reqs'],['splash','Splash'],['promo','Promo'],['broadcast','Broadcast']];
+    document.getElementById('admTabs').innerHTML=tabs.map(([k,l],i)=>`<button class="atb${i===0?' active':''}" id="atb-${k}" onclick="showAT('${k}')">${l}</button>`).join('');
+    showAT('users');
+  }catch(e){console.error(e);}
+}
 
-const FAQS=[{q:'How do I fund my account?',a:'Tap "Fund Account" → copy a bank account → transfer → tap "Send Payment Proof" via WhatsApp. Credited in 5 minutes.'},{q:'What is a Transaction PIN?',a:'A 4-digit PIN set at signup, required before every transaction for your security.'},{q:'How do I apply for a loan?',a:'Services → Loans → fill the form. Admin reviews within 24hrs and credits your wallet.'},{q:'How do I buy a Result Checker PIN?',a:'Services → Result Checker → select exam type & quantity → confirm with PIN. Pins delivered instantly.'},{q:'I forgot my PIN?',a:'Profile → Forgot PIN → submit reset. Admin approves then you set a new PIN on next login.'},{q:'Is ZMONIE registered?',a:'Yes. CAC No: 9576761. No.1 Ibijoke Street, Oregun, Ikeja, Lagos.'}];
-function buildFAQ(){document.getElementById('faqList').innerHTML=FAQS.map((f,i)=>`<div class="faq-i"><div class="faq-q" onclick="tFAQ(${i})">${f.q}<svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="#aaa" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg></div><div class="faq-a" id="fq${i}">${f.a}</div></div>`).join('');}
-function tFAQ(i){const el=document.getElementById('fq'+i);const o=el.style.display==='block';document.querySelectorAll('.faq-a').forEach(e=>e.style.display='none');el.style.display=o?'none':'block';}
+function showAT(tab){
+  document.querySelectorAll('.atb').forEach(b=>b.classList.remove('active'));
+  const ab=document.getElementById('atb-'+tab);if(ab)ab.classList.add('active');
+  const c=document.getElementById('admContent');if(!c)return;
+  if(tab==='users'){c.innerHTML=(window._AU||[]).map(u=>`<div style="background:#fff;border-radius:11px;padding:12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;"><div style="flex:1;min-width:0;"><p style="font-size:14px;font-weight:600;">${u.firstName||''} ${u.lastName||''}</p><p style="font-size:11px;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.email}</p><p style="font-size:11px;color:#aaa;">${u.phone||'—'}</p></div><div style="text-align:right;flex-shrink:0;margin-left:9px;"><p style="font-size:14px;font-weight:700;color:#C9A84C;">${fmt(u.walletBalance||0)}</p><button onclick="openCr('${u.id}')" style="padding:4px 10px;border-radius:7px;background:#C9A84C;border:none;color:#fff;font-size:11px;font-weight:600;cursor:pointer;margin-top:3px;">Manage</button></div></div>`).join('');}
+  else if(tab==='tx'){c.innerHTML=(window._AT||[]).slice(0,50).map(tx=>{const cls=tx.status==='success'?'ck':tx.status==='pending'?'cp':'cf';const dt=tx.createdAt?.toDate?tx.createdAt.toDate().toLocaleString('en-NG'):'—';return`<div style="background:#fff;border-radius:11px;padding:11px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;"><div style="flex:1;min-width:0;"><p style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${tx.description||tx.type}</p><p style="font-size:10px;color:#aaa;">${dt}</p></div><div style="text-align:right;flex-shrink:0;margin-left:9px;"><p style="font-size:13px;font-weight:700;">${fmt(tx.amount||0)}</p><span class="chip ${cls}">${tx.status}</span></div></div>`;}).join('');}
+  else if(tab==='loans'){
+    const ls=window._AL||[];
+    c.innerHTML=`<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">${['all','pending','active','approved','rejected','repaid'].map(s=>`<button onclick="filterLoans('${s}')" style="padding:5px 11px;border-radius:20px;border:1px solid #e0e0e0;background:#fff;font-size:11px;font-weight:600;cursor:pointer;">${s.charAt(0).toUpperCase()+s.slice(1)}</button>`).join('')}</div><div id="loanAdmList">${admLoanList(ls)}</div>`;
+  }
+  else if(tab==='investments'){
+    const is=window._AI||[];
+    c.innerHTML=`<div style="display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap;">${['all','pending','active','matured','paid'].map(s=>`<button onclick="filterInvs('${s}')" style="padding:5px 11px;border-radius:20px;border:1px solid #e0e0e0;background:#fff;font-size:11px;font-weight:600;cursor:pointer;">${s.charAt(0).toUpperCase()+s.slice(1)}</button>`).join('')}</div><div id="invAdmList">${admInvList(is)}</div>`;
+  }
+  else if(tab==='funding'){c.innerHTML=`<div style="background:#fff;border-radius:11px;padding:15px;margin-bottom:11px;"><p style="font-weight:600;margin-bottom:5px;">Manual Funding</p><p style="font-size:13px;color:#888;">Users send proof via WhatsApp. Use Users tab to credit wallet after confirmation.</p></div><a href="https://wa.me/2348068886569" target="_blank" style="display:block;text-align:center;padding:13px;background:#25D366;border-radius:10px;font-weight:700;text-decoration:none;color:#fff;">Open WhatsApp</a>`;}
+  else if(tab==='pin'){db.collection('pinRequests').where('status','==','pending').get().then(snap=>{const rs=snap.docs.map(d=>({id:d.id,...d.data()}));c.innerHTML=rs.length?rs.map(r=>`<div style="background:#fff;border-radius:11px;padding:12px;margin-bottom:7px;"><p style="font-weight:600;">${r.name}</p><p style="font-size:11px;color:#aaa;margin-bottom:9px;">${r.email}</p><div style="display:flex;gap:7px;"><button onclick="appPIN('${r.id}','${r.userId}')" style="flex:1;padding:7px;border-radius:7px;background:#C9A84C;border:none;color:#fff;font-weight:600;cursor:pointer;font-size:12px;">Approve</button><button onclick="rejPIN('${r.id}')" style="flex:1;padding:7px;border-radius:7px;background:#fff0f0;border:none;color:#ef4444;font-weight:600;cursor:pointer;font-size:12px;">Reject</button></div></div>`).join(''):`<p style="text-align:center;color:#aaa;padding:26px;">No pending requests ✅</p>`;}); }
+  else if(tab==='splash'){loadSplashAdmin(c);}
+  else if(tab==='promo'){loadPromoAdmin(c);}
+  else if(tab==='broadcast'){c.innerHTML=`<textarea id="bMsg" style="width:100%;border:1.5px solid #e0e0e0;border-radius:9px;padding:12px;font-family:'Inter',sans-serif;font-size:14px;min-height:105px;outline:none;resize:none;" placeholder="Type announcement..." onfocus="this.style.borderColor='#C9A84C'" onblur="this.style.borderColor='#e0e0e0'"></textarea><button onclick="doBcast()" style="width:100%;padding:12px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-top:9px;">Send to All Users</button>`;}
+}
 
-async function loadAdmData(){try{const[us,ts]=await Promise.all([db.collection('users').get(),db.collection('transactions').orderBy('createdAt','desc').get()]);window._AU=us.docs.map(d=>({id:d.id,...d.data()}));window._AT=ts.docs.map(d=>({id:d.id,...d.data()}));const rev=window._AT.filter(t=>t.status==='success'&&t.type!=='wallet').reduce((s,t)=>s+(t.amount||0),0);document.getElementById('admStats').innerHTML=`<div class="adms"><p style="font-size:12px;color:#888;">Users</p><p class="admv">${us.size}</p></div><div class="adms"><p style="font-size:12px;color:#888;">Transactions</p><p class="admv">${window._AT.length}</p></div><div class="adms" style="background:linear-gradient(135deg,#1a2340,#1e2a4a);"><p style="font-size:12px;color:rgba(255,255,255,0.6);">Revenue</p><p style="font-size:19px;font-weight:800;color:#E8C97A;margin-top:3px;">${fmt(rev)}</p></div><div class="adms"><p style="font-size:12px;color:#888;">Avg/Tx</p><p class="admv" style="font-size:17px;">${window._AT.length?fmt(rev/window._AT.length):'—'}</p></div>`;const tabs=[['users','Users'],['tx','Transactions'],['funding','Funding'],['pin','PIN Reqs'],['loans','Loans'],['splash','Splash Slides'],['promo','Promo Slides'],['broadcast','Broadcast']];document.getElementById('admTabs').innerHTML=tabs.map(([k,l],i)=>`<button class="atb${i===0?' active':''}" id="atb-${k}" onclick="showAT('${k}')">${l}</button>`).join('');showAT('users');}catch(e){console.error(e);}}
+function admLoanList(ls){if(!ls.length)return'<p style="text-align:center;color:#aaa;padding:20px;">No loans found</p>';return ls.map(l=>`<div style="background:#fff;border-radius:11px;padding:13px;margin-bottom:8px;border-left:4px solid #C9A84C;"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;"><div><p style="font-weight:700;">${l.name||'—'}</p><p style="font-size:12px;color:#aaa;">${l.email}</p></div>${statusBadge(l.status)}</div><p style="font-size:13px;margin-bottom:3px;"><strong>Amount:</strong> ${fmt(l.amount||0)} · <strong>Purpose:</strong> ${l.purpose||'—'}</p><p style="font-size:12px;color:#555;margin-bottom:3px;"><strong>Guarantor:</strong> ${l.guarantor?.name||'—'} (${l.guarantor?.phone||'—'}) — ${l.guarantor?.relationship||'—'}</p>${l.guarantor?.address?`<p style="font-size:11px;color:#aaa;">📍 ${l.guarantor.address}</p>`:''}${l.guarantor?.idNumber?`<p style="font-size:11px;color:#aaa;">🪪 ID: ${l.guarantor.idNumber}</p>`:''}${l.status==='pending'?`<div style="display:flex;gap:7px;margin-top:9px;"><button onclick="openAdmLoan('${l.id}')" style="flex:1;padding:7px;border-radius:7px;background:#C9A84C;border:none;color:#fff;font-weight:600;cursor:pointer;font-size:12px;">Review &amp; Approve</button><button onclick="rejLoan('${l.id}')" style="flex:1;padding:7px;border-radius:7px;background:#fff0f0;border:none;color:#ef4444;font-weight:600;cursor:pointer;font-size:12px;">Reject</button></div>`:`<div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;">${l.status==='active'?`<button onclick="markLoanRepaid('${l.id}')" style="padding:6px 12px;border-radius:7px;background:#dcfce7;border:none;color:#16a34a;font-weight:600;cursor:pointer;font-size:11px;">Mark Repaid</button>`:''}${l.status==='approved'?`<button onclick="activateLoan('${l.id}','${l.userId}',${l.approvedAmount||l.amount})" style="padding:6px 12px;border-radius:7px;background:#dbeafe;border:none;color:#1d4ed8;font-weight:600;cursor:pointer;font-size:11px;">Disburse Funds</button>`:''}</div>`}</div>`).join('');}
 
-function showAT(tab){document.querySelectorAll('.atb').forEach(b=>b.classList.remove('active'));const ab=document.getElementById('atb-'+tab);if(ab)ab.classList.add('active');const c=document.getElementById('admContent');if(!c)return;
-if(tab==='users'){c.innerHTML=(window._AU||[]).map(u=>`<div style="background:#fff;border-radius:11px;padding:12px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;"><div style="flex:1;min-width:0;"><p style="font-size:14px;font-weight:600;">${u.firstName||''} ${u.lastName||''}</p><p style="font-size:11px;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${u.email}</p></div><div style="text-align:right;flex-shrink:0;margin-left:9px;"><p style="font-size:14px;font-weight:700;color:#C9A84C;">${fmt(u.walletBalance||0)}</p><button onclick="openCr('${u.id}')" style="padding:4px 10px;border-radius:7px;background:#C9A84C;border:none;color:#fff;font-size:11px;font-weight:600;cursor:pointer;margin-top:3px;">Manage</button></div></div>`).join('');}
-else if(tab==='tx'){c.innerHTML=(window._AT||[]).slice(0,50).map(tx=>{const cls=tx.status==='success'?'ck':tx.status==='pending'?'cp':'cf';const dt=tx.createdAt?.toDate?tx.createdAt.toDate().toLocaleString('en-NG'):'—';return`<div style="background:#fff;border-radius:11px;padding:11px;margin-bottom:7px;display:flex;justify-content:space-between;align-items:center;"><div style="flex:1;min-width:0;"><p style="font-size:12px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${tx.description||tx.type}</p><p style="font-size:10px;color:#aaa;">${dt}</p></div><div style="text-align:right;flex-shrink:0;margin-left:9px;"><p style="font-size:13px;font-weight:700;">${fmt(tx.amount||0)}</p><span class="chip ${cls}">${tx.status}</span></div></div>`;}).join('');}
-else if(tab==='funding'){c.innerHTML=`<div style="background:#fff;border-radius:11px;padding:15px;margin-bottom:11px;"><p style="font-weight:600;margin-bottom:5px;">Manual Funding</p><p style="font-size:13px;color:#888;">Users send proof via WhatsApp. Use Users tab to credit wallet after confirmation.</p></div><a href="https://wa.me/2348068886569" target="_blank" style="display:block;text-align:center;padding:13px;background:#25D366;border-radius:10px;font-weight:700;text-decoration:none;color:#fff;">Open WhatsApp</a>`;}
-else if(tab==='pin'){db.collection('pinRequests').where('status','==','pending').get().then(snap=>{const rs=snap.docs.map(d=>({id:d.id,...d.data()}));c.innerHTML=rs.length?rs.map(r=>`<div style="background:#fff;border-radius:11px;padding:12px;margin-bottom:7px;"><p style="font-weight:600;">${r.name}</p><p style="font-size:11px;color:#aaa;margin-bottom:9px;">${r.email}</p><div style="display:flex;gap:7px;"><button onclick="appPIN('${r.id}','${r.userId}')" style="flex:1;padding:7px;border-radius:7px;background:#C9A84C;border:none;color:#fff;font-weight:600;cursor:pointer;font-size:12px;">Approve</button><button onclick="rejPIN('${r.id}')" style="flex:1;padding:7px;border-radius:7px;background:#fff0f0;border:none;color:#ef4444;font-weight:600;cursor:pointer;font-size:12px;">Reject</button></div></div>`).join(''):`<p style="text-align:center;color:#aaa;padding:26px;">No pending requests ✅</p>`;});}
-else if(tab==='loans'){db.collection('loanRequests').where('status','==','pending').get().then(snap=>{const ls=snap.docs.map(d=>({id:d.id,...d.data()}));c.innerHTML=ls.length?ls.map(l=>`<div style="background:#fff;border-radius:11px;padding:12px;margin-bottom:7px;"><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><p style="font-weight:600;">${l.name}</p><p style="font-weight:700;color:#C9A84C;">${fmt(l.amount)}</p></div><p style="font-size:11px;color:#aaa;margin-bottom:4px;">${l.email}</p><p style="font-size:12px;color:#888;margin-bottom:9px;">${l.period} days · ${l.purpose}</p><div style="display:flex;gap:7px;"><button onclick="appLoan('${l.id}','${l.userId}',${l.amount})" style="flex:1;padding:7px;border-radius:7px;background:#C9A84C;border:none;color:#fff;font-weight:600;cursor:pointer;font-size:12px;">Approve &amp; Credit</button><button onclick="rejLoan('${l.id}')" style="flex:1;padding:7px;border-radius:7px;background:#fff0f0;border:none;color:#ef4444;font-weight:600;cursor:pointer;font-size:12px;">Reject</button></div></div>`).join(''):`<p style="text-align:center;color:#aaa;padding:26px;">No pending loans ✅</p>`;});}
-else if(tab==='splash'){db.collection('splashSlides').orderBy('order','asc').get().then(snap=>{const sl=snap.docs.map(d=>({id:d.id,...d.data()}));const show=sl.length?sl:DEF_SP;c.innerHTML=`<button onclick="openAddSS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-bottom:11px;">+ Add Splash Slide</button>`+show.map(s=>`<div style="background:#1a2340;border-radius:11px;padding:12px;margin-bottom:7px;display:flex;align-items:center;gap:9px;"><img src="${s.bg}" style="width:46px;height:46px;border-radius:7px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'"/><div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</p><p style="font-size:11px;color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.subtitle||''}</p></div><div style="display:flex;gap:5px;flex-shrink:0;"><button onclick="editSS('${s.id}')" style="padding:4px 8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;font-size:11px;cursor:pointer;font-weight:600;">Edit</button><button onclick="delSS('${s.id}')" style="padding:4px 8px;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.28);border-radius:6px;color:#fca5a5;font-size:11px;cursor:pointer;font-weight:600;">Del</button></div></div>`).join('');}).catch(()=>{c.innerHTML=`<button onclick="openAddSS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;">+ Add Splash Slide</button>`;});}
-else if(tab==='promo'){db.collection('promoSlides').orderBy('order','asc').get().then(snap=>{const sl=snap.docs.map(d=>({id:d.id,...d.data()}));const show=sl.length?sl:DEF_PR;c.innerHTML=`<button onclick="openAddPS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-bottom:11px;">+ Add Promo Slide</button>`+show.map(s=>`<div style="background:${s.bgColor||'#1a2340'};border-radius:11px;padding:12px;margin-bottom:7px;display:flex;align-items:center;gap:9px;"><span style="font-size:22px;flex-shrink:0;">${s.emoji||'💰'}</span><div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${s.title}</p><p style="font-size:11px;color:rgba(255,255,255,0.5);">${s.description}</p></div><div style="display:flex;gap:5px;flex-shrink:0;"><button onclick="editPS('${s.id}')" style="padding:4px 8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;font-size:11px;cursor:pointer;font-weight:600;">Edit</button><button onclick="delPS('${s.id}')" style="padding:4px 8px;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.28);border-radius:6px;color:#fca5a5;font-size:11px;cursor:pointer;font-weight:600;">Del</button></div></div>`).join('');}).catch(()=>{c.innerHTML=`<button onclick="openAddPS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;">+ Add Promo Slide</button>`;});}
-else if(tab==='broadcast'){c.innerHTML=`<p style="font-size:13px;color:#888;margin-bottom:9px;">Send announcement to all users.</p><textarea id="bMsg" style="width:100%;border:1.5px solid #e0e0e0;border-radius:9px;padding:12px;font-family:'Inter',sans-serif;font-size:14px;min-height:105px;outline:none;resize:none;" placeholder="Type message..." onfocus="this.style.borderColor='#C9A84C'" onblur="this.style.borderColor='#e0e0e0'"></textarea><button onclick="doBcast()" style="width:100%;padding:12px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-top:9px;">Send to All Users</button>`;}}
+function admInvList(is){if(!is.length)return'<p style="text-align:center;color:#aaa;padding:20px;">No investments found</p>';return is.map(i=>`<div style="background:#fff;border-radius:11px;padding:13px;margin-bottom:8px;border-left:4px solid #22c55e;"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px;"><div><p style="font-weight:700;">${i.name||'—'}</p><p style="font-size:12px;color:#aaa;">${i.email}</p></div>${statusBadge(i.status)}</div><p style="font-size:13px;margin-bottom:3px;"><strong>Amount:</strong> ${fmt(i.amount||0)} · <strong>Duration:</strong> ${i.duration||30} days</p>${i.interestRate?`<p style="font-size:12px;color:#16a34a;font-weight:600;">Rate: ${i.interestRate}% · Returns: ${fmt(i.expectedReturn||0)} · Matures: ${i.maturityDate||'—'}</p>`:''}<div style="display:flex;gap:7px;margin-top:9px;flex-wrap:wrap;">${i.status==='pending'?`<button onclick="openAdmInv('${i.id}')" style="padding:6px 12px;border-radius:7px;background:#C9A84C;border:none;color:#fff;font-weight:600;cursor:pointer;font-size:11px;">Set Rate &amp; Approve</button><button onclick="rejInv('${i.id}')" style="padding:6px 12px;border-radius:7px;background:#fff0f0;border:none;color:#ef4444;font-weight:600;cursor:pointer;font-size:11px;">Reject</button>`:''}${i.status==='matured'?`<button onclick="markInvPaid('${i.id}','${i.userId}',${i.expectedReturn||i.amount})" style="padding:6px 12px;border-radius:7px;background:#dcfce7;border:none;color:#16a34a;font-weight:600;cursor:pointer;font-size:11px;">Mark Paid &amp; Credit</button>`:''}</div></div>`).join('');}
+
+function filterLoans(status){const ls=status==='all'?window._AL:window._AL.filter(l=>l.status===status);document.getElementById('loanAdmList').innerHTML=admLoanList(ls);}
+function filterInvs(status){const is=status==='all'?window._AI:window._AI.filter(i=>i.status===status);document.getElementById('invAdmList').innerHTML=admInvList(is);}
+
+function openAdmLoan(lid){const l=window._AL.find(x=>x.id===lid);if(!l)return;document.getElementById('adminLoanBody').innerHTML=`<div style="margin-bottom:14px;"><p style="font-size:13px;color:#888;">Applicant: <strong>${l.name}</strong></p><p style="font-size:13px;color:#888;">Amount: <strong>${fmt(l.amount)}</strong></p><p style="font-size:13px;color:#888;">Purpose: <strong>${l.purpose}</strong></p><p style="font-size:13px;color:#888;">Duration: <strong>${l.duration} days</strong></p><p style="font-size:13px;color:#888;margin-top:8px;font-weight:600;">Guarantor:</p><p style="font-size:13px;">Name: ${l.guarantor?.name||'—'}</p><p style="font-size:13px;">Phone: ${l.guarantor?.phone||'—'}</p><p style="font-size:13px;">Relationship: ${l.guarantor?.relationship||'—'}</p>${l.guarantor?.address?`<p style="font-size:13px;">Address: ${l.guarantor.address}</p>`:''} ${l.guarantor?.idNumber?`<p style="font-size:13px;">ID: ${l.guarantor.idNumber}</p>`:''}</div><div class="divider"></div><div class="fg" style="margin-top:12px;"><label class="lbl">Approved Amount (₦)</label><input type="number" id="admLnAmt" class="inp" value="${l.amount}" placeholder="Approved amount"/></div><div class="fg"><label class="lbl">Admin Note (optional)</label><input type="text" id="admLnNote" class="inp" placeholder="e.g. Guarantor verified"/></div><div style="display:flex;gap:8px;"><button onclick="approveLoan('${l.id}','${l.userId}')" class="btn-pri" style="margin:0;">Approve Loan</button><button onclick="rejLoan('${l.id}')" style="flex:1;padding:13px;border-radius:10px;background:#fff0f0;border:none;color:#ef4444;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;">Reject</button></div>`;openM('adminLoanModal');}
+async function approveLoan(lid,uid){const amt=parseFloat(document.getElementById('admLnAmt').value)||0;const note=document.getElementById('admLnNote').value.trim();if(!amt){toast2('Enter approved amount');return;}await db.collection('loans').doc(lid).update({status:'approved',approvedAmount:amt,adminNote:note,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});await addFinNotif(uid,'🏦','Loan Approved ✅',`Your loan of ${fmt(amt)} has been approved! Funds will be disbursed shortly.`);closeM('adminLoanModal');toast2('Loan approved!');loadAdmData();}
+async function activateLoan(lid,uid,amt){await db.collection('loans').doc(lid).update({status:'active',disbursedAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection('users').doc(uid).update({walletBalance:firebase.firestore.FieldValue.increment(amt)});await db.collection('transactions').add({userId:uid,type:'wallet',amount:amt,description:'Loan disbursement',meta:{type:'loan',loanId:lid},status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()});await addFinNotif(uid,'💰','Loan Disbursed!',`${fmt(amt)} has been credited to your wallet.`);toast2('Loan disbursed!');loadAdmData();}
+async function rejLoan(lid){if(!confirm('Reject this loan?'))return;await db.collection('loans').doc(lid).update({status:'rejected'});const l=window._AL.find(x=>x.id===lid);if(l)await addFinNotif(l.userId,'❌','Loan Rejected',`Your loan application has been reviewed and rejected.`);closeM('adminLoanModal');toast2('Rejected');loadAdmData();}
+async function markLoanRepaid(lid){await db.collection('loans').doc(lid).update({status:'repaid',repaidAt:firebase.firestore.FieldValue.serverTimestamp()});toast2('Marked as repaid');loadAdmData();}
+
+function openAdmInv(iid){const i=window._AI.find(x=>x.id===iid);if(!i)return;document.getElementById('adminInvBody').innerHTML=`<div style="margin-bottom:14px;"><p style="font-size:13px;color:#888;">Investor: <strong>${i.name}</strong></p><p style="font-size:13px;color:#888;">Amount: <strong>${fmt(i.amount)}</strong></p><p style="font-size:13px;color:#888;">Duration: <strong>${i.duration} days</strong></p><p style="font-size:13px;color:#888;">Goal: <strong>${i.goal}</strong></p></div><div class="divider"></div><div class="fg" style="margin-top:12px;"><label class="lbl">Interest Rate (%)</label><input type="number" id="admInvRate" class="inp" placeholder="e.g. 15"/></div><div class="fg"><label class="lbl">Expected Return (₦)</label><input type="number" id="admInvReturn" class="inp" value="${i.amount}" placeholder="Total amount to return"/></div><div class="fg"><label class="lbl">Maturity Date</label><input type="date" id="admInvDate" class="inp"/></div><div class="fg"><label class="lbl">Admin Note (optional)</label><input type="text" id="admInvNote" class="inp" placeholder="e.g. Verified and activated"/></div><div style="display:flex;gap:8px;"><button onclick="approveInv('${i.id}','${i.userId}',${i.amount})" class="btn-pri" style="margin:0;">Activate Investment</button><button onclick="rejInv('${i.id}')" style="flex:1;padding:13px;border-radius:10px;background:#fff0f0;border:none;color:#ef4444;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;">Reject</button></div>`;openM('adminInvModal');}
+async function approveInv(iid,uid,origAmt){const rate=parseFloat(document.getElementById('admInvRate').value)||0;const ret=parseFloat(document.getElementById('admInvReturn').value)||origAmt;const matDate=document.getElementById('admInvDate').value;const note=document.getElementById('admInvNote').value.trim();if(!rate||!matDate){toast2('Enter rate and maturity date');return;}await db.collection('investments').doc(iid).update({status:'active',interestRate:rate,expectedReturn:ret,maturityDate:matDate,adminNote:note,approvedAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection('users').doc(uid).update({walletBalance:firebase.firestore.FieldValue.increment(-origAmt)});await addFinNotif(uid,'📈','Investment Activated!',`Your investment of ${fmt(origAmt)} is now active at ${rate}% interest. Expected return: ${fmt(ret)} on ${matDate}.`);closeM('adminInvModal');toast2('Investment activated!');loadAdmData();}
+async function rejInv(iid){if(!confirm('Reject this investment?'))return;await db.collection('investments').doc(iid).update({status:'rejected'});const i=window._AI.find(x=>x.id===iid);if(i)await addFinNotif(i.userId,'❌','Investment Rejected',`Your investment request has been reviewed and rejected.`);closeM('adminInvModal');toast2('Rejected');loadAdmData();}
+async function markInvPaid(iid,uid,amt){await db.collection('investments').doc(iid).update({status:'paid',paidAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection('users').doc(uid).update({walletBalance:firebase.firestore.FieldValue.increment(amt)});await db.collection('transactions').add({userId:uid,type:'wallet',amount:amt,description:'Investment maturity payout',meta:{type:'investment',investmentId:iid},status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()});await addFinNotif(uid,'💰','Investment Paid Out!',`${fmt(amt)} (principal + returns) has been credited to your wallet.`);toast2('Investment paid out!');loadAdmData();}
 
 function openCr(uid){document.getElementById('crUID').value=uid;document.getElementById('crAmt').value='';document.getElementById('crNote').value='';openM('adminCreditModal');}
 async function admWallet(a){const uid=document.getElementById('crUID').value,amt=parseFloat(document.getElementById('crAmt').value),note=document.getElementById('crNote').value.trim();if(!amt||amt<=0){toast2('Enter valid amount');return;}if(!note){toast2('Enter a note');return;}try{await db.collection('users').doc(uid).update({walletBalance:firebase.firestore.FieldValue.increment(a==='credit'?amt:-amt)});await db.collection('transactions').add({userId:uid,type:'wallet',amount:amt,description:note,meta:{action:a,by:CU.email},status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection('users').doc(uid).update({notifications:firebase.firestore.FieldValue.arrayUnion({id:Date.now().toString(),title:`Wallet ${a==='credit'?'Funded 💰':'Debited'}`,message:`${a==='credit'?'+':'-'}${fmt(amt)} — ${note}`,time:new Date().toISOString(),read:false})});closeM('adminCreditModal');toast2(`Wallet ${a}ed!`);loadAdmData();}catch(e){toast2('Failed: '+e.message);}}
-async function appPIN(rid,uid){await db.collection('users').doc(uid).update({pin:null});await db.collection('pinRequests').doc(rid).update({status:'approved'});await db.collection('users').doc(uid).update({notifications:firebase.firestore.FieldValue.arrayUnion({id:rid,title:'PIN Reset Approved ✅',message:'Log out and sign back in to set a new PIN.',time:new Date().toISOString(),read:false})});toast2('Approved!');showAT('pin');}
+async function appPIN(rid,uid){await db.collection('users').doc(uid).update({pin:null});await db.collection('pinRequests').doc(rid).update({status:'approved'});await db.collection('users').doc(uid).update({notifications:firebase.firestore.FieldValue.arrayUnion({id:rid,title:'PIN Reset Approved ✅',message:'Log out and sign in to set a new PIN.',time:new Date().toISOString(),read:false})});toast2('Approved!');showAT('pin');}
 async function rejPIN(rid){await db.collection('pinRequests').doc(rid).update({status:'rejected'});toast2('Rejected');showAT('pin');}
-async function appLoan(lid,uid,amt){await db.collection('users').doc(uid).update({walletBalance:firebase.firestore.FieldValue.increment(amt)});await db.collection('transactions').add({userId:uid,type:'wallet',amount:amt,description:'Loan disbursement',meta:{type:'loan'},status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()});await db.collection('loanRequests').doc(lid).update({status:'approved'});await db.collection('users').doc(uid).update({notifications:firebase.firestore.FieldValue.arrayUnion({id:lid,title:'Loan Approved! 🎉',message:`${fmt(amt)} credited to your wallet.`,time:new Date().toISOString(),read:false})});toast2('Loan approved!');showAT('loans');}
-async function rejLoan(lid){await db.collection('loanRequests').doc(lid).update({status:'rejected'});toast2('Rejected');showAT('loans');}
 
+function loadSplashAdmin(c){db.collection('splashSlides').orderBy('order','asc').get().then(snap=>{const sl=snap.docs.map(d=>({id:d.id,...d.data()}));const show=sl.length?sl:DEF_SP;c.innerHTML=`<button onclick="openAddSS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-bottom:11px;">+ Add Splash Slide</button>`+show.map(s=>`<div style="background:#1a2340;border-radius:11px;padding:12px;margin-bottom:7px;display:flex;align-items:center;gap:9px;"><img src="${s.bg}" style="width:46px;height:46px;border-radius:7px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'"/><div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.title}</p><p style="font-size:11px;color:rgba(255,255,255,0.5);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.subtitle||''}</p></div><div style="display:flex;gap:5px;flex-shrink:0;"><button onclick="editSS('${s.id}')" style="padding:4px 8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;font-size:11px;cursor:pointer;font-weight:600;">Edit</button><button onclick="delSS('${s.id}')" style="padding:4px 8px;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.28);border-radius:6px;color:#fca5a5;font-size:11px;cursor:pointer;font-weight:600;">Del</button></div></div>`).join('');}).catch(()=>{c.innerHTML=`<button onclick="openAddSS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;">+ Add Splash Slide</button>`;});}
+function loadPromoAdmin(c){db.collection('promoSlides').orderBy('order','asc').get().then(snap=>{const sl=snap.docs.map(d=>({id:d.id,...d.data()}));const show=sl.length?sl:DEF_PR;c.innerHTML=`<button onclick="openAddPS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;margin-bottom:11px;">+ Add Promo Slide</button>`+show.map(s=>`<div style="background:${s.bgColor||'#1a2340'};border-radius:11px;padding:12px;margin-bottom:7px;display:flex;align-items:center;gap:9px;"><span style="font-size:22px;flex-shrink:0;">${s.emoji||'💰'}</span><div style="flex:1;min-width:0;"><p style="font-size:13px;font-weight:600;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${s.title}</p><p style="font-size:11px;color:rgba(255,255,255,0.5);">${s.description}</p></div><div style="display:flex;gap:5px;flex-shrink:0;"><button onclick="editPS('${s.id}')" style="padding:4px 8px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:6px;color:#fff;font-size:11px;cursor:pointer;font-weight:600;">Edit</button><button onclick="delPS('${s.id}')" style="padding:4px 8px;background:rgba(239,68,68,0.18);border:1px solid rgba(239,68,68,0.28);border-radius:6px;color:#fca5a5;font-size:11px;cursor:pointer;font-weight:600;">Del</button></div></div>`).join('');}).catch(()=>{c.innerHTML=`<button onclick="openAddPS()" style="width:100%;padding:11px;border-radius:9px;background:#C9A84C;border:none;color:#fff;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;">+ Add Promo Slide</button>`;});}
 function openAddSS(){document.getElementById('ssEID').value='';document.getElementById('ssModalT').textContent='Add Splash Slide';['ssT','ssS','ssBG'].forEach(i=>document.getElementById(i).value='');document.getElementById('ssOV').value='#00000066';document.getElementById('ssAct').checked=true;openM('splashSlideModal');}
 async function editSS(id){try{const d=await db.collection('splashSlides').doc(id).get();if(!d.exists)return;const s={id:d.id,...d.data()};document.getElementById('ssEID').value=id;document.getElementById('ssModalT').textContent='Edit Splash Slide';document.getElementById('ssT').value=s.title||'';document.getElementById('ssS').value=s.subtitle||'';document.getElementById('ssBG').value=s.bg||'';document.getElementById('ssOV').value=s.overlay||'#00000066';document.getElementById('ssAct').checked=s.active!==false;openM('splashSlideModal');}catch(e){toast2('Load failed');}}
 async function saveSplashSlide(){const eid=document.getElementById('ssEID').value;const data={title:document.getElementById('ssT').value.trim(),subtitle:document.getElementById('ssS').value.trim(),bg:document.getElementById('ssBG').value.trim(),overlay:document.getElementById('ssOV').value.trim()||'#00000066',active:document.getElementById('ssAct').checked,order:Date.now()};if(!data.title||!data.bg){toast2('Title and image URL required');return;}try{if(eid)await db.collection('splashSlides').doc(eid).update(data);else await db.collection('splashSlides').add(data);closeM('splashSlideModal');toast2('Saved!');showAT('splash');loadSplash();}catch(e){toast2('Save failed');}}
-async function delSS(id){if(!confirm('Delete this splash slide?'))return;try{await db.collection('splashSlides').doc(id).delete();toast2('Deleted');showAT('splash');loadSplash();}catch(e){toast2('Failed');}}
-
+async function delSS(id){if(!confirm('Delete?'))return;try{await db.collection('splashSlides').doc(id).delete();toast2('Deleted');showAT('splash');loadSplash();}catch(e){toast2('Failed');}}
 function openAddPS(){document.getElementById('psEID').value='';document.getElementById('psModalT').textContent='Add Promo Slide';['psT','psD','psCTA'].forEach(i=>document.getElementById(i).value='');document.getElementById('psBG').value='#1a2340';document.getElementById('psEM').value='💰';document.getElementById('psAct').checked=true;openM('adminSlideModal');}
 async function editPS(id){try{const d=await db.collection('promoSlides').doc(id).get();if(!d.exists)return;const s={id:d.id,...d.data()};document.getElementById('psEID').value=id;document.getElementById('psModalT').textContent='Edit Promo Slide';document.getElementById('psT').value=s.title||'';document.getElementById('psD').value=s.description||'';document.getElementById('psCTA').value=s.cta||'';document.getElementById('psBG').value=s.bgColor||'#1a2340';document.getElementById('psEM').value=s.emoji||'💰';document.getElementById('psAct').checked=s.active!==false;openM('adminSlideModal');}catch(e){toast2('Load failed');}}
 async function savePromoSlide(){const eid=document.getElementById('psEID').value;const data={title:document.getElementById('psT').value.trim(),description:document.getElementById('psD').value.trim(),cta:document.getElementById('psCTA').value.trim(),bgColor:document.getElementById('psBG').value.trim(),emoji:document.getElementById('psEM').value.trim(),active:document.getElementById('psAct').checked,order:Date.now()};if(!data.title||!data.description){toast2('Title & description required');return;}try{if(eid)await db.collection('promoSlides').doc(eid).update(data);else await db.collection('promoSlides').add(data);closeM('adminSlideModal');toast2('Saved!');showAT('promo');loadPromo();}catch(e){toast2('Save failed');}}
-async function delPS(id){if(!confirm('Delete this slide?'))return;try{await db.collection('promoSlides').doc(id).delete();toast2('Deleted');showAT('promo');loadPromo();}catch(e){toast2('Failed');}}
+async function delPS(id){if(!confirm('Delete?'))return;try{await db.collection('promoSlides').doc(id).delete();toast2('Deleted');showAT('promo');loadPromo();}catch(e){toast2('Failed');}}
 async function doBcast(){const msg=document.getElementById('bMsg').value.trim();if(!msg){toast2('Enter message');return;}try{const s=await db.collection('users').get();const b=db.batch();s.docs.forEach(d=>{b.update(d.ref,{notifications:firebase.firestore.FieldValue.arrayUnion({id:Date.now().toString(),title:'📢 Announcement',message:msg,time:new Date().toISOString(),read:false})});});await b.commit();document.getElementById('bMsg').value='';toast2(`Sent to ${s.size} users!`);}catch(e){toast2('Failed');}}
 
 function doCp(text,btn){navigator.clipboard.writeText(text).then(()=>{if(btn){const o=btn.textContent;btn.textContent='Copied ✓';btn.style.background='#22c55e';setTimeout(()=>{btn.textContent=o;btn.style.background='';},2000);}else toast2('Copied!');}).catch(()=>toast2('Copy failed'));}
-function sendWA(){const nm=(UP?.firstName||'')+' '+(UP?.lastName||'');const msg=encodeURIComponent(`Hello ZMONIE,\n\nI've made a transfer and want to fund my account.\n\nName: ${nm}\nEmail: ${CU?.email||''}\n\n[Attach payment screenshot]\n\nKindly credit my wallet. Thank you!`);window.open(`https://wa.me/2348068886569?text=${msg}`,'_blank');}
+function sendWA(){const nm=(UP?.firstName||'')+' '+(UP?.lastName||'');const msg=encodeURIComponent(`Hello ZMONIE,\n\nI've made a transfer to fund my account.\n\nName: ${nm}\nEmail: ${CU?.email||''}\n\n[Attach payment screenshot]\n\nKindly credit my wallet. Thank you!`);window.open(`https://wa.me/2348068886569?text=${msg}`,'_blank');}
 
 document.addEventListener('DOMContentLoaded',()=>{loadSplash();showSec('home');});
 </script>
