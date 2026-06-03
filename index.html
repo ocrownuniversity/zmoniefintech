@@ -298,6 +298,21 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--black);over
         <div style="margin-bottom:11px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Email Address</label><input class="inp" type="email" id="rg-em" placeholder="you@example.com"/></div>
         <div style="margin-bottom:11px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Phone Number</label><input class="inp" type="tel" id="rg-ph" placeholder="080XXXXXXXX"/></div>
         <div style="margin-bottom:11px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Password</label><input class="inp" type="password" id="rg-pw" placeholder="Min. 6 characters"/></div>
+        <!-- Profile Photo Upload -->
+        <div style="margin-bottom:14px">
+          <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Profile Photo <span style="color:var(--g400);font-weight:400">(optional)</span></label>
+          <div style="display:flex;align-items:center;gap:12px">
+            <div id="rg-photo-preview" style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;overflow:hidden;flex-shrink:0;border:2px solid #dcfce7">📷</div>
+            <div style="flex:1">
+              <label for="rg-photo" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:var(--green-xl);border:1.5px solid #86efac;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--green-d)">
+                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Choose Photo
+              </label>
+              <input type="file" id="rg-photo" accept="image/*" capture="user" style="display:none" onchange="previewRegPhoto(event)"/>
+              <div style="font-size:11px;color:var(--g400);margin-top:5px">JPG or PNG · Max 3MB</div>
+            </div>
+          </div>
+        </div>
         <div style="margin-bottom:18px">
           <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Set Transaction PIN (4 digits)</label>
           <div style="display:flex;gap:10px;justify-content:center">
@@ -999,10 +1014,25 @@ async function doReg(){
   const pin=[1,2,3,4].map(i=>document.getElementById('rp'+i).value).join('');
   if(!fn||!ln||!em||!ph||!pw||pin.length!==4){toast('Please complete all fields including the 4-digit PIN');return;}
   try{
+    let photoURL='';
+    const photoFile=document.getElementById('rg-photo')?.files[0];
+    if(photoFile&&photoFile.size<=3*1024*1024){
+      photoURL=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(photoFile);});
+    }
     const cr=await auth.createUserWithEmailAndPassword(em,pw);
-    await db.collection('users').doc(cr.user.uid).set({name:fn+' '+ln,email:em,phone:ph,balance:0,pin:hp(pin),role:'user',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await db.collection('users').doc(cr.user.uid).set({name:fn+' '+ln,email:em,phone:ph,balance:0,pin:hp(pin),role:'user',photoURL,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
     await addNotif(cr.user.uid,'Welcome to ZMONIE!','Your account has been created. Fund your wallet to get started.');
   }catch(er){toast('Registration failed: '+er.message);}
+}
+function previewRegPhoto(event){
+  const file=event.target.files[0];if(!file)return;
+  if(file.size>3*1024*1024){toast('Photo too large. Max 3MB.');return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    const prev=document.getElementById('rg-photo-preview');
+    if(prev){prev.innerHTML='';const img=document.createElement('img');img.src=e.target.result;img.style.cssText='width:100%;height:100%;object-fit:cover;border-radius:50%';prev.appendChild(img);}
+  };
+  reader.readAsDataURL(file);
 }
 async function doGoogle(){
   try{
@@ -1023,23 +1053,33 @@ async function loadDash(){
   const s=await db.collection('users').doc(CU.uid).get();UD=s.data();
   const nm=UD.name||'User';
   const initials=nm.split(' ').map(w=>w[0]).join('').slice(0,2).toUpperCase();
-  const av=document.getElementById('d-avatar');if(av)av.textContent=initials;
+  // Update letter avatars
+  const avLtr=document.getElementById('d-avatar-letter');if(avLtr)avLtr.textContent=initials;
+  const prLtr=document.getElementById('pr-av-letter');if(prLtr)prLtr.textContent=initials;
   document.getElementById('d-name').textContent=nm;
   document.getElementById('d-bal').textContent=bHid?'NGN ****':'NGN '+fmt(UD.balance||0);
-  document.getElementById('d-accnum').textContent='Account: '+UD.phone||'—';
-  const prEl=document.getElementById('pr-av');if(prEl)prEl.textContent=initials;
+  document.getElementById('d-accnum').textContent='Account: '+(UD.phone||'—');
   document.getElementById('pr-name').textContent=nm;
   document.getElementById('pr-em').textContent=UD.email||'—';
+  // Show profile photo if saved
+  if(UD.photoURL)updateAvatarUI(UD.photoURL);
   loadNBadge();loadDashTx();loadSlider();startRealtimeSync();
 }
 
 function togBal(){bHid=!bHid;document.getElementById('d-bal').textContent=bHid?'NGN ****':'NGN '+fmt(UD?.balance||0);}
 
 async function loadDashTx(){
-  const s=await db.collection('transactions').where('userId','==',CU.uid).orderBy('createdAt','desc').limit(5).get();
   const el=document.getElementById('d-tx');
-  if(s.empty){el.innerHTML='<div style="padding:28px;text-align:center;color:var(--g400)"><div style="font-size:28px;margin-bottom:7px">📋</div><p style="font-size:13px">No transactions yet</p></div>';return;}
-  el.innerHTML=s.docs.map(d=>txRow(d.data())).join('');
+  try{
+    const s=await db.collection('transactions').where('userId','==',CU.uid).get();
+    if(s.empty){el.innerHTML='<div style="padding:28px;text-align:center;color:var(--g400)"><div style="font-size:28px;margin-bottom:7px">📋</div><p style="font-size:13px">No transactions yet</p></div>';return;}
+    const sorted=s.docs.map(d=>d.data()).sort((a,b)=>{
+      const ta=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0);
+      const tb=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);
+      return tb-ta;
+    }).slice(0,5);
+    el.innerHTML=sorted.map(d=>txRow(d)).join('');
+  }catch(er){el.innerHTML='<div style="padding:28px;text-align:center;color:var(--g400)"><div style="font-size:28px;margin-bottom:7px">📋</div><p style="font-size:13px">No transactions yet</p></div>';}
 }
 
 function txRow(tx){
@@ -1050,8 +1090,10 @@ function txRow(tx){
 
 // SLIDER — real-time Firestore listener so admin slides show instantly
 function loadSlider(){
-  db.collection('promos').where('active','==',true).orderBy('order').onSnapshot(snap=>{
-    const slides=snap.empty?defSlides():snap.docs.map(d=>({id:d.id,...d.data()}));
+  // Query without orderBy to avoid Firestore composite index; sort in JS
+  db.collection('promos').where('active','==',true).onSnapshot(snap=>{
+    let slides=snap.empty?defSlides():snap.docs.map(d=>({id:d.id,...d.data()}));
+    if(!snap.empty)slides=slides.sort((a,b)=>(a.order||0)-(b.order||0));
     renderSlider(slides);
   },(err)=>{renderSlider(defSlides());});
 }
@@ -1354,8 +1396,20 @@ async function vtpResult2(serviceID,variation_code,amount,requestRef){
 // HISTORY
 async function loadHist(){
   if(!CU)return;
-  const s=await db.collection('transactions').where('userId','==',CU.uid).orderBy('createdAt','desc').get();
-  allTx=s.docs.map(d=>({id:d.id,...d.data()}));renderHist(allTx);
+  const el=document.getElementById('hist-list');
+  if(el)el.innerHTML='<div style="padding:32px;text-align:center;color:var(--g400)"><div style="font-size:28px;margin-bottom:8px">⏳</div><p style="font-size:13px">Loading transactions...</p></div>';
+  try{
+    // Simple query without orderBy - sort in JS to avoid Firestore index requirement
+    const s=await db.collection('transactions').where('userId','==',CU.uid).get();
+    allTx=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{
+      const ta=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0);
+      const tb=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);
+      return tb-ta;
+    });
+    renderHist(allTx);
+  }catch(er){
+    if(el)el.innerHTML='<div style="padding:32px;text-align:center;color:var(--g400)"><div style="font-size:28px;margin-bottom:8px">⚠️</div><p style="font-size:13px">Could not load transactions</p></div>';
+  }
 }
 function renderHist(txs){
   const el=document.getElementById('hist-list');
@@ -1377,11 +1431,22 @@ async function loadNBadge(){
 }
 async function loadNotifs(){
   if(!CU)return;
-  const s=await db.collection('notifications').where('userId','==',CU.uid).orderBy('createdAt','desc').limit(40).get();
   const el=document.getElementById('notif-list');
-  if(s.empty){el.innerHTML='<div style="text-align:center;padding:52px 20px;color:var(--g400)"><div style="font-size:40px;margin-bottom:10px">🔔</div><p style="font-size:14px">No notifications yet</p></div>';return;}
-  el.innerHTML=s.docs.map(d=>{const n=d.data();return`<div class="nrow${n.read?'':' unread'}" onclick="this.classList.remove('unread')"><div style="font-weight:700;font-size:14px;margin-bottom:4px">${n.title}</div><div style="font-size:13px;color:var(--g600);line-height:1.5">${n.body}</div><div style="font-size:11px;color:var(--g400);margin-top:5px">${fdate(n.createdAt)}</div></div>`;}).join('');
-  s.docs.forEach(d=>d.ref.update({read:true}));loadNBadge();
+  if(el)el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--g400)"><div style="font-size:30px;margin-bottom:8px">⏳</div><p style="font-size:13px">Loading notifications...</p></div>';
+  try{
+    // Use simple query without orderBy to avoid needing a Firestore composite index
+    const s=await db.collection('notifications').where('userId','==',CU.uid).get();
+    if(s.empty){el.innerHTML='<div style="text-align:center;padding:52px 20px;color:var(--g400)"><div style="font-size:40px;margin-bottom:10px">🔔</div><p style="font-size:14px">No notifications yet</p></div>';return;}
+    // Sort by date in JS (newest first)
+    const docs=s.docs.map(d=>({id:d.id,ref:d.ref,...d.data()})).sort((a,b)=>{
+      const ta=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0);
+      const tb=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);
+      return tb-ta;
+    }).slice(0,40);
+    el.innerHTML=docs.map(n=>`<div class="nrow${n.read?'':' unread'}" onclick="this.classList.remove('unread')"><div style="font-weight:700;font-size:14px;margin-bottom:4px">${n.title||''}</div><div style="font-size:13px;color:var(--g600);line-height:1.5">${n.body||''}</div><div style="font-size:11px;color:var(--g400);margin-top:5px">${fdate(n.createdAt)}</div></div>`).join('');
+    docs.forEach(n=>{if(!n.read)n.ref.update({read:true});});
+    loadNBadge();
+  }catch(er){if(el)el.innerHTML='<div style="text-align:center;padding:40px 20px;color:var(--g400)"><div style="font-size:30px;margin-bottom:8px">⚠️</div><p style="font-size:13px">Could not load notifications</p></div>';}
 }
 
 // PIN MANAGEMENT
@@ -1807,13 +1872,21 @@ async function addFinanceNotif(uid,title,body){
 async function loadFinanceNotifs(){
   if(!CU)return;
   const fnb=document.getElementById('fn-badge');
-  const s=await db.collection('financeNotifications').where('userId','==',CU.uid).orderBy('createdAt','desc').limit(40).get();
-  const unread=s.docs.filter(d=>!d.data().read).length;
-  if(fnb){if(unread>0){fnb.style.display='flex';fnb.textContent=unread;}else fnb.style.display='none';}
-  const el=document.getElementById('fin-notif-list');if(!el)return;
-  if(s.empty){el.innerHTML='<div style="text-align:center;padding:52px 20px;color:var(--g400)"><div style="font-size:40px;margin-bottom:10px">🔔</div><p style="font-size:14px">No finance alerts yet</p></div>';return;}
-  el.innerHTML=s.docs.map(d=>{const n=d.data();return`<div class="nrow${n.read?'':' unread'}" style="border-left-color:#7c3aed" onclick="this.classList.remove('unread')"><div style="font-weight:700;font-size:14px;margin-bottom:4px">${n.title}</div><div style="font-size:13px;color:var(--g600);line-height:1.5">${n.body}</div><div style="font-size:11px;color:var(--g400);margin-top:5px">${fdate(n.createdAt)}</div></div>`;}).join('');
-  s.docs.forEach(d=>d.ref.update({read:true}));
+  const el=document.getElementById('fin-notif-list');
+  try{
+    const s=await db.collection('financeNotifications').where('userId','==',CU.uid).get();
+    const docs=s.docs.map(d=>({id:d.id,ref:d.ref,...d.data()})).sort((a,b)=>{
+      const ta=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0);
+      const tb=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);
+      return tb-ta;
+    }).slice(0,40);
+    const unread=docs.filter(n=>!n.read).length;
+    if(fnb){if(unread>0){fnb.style.display='flex';fnb.textContent=unread;}else fnb.style.display='none';}
+    if(!el)return;
+    if(!docs.length){el.innerHTML='<div style="text-align:center;padding:52px 20px;color:var(--g400)"><div style="font-size:40px;margin-bottom:10px">🔔</div><p style="font-size:14px">No finance alerts yet</p></div>';return;}
+    el.innerHTML=docs.map(n=>`<div class="nrow${n.read?'':' unread'}" style="border-left-color:#7c3aed" onclick="this.classList.remove('unread')"><div style="font-weight:700;font-size:14px;margin-bottom:4px">${n.title||''}</div><div style="font-size:13px;color:var(--g600);line-height:1.5">${n.body||''}</div><div style="font-size:11px;color:var(--g400);margin-top:5px">${fdate(n.createdAt)}</div></div>`).join('');
+    docs.forEach(n=>{if(!n.read)n.ref.update({read:true});});
+  }catch(er){if(fnb)fnb.style.display='none';}
 }
 
 async function loadFinanceDash(){
@@ -2125,10 +2198,16 @@ async function getVtpassConfig(){
 // ── Real-time transaction sync ──
 function startRealtimeSync(){
   if(!CU)return;
-  db.collection('transactions').where('userId','==',CU.uid).orderBy('createdAt','desc').limit(10).onSnapshot(snap=>{
+  // No orderBy in onSnapshot query to avoid index requirement; sort in JS
+  db.collection('transactions').where('userId','==',CU.uid).onSnapshot(snap=>{
     const el=document.getElementById('d-tx');if(!el)return;
     if(snap.empty){el.innerHTML='<div style="padding:28px;text-align:center;color:var(--g400)"><div style="font-size:28px;margin-bottom:7px">📋</div><p style="font-size:13px">No transactions yet</p></div>';return;}
-    el.innerHTML=snap.docs.map(d=>txRow(d.data())).join('');
+    const sorted=snap.docs.map(d=>d.data()).sort((a,b)=>{
+      const ta=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0);
+      const tb=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);
+      return tb-ta;
+    }).slice(0,10);
+    el.innerHTML=sorted.map(d=>txRow(d)).join('');
   });
   db.collection('users').doc(CU.uid).onSnapshot(snap=>{
     if(!snap.exists)return;
