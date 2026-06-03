@@ -2294,7 +2294,8 @@ async function submitLoan(){
     // Show doc fee reminder
     setTimeout(()=>{
       const d = calcLoanDetails(amt);
-      const msg = `LOAN SUMMARY\n\nAmount: NGN ${fmt(amt)}\nInterest (24%): NGN ${fmt(d.charge)}\nTotal Repayable: NGN ${fmt(d.totalRepay)}\nDaily Collection: NGN ${fmt(d.dailyRepay).replace(/(\.\d{1,2})\d*/,'$1')}\nLoan Term: 30 days\n\nIMPORTANT: Pay NGN 5,000 documentation fee to ZMONIE account before your loan is processed. Chat support on WhatsApp.`;
+      const dailyFmt = Math.round(d.dailyRepay * 100) / 100;
+      const msg = 'LOAN SUMMARY\n\nAmount: NGN ' + fmt(amt) + '\nInterest (24%): NGN ' + fmt(d.charge) + '\nTotal Repayable: NGN ' + fmt(d.totalRepay) + '\nDaily Collection: NGN ' + dailyFmt + '\nLoan Term: 30 days\n\nIMPORTANT: Pay NGN 5,000 documentation fee to ZMONIE account before your loan is processed. Chat support on WhatsApp.';
       alert(msg);
     }, 800);
   }catch(er){
@@ -2817,4 +2818,3 @@ async function showAdminSchedule(loanId){
 
 </body>
 </html>
-*/
