@@ -1551,25 +1551,26 @@ async function apiFetch(endpointKey, params={}, txMeta={}){
 // ── Success detection for Nellobytesystems responses ──
 function isApiSuccess(res){
   if(!res) return false;
-  const st   = String(res.status||res.Status||res.statuscode||res.StatusCode||res.code||'').toLowerCase();
-  const sc   = String(res.statuscode||res.StatusCode||'').toLowerCase();
-  const msg  = String(res.message||res.Message||res.description||'').toLowerCase();
+  const st  = String(res.status  ||res.Status  ||'');
+  const sc  = String(res.statuscode||res.StatusCode||res.code||'');
+  const stL = st.toLowerCase();
+  const scL = sc.toLowerCase();
+  const msg = String(res.message ||res.Message ||res.description||'').toLowerCase();
 
-  // ── Nellobytesystems success codes (from real API responses) ──
-  // statuscode=100 + status=ORDER_RECEIVED = airtime/data accepted
-  // statuscode=100 + status=ORDER_QUEUED   = queued for processing
-  // statuscode=200 + status=SUCCESSFUL     = completed
-  const NBS_SUCCESS_CODES   = ['100','200','00','0'];
-  const NBS_SUCCESS_STATUSES= ['order_received','order_queued','successful','success','completed','delivered'];
-  const NBS_FAIL_STATUSES   = ['invalid','missing','error','failed','unauthorized','insufficient','unknown'];
+  // ── Nellobytesystems confirmed success indicators ──
+  // Proven from real responses: statuscode="100", status="ORDER_RECEIVED"
+  if(sc==='100'||sc==='200') return true;
+  if(stL==='order_received'||stL==='order_queued'||stL==='successful'||stL==='completed'||stL==='delivered') return true;
+  if(scL==='00'||scL==='0'||scL==='1') return true;
+  if(stL.includes('success')||msg.includes('success')) return true;
 
-  const codeOk   = NBS_SUCCESS_CODES.some(c => sc===c);
-  const statusOk = NBS_SUCCESS_STATUSES.some(s => st.includes(s));
-  const isFail   = NBS_FAIL_STATUSES.some(f => st.includes(f) || msg.includes(f));
+  // ── Explicit failures — only fail if clearly an error keyword ──
+  const FAIL = ['invalid','missing','error','failed','unauthorized','insufficient'];
+  if(FAIL.some(f=>stL.includes(f)||msg.includes(f))) return false;
 
-  const ok = !isFail && (codeOk || statusOk);
-  console.log('[isApiSuccess] st='+st+' sc='+sc+' codeOk='+codeOk+' statusOk='+statusOk+' isFail='+isFail+' → '+ok);
-  return ok;
+  // Default: treat unknown responses as pending (not failure) — log for review
+  console.warn('[isApiSuccess] Unknown response — treating as PENDING. st='+st+' sc='+sc);
+  return false;
 }
 
 function getApiStatusLabel(res){
@@ -1633,10 +1634,12 @@ function extractNBSPlans(res, networkId){
           if(idx===0) console.log('[NBS] First product raw:', JSON.stringify(prod));
           // PRODUCT_CODE is what NBS DataPlan param expects
           // Fall back to PRODUCT_SNO if PRODUCT_CODE is missing/empty
-          const pcode = prod.PRODUCT_CODE || prod.product_code || prod.code || prod.PRODUCT_SNO || prod.SNO || String(idx+1);
+          const pSno  = String(prod.PRODUCT_SNO || prod.SNO || prod.sno || (idx+1));
+          const pCode = String(prod.PRODUCT_CODE|| prod.product_code || prod.code || pSno);
+          if(idx===0) console.log('[NBS] Product fields — SNO:'+pSno+' CODE:'+pCode+' NAME:'+(prod.PRODUCT_NAME||'')+ ' AMT:'+(prod.PRODUCT_AMOUNT||''));
           allPlans.push({
-            variation_code   : String(pcode),
-            variation_sno    : String(prod.PRODUCT_SNO || prod.SNO || ''),
+            variation_code   : pCode,  // PRODUCT_CODE (internal ref)
+            variation_sno    : pSno,   // PRODUCT_SNO  (what NBS DataPlan param needs)
             variation_name   : String(prod.PRODUCT_NAME || prod.product_name || prod.name || prod.PLAN || ''),
             variation_amount : String(prod.PRODUCT_AMOUNT || prod.product_amount || prod.price || prod.AMOUNT || 0),
             description      : String(prod.PRODUCT_NAME || prod.product_name || prod.name || '')
@@ -1946,11 +1949,14 @@ async function apiAirtime(phone, network, amount, reqId){
 }
 async function apiData(phone, network, planCode, amount, reqId, planSno){
   const netId = resolveNetworkId(network);
-  console.log('[API] Data → MobileNetwork:',netId,' DataPlan:',planCode,' SNO:',planSno);
+  // NBS DataPlan param = PRODUCT_SNO (the plan serial number like "1","2","3")
+  // PRODUCT_CODE is an internal reference — NBS purchase endpoint uses SNO
+  const dataplanId = planSno || planCode;
+  console.log('[API] Data → MobileNetwork:'+netId+' DataPlan:'+dataplanId+' (code:'+planCode+' sno:'+planSno+')');
   return apiFetch('data',{
     MobileNumber : phone,
     MobileNetwork: netId,
-    DataPlan     : planCode,
+    DataPlan     : dataplanId,
     Amount       : amount,
     RequestID    : reqId
   },{ type:'data', amount, userId:CU?.uid||'' });
