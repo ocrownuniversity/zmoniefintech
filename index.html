@@ -1231,14 +1231,15 @@ function procSvc(type){
     const opt=amtEl?.options[amtEl.selectedIndex];
     const code=opt?.dataset?.code||'';
     const sno =opt?.dataset?.sno||'';
+    const pid =opt?.dataset?.pid||'';
     const planName=opt?.dataset?.name||'Data';
     const validity=opt?.dataset?.validity||'';
-    if(!code&&!sno){toast('Please select a data plan first');return;}
-    console.log('[procSvc] Data plan code:',code,'sno:',sno,'name:',planName,'price:',opt?.value);
+    if(!code&&!sno&&!pid){toast('Please select a data plan first');return;}
+    console.log('[procSvc] code:',code,'sno:',sno,'pid:',pid,'name:',planName);
     const netBtn=document.querySelector('#svc-body div button[style*="green-xl"]');
     const netName=netBtn?netBtn.textContent.trim():'MTN';
     const netEntry=NET_MAP[netName]||{airtime:'MTN',data:'MTN'};
-    extra={phone,networkId:netEntry.data,variationCode:code,variationSno:sno,planName:netName+' '+planName+(validity?' ('+validity+')':'')};
+    extra={phone,networkId:netEntry.data,variationCode:code,variationSno:sno,variationPid:pid,planName:netName+' '+planName+(validity?' ('+validity+')':'')};
   }else if(type==='cable'){
     const smartcard=document.getElementById('s-phone')?.value?.trim();
     if(!smartcard){toast('Enter your smart card number');return;}
@@ -1334,7 +1335,7 @@ async function execSvc({type, amt, extra, useRewards}){
     if(type==='airtime'){
       apiResult = await apiAirtime(extra.phone, extra.networkId, amt, ref);
     }else if(type==='data'){
-      apiResult = await apiData(extra.phone, extra.networkId, extra.variationCode, amt, ref, extra.variationSno);
+      apiResult = await apiData(extra.phone, extra.networkId, extra.variationCode, amt, ref, extra.variationSno, extra.variationPid);
     }else if(type==='cable'){
       apiResult = await apiCable(extra.smartcard, extra.serviceId, extra.variationCode, amt, ref);
     }else if(type==='electricity'){
@@ -1635,17 +1636,17 @@ function extractNBSPlans(res, networkId){
           if(idx===0) console.log('[NBS] First product raw:', JSON.stringify(prod));
           // PRODUCT_CODE is what NBS DataPlan param expects
           // Fall back to PRODUCT_SNO if PRODUCT_CODE is missing/empty
-          const pSno  = String(prod.PRODUCT_SNO || prod.SNO || prod.sno || (idx+1));
-          const pCode = String(prod.PRODUCT_CODE|| prod.product_code || prod.code || pSno);
+          const pSno  = String(prod.PRODUCT_SNO || prod.SNO  || prod.sno  || (idx+1));
+          const pCode = String(prod.PRODUCT_CODE|| prod.product_code || prod.code || '');
+          const pId   = String(prod.PRODUCT_ID  || prod.product_id   || prod.pid  || '');
           if(idx===0){
-            console.log('[NBS] Product fields — SNO:'+pSno+' CODE:'+pCode+' NAME:'+(prod.PRODUCT_NAME||'')+ ' AMT:'+(prod.PRODUCT_AMOUNT||''));
             console.log('[NBS] Full first product JSON:', JSON.stringify(prod));
-            // Show on screen so we can see without DevTools
-            setTimeout(()=>toast('Plan 1: SNO='+pSno+' CODE='+pCode),500);
+            setTimeout(()=>toast('Plan1 SNO='+pSno+' CODE='+pCode+' ID='+pId), 500);
           }
           allPlans.push({
-            variation_code   : pCode,  // PRODUCT_CODE (internal ref)
-            variation_sno    : pSno,   // PRODUCT_SNO  (what NBS DataPlan param needs)
+            variation_code   : pCode, // PRODUCT_CODE
+            variation_sno    : pSno,  // PRODUCT_SNO
+            variation_id     : pId,   // PRODUCT_ID
             variation_name   : String(prod.PRODUCT_NAME || prod.product_name || prod.name || prod.PLAN || ''),
             variation_amount : String(prod.PRODUCT_AMOUNT || prod.product_amount || prod.price || prod.AMOUNT || 0),
             description      : String(prod.PRODUCT_NAME || prod.product_name || prod.name || '')
@@ -1861,6 +1862,7 @@ function renderPlans(plans, sel, infoEl){
     opt.value = price;
     opt.dataset.code     = p.variation_code  || code;
     opt.dataset.sno      = p.variation_sno   || '';
+    opt.dataset.pid      = p.variation_id    || '';
     opt.dataset.validity = validity;
     opt.dataset.name     = name;
     opt.textContent      = name+(validity?' ('+validity+')':'')+' — NGN '+fmt(price);
@@ -1953,14 +1955,13 @@ async function apiAirtime(phone, network, amount, reqId){
     RequestID:reqId
   },{ type:'airtime', amount, userId:CU?.uid||'' });
 }
-async function apiData(phone, network, planCode, amount, reqId, planSno){
+async function apiData(phone, network, planCode, amount, reqId, planSno, planPid){
   const netId = resolveNetworkId(network);
-  // NBS DataPlan param = PRODUCT_SNO (the plan serial number like "1","2","3")
-  // PRODUCT_CODE is an internal reference — NBS purchase endpoint uses SNO
-  const dataplanId = planSno || planCode;
-  // Show exactly what we're sending — visible on screen
-  toast('Sending → Network:'+netId+' Plan:'+dataplanId);
-  console.log('[API] Data → MobileNetwork:'+netId+' DataPlan:'+dataplanId+' (code:'+planCode+' sno:'+planSno+')');
+  // From diagnostics: PRODUCT_SNO=1 failed, PRODUCT_CODE=2, PRODUCT_ID=500.0
+  // NBS DataPlan param = PRODUCT_CODE (not SNO, not ID)
+  const dataplanId = planCode || planSno || planPid;
+  toast('Sending → Net:'+netId+' Plan:'+dataplanId);
+  console.log('[API] Data → MobileNetwork:'+netId+' DataPlan:'+dataplanId+' code='+planCode+' sno='+planSno+' pid='+planPid);
   const result = await apiFetch('data',{
     MobileNumber : phone,
     MobileNetwork: netId,
