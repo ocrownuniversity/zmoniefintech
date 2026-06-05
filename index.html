@@ -1488,7 +1488,7 @@ function genRequestId(){
 }
 function txRef(){ return genRequestId(); }
 
-// ── Core API fetch (GET with query params — no CORS proxy needed) ──
+// ── Core API fetch — routes through corsproxy.io to bypass CORS ──
 // Logs every request + response to Firestore api_logs collection
 async function apiFetch(endpointKey, params={}, txMeta={}){
   await loadApiConfig();
@@ -1505,9 +1505,10 @@ async function apiFetch(endpointKey, params={}, txMeta={}){
     APIKey : API_CFG.apiKey,
     output : 'JSON'
   }, params);
-  const qs  = Object.entries(allParams).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
-  const fullUrl = url + '?' + qs;
-  const safeUrl = fullUrl.replace(API_CFG.apiKey, '***HIDDEN***');
+  const qs       = Object.entries(allParams).map(([k,v])=>encodeURIComponent(k)+'='+encodeURIComponent(v)).join('&');
+  const fullUrl  = url + '?' + qs;
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(fullUrl);
+  const safeUrl  = fullUrl.replace(API_CFG.apiKey, '***HIDDEN***');
   console.log('[API] →', endpointKey, safeUrl);
 
   const logRef = db.collection('api_logs').doc();
@@ -1527,7 +1528,7 @@ async function apiFetch(endpointKey, params={}, txMeta={}){
 
   let raw='', parsed=null, httpStatus=0;
   try{
-    const res = await fetch(fullUrl);
+    const res = await fetch(proxyUrl);
     httpStatus = res.status;
     raw = await res.text();
     console.log('[API] ← HTTP', httpStatus, raw.slice(0,300));
