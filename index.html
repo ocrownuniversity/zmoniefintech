@@ -1230,13 +1230,15 @@ function procSvc(type){
     if(!phone||phone.length<11){toast('Enter a valid 11-digit phone number');return;}
     const opt=amtEl?.options[amtEl.selectedIndex];
     const code=opt?.dataset?.code||'';
+    const sno =opt?.dataset?.sno||'';
     const planName=opt?.dataset?.name||'Data';
     const validity=opt?.dataset?.validity||'';
-    if(!code){toast('Please select a data plan first');return;}
+    if(!code&&!sno){toast('Please select a data plan first');return;}
+    console.log('[procSvc] Data plan code:',code,'sno:',sno,'name:',planName,'price:',opt?.value);
     const netBtn=document.querySelector('#svc-body div button[style*="green-xl"]');
     const netName=netBtn?netBtn.textContent.trim():'MTN';
-    const netEntry=NET_MAP[netName]||{airtime:'mtn',data:'mtn-data'};
-    extra={phone,networkId:netEntry.data,variationCode:code,planName:netName+' '+planName+(validity?' ('+validity+')':'')};
+    const netEntry=NET_MAP[netName]||{airtime:'MTN',data:'MTN'};
+    extra={phone,networkId:netEntry.data,variationCode:code,variationSno:sno,planName:netName+' '+planName+(validity?' ('+validity+')':'')};
   }else if(type==='cable'){
     const smartcard=document.getElementById('s-phone')?.value?.trim();
     if(!smartcard){toast('Enter your smart card number');return;}
@@ -1332,7 +1334,7 @@ async function execSvc({type, amt, extra, useRewards}){
     if(type==='airtime'){
       apiResult = await apiAirtime(extra.phone, extra.networkId, amt, ref);
     }else if(type==='data'){
-      apiResult = await apiData(extra.phone, extra.networkId, extra.variationCode, amt, ref);
+      apiResult = await apiData(extra.phone, extra.networkId, extra.variationCode, amt, ref, extra.variationSno);
     }else if(type==='cable'){
       apiResult = await apiCable(extra.smartcard, extra.serviceId, extra.variationCode, amt, ref);
     }else if(type==='electricity'){
@@ -1358,7 +1360,8 @@ async function execSvc({type, amt, extra, useRewards}){
       }else{
         await db.collection('users').doc(CU.uid).update({balance:firebase.firestore.FieldValue.increment(-amt)});
       }
-      await txRef2.update({status:'success', apiCode:respCode, apiDesc:respDesc, apiResponse:JSON.stringify(apiResult).slice(0,800)});
+      const txLabel=getApiStatusLabel(apiResult);
+      await txRef2.update({status:'success', apiCode:respCode, apiDesc:txLabel, apiResponse:JSON.stringify(apiResult).slice(0,800)});
 
       // ── Cashback reward ──
       try{
@@ -1383,7 +1386,7 @@ async function execSvc({type, amt, extra, useRewards}){
       }catch(e){ console.warn('Cashback error',e); }
 
       await addNotif(CU.uid,'Transaction Successful',(extra?.planName||descs[type])+' of NGN '+fmt(amt)+' was successful.');
-      toast('Transaction successful!');
+      toast('✅ Transaction '+getApiStatusLabel(apiResult)+'!');
       showReceipt({type, amt, extra, ref, descs, vtpResult:apiResult, cashback:0});
       loadDash(); pSvc=null;
 
@@ -1548,15 +1551,35 @@ async function apiFetch(endpointKey, params={}, txMeta={}){
 // ── Success detection for Nellobytesystems responses ──
 function isApiSuccess(res){
   if(!res) return false;
-  const st  = String(res.status||res.Status||res.StatusCode||res.code||res.Code||'').toLowerCase();
-  const msg = String(res.message||res.Message||res.description||res.Description||res.response_description||'').toLowerCase();
-  // Explicit failure keywords from Nellobytesystems
-  const failKeywords = ['missing','invalid','error','fail','network','unauthorized','unknown','insufficient'];
-  const isFail = failKeywords.some(k => st.includes(k) || msg.includes(k));
-  const ok = !isFail && (st.includes('success') || st==='00' || st==='0' || st==='1'
-    || msg.includes('successful') || msg.includes('success'));
-  console.log('[isApiSuccess] st='+JSON.stringify(st)+' msg='+JSON.stringify(msg)+' isFail='+isFail+' → '+ok);
+  const st   = String(res.status||res.Status||res.statuscode||res.StatusCode||res.code||'').toLowerCase();
+  const sc   = String(res.statuscode||res.StatusCode||'').toLowerCase();
+  const msg  = String(res.message||res.Message||res.description||'').toLowerCase();
+
+  // ── Nellobytesystems success codes (from real API responses) ──
+  // statuscode=100 + status=ORDER_RECEIVED = airtime/data accepted
+  // statuscode=100 + status=ORDER_QUEUED   = queued for processing
+  // statuscode=200 + status=SUCCESSFUL     = completed
+  const NBS_SUCCESS_CODES   = ['100','200','00','0'];
+  const NBS_SUCCESS_STATUSES= ['order_received','order_queued','successful','success','completed','delivered'];
+  const NBS_FAIL_STATUSES   = ['invalid','missing','error','failed','unauthorized','insufficient','unknown'];
+
+  const codeOk   = NBS_SUCCESS_CODES.some(c => sc===c);
+  const statusOk = NBS_SUCCESS_STATUSES.some(s => st.includes(s));
+  const isFail   = NBS_FAIL_STATUSES.some(f => st.includes(f) || msg.includes(f));
+
+  const ok = !isFail && (codeOk || statusOk);
+  console.log('[isApiSuccess] st='+st+' sc='+sc+' codeOk='+codeOk+' statusOk='+statusOk+' isFail='+isFail+' → '+ok);
   return ok;
+}
+
+function getApiStatusLabel(res){
+  // Human-readable label for NBS statuses shown in receipts/history
+  const st = String(res?.status||res?.Status||'').toUpperCase();
+  const labels = {
+    'ORDER_RECEIVED':'Processing','ORDER_QUEUED':'Queued',
+    'SUCCESSFUL':'Successful','COMPLETED':'Completed','DELIVERED':'Delivered'
+  };
+  return labels[st] || st || 'Processed';
 }
 
 function getApiError(res){
@@ -1605,9 +1628,15 @@ function extractNBSPlans(res, networkId){
         }
         const products = prov.PRODUCT || prov.products || prov.Plans || [];
         console.log('[NBS] Provider:', JSON.stringify(prov).slice(0,80), '| products:', products.length);
-        products.forEach(prod => {
+        products.forEach((prod,idx) => {
+          // Log first plan so we can see exact field values
+          if(idx===0) console.log('[NBS] First product raw:', JSON.stringify(prod));
+          // PRODUCT_CODE is what NBS DataPlan param expects
+          // Fall back to PRODUCT_SNO if PRODUCT_CODE is missing/empty
+          const pcode = prod.PRODUCT_CODE || prod.product_code || prod.code || prod.PRODUCT_SNO || prod.SNO || String(idx+1);
           allPlans.push({
-            variation_code   : String(prod.PRODUCT_CODE || prod.product_code || prod.code || prod.PRODUCT_SNO || ''),
+            variation_code   : String(pcode),
+            variation_sno    : String(prod.PRODUCT_SNO || prod.SNO || ''),
             variation_name   : String(prod.PRODUCT_NAME || prod.product_name || prod.name || prod.PLAN || ''),
             variation_amount : String(prod.PRODUCT_AMOUNT || prod.product_amount || prod.price || prod.AMOUNT || 0),
             description      : String(prod.PRODUCT_NAME || prod.product_name || prod.name || '')
@@ -1746,7 +1775,13 @@ async function fetchCablePlans(provider){
   sel.innerHTML = '<option value="">Loading packages...</option>';
   console.log('[PLANS] Fetching cable plans for:', provider);
   try{
-    const res = await apiFetch('cablePlans', { CableNetwork: provider });
+    // NBS cable plans — try both param names
+    let res = await apiFetch('cablePlans', { NetworkID: provider });
+    // If empty, retry with MobileNetwork param
+    if(!res || (typeof res==='object' && !Array.isArray(res) && Object.values(res).every(v=>!v))){
+      console.log('[PLANS] Cable retry with MobileNetwork param');
+      res = await apiFetch('cablePlans', { MobileNetwork: provider });
+    }
     if(loadEl) loadEl.style.display='none';
     console.log('[PLANS] Cable raw response:', JSON.stringify(res));
     const plans = extractPlansArray(res);
@@ -1815,7 +1850,8 @@ function renderPlans(plans, sel, infoEl){
     const validity = hm?hm[1]+' Hours':dm?dm[1]+' Days':mm?mm[1]+' Month'+(parseInt(mm[1])>1?'s':''):'';
     const opt = document.createElement('option');
     opt.value = price;
-    opt.dataset.code     = code;
+    opt.dataset.code     = p.variation_code  || code;
+    opt.dataset.sno      = p.variation_sno   || '';
     opt.dataset.validity = validity;
     opt.dataset.name     = name;
     opt.textContent      = name+(validity?' ('+validity+')':'')+' — NGN '+fmt(price);
@@ -1908,15 +1944,15 @@ async function apiAirtime(phone, network, amount, reqId){
     RequestID:reqId
   },{ type:'airtime', amount, userId:CU?.uid||'' });
 }
-async function apiData(phone, network, planCode, amount, reqId){
+async function apiData(phone, network, planCode, amount, reqId, planSno){
   const netId = resolveNetworkId(network);
-  console.log('[API] Data MobileNetwork resolved:', network, '→', netId, 'plan:', planCode);
+  console.log('[API] Data → MobileNetwork:',netId,' DataPlan:',planCode,' SNO:',planSno);
   return apiFetch('data',{
-    MobileNumber:phone,
-    MobileNetwork:netId,
-    DataPlan:planCode,
-    Amount:amount,
-    RequestID:reqId
+    MobileNumber : phone,
+    MobileNetwork: netId,
+    DataPlan     : planCode,
+    Amount       : amount,
+    RequestID    : reqId
   },{ type:'data', amount, userId:CU?.uid||'' });
 }
 async function apiCable(smartcard, provider, planCode, amount, reqId){
