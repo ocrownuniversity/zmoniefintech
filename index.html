@@ -779,7 +779,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--black);over
     <input class="pbox" type="password" maxlength="1" id="vp1" oninput="pn('vp1','vp2')"/>
     <input class="pbox" type="password" maxlength="1" id="vp2" oninput="pn('vp2','vp3')"/>
     <input class="pbox" type="password" maxlength="1" id="vp3" oninput="pn('vp3','vp4')"/>
-    <input class="pbox" type="password" maxlength="1" id="vp4"/>
+    <input class="pbox" type="password" maxlength="1" id="vp4" oninput="if(this.value.length===1)verPin()"/>
   </div>
   <!-- Rewards balance option (shown only when user has enough rewards) -->
   <div id="pin-rw-note" style="display:none;background:#f0fdf4;border:1px solid #86efac;border-radius:11px;padding:12px;margin-bottom:14px;align-items:center;gap:10px">
@@ -1244,7 +1244,7 @@ function procSvc(type){
     const code=opt?.dataset?.code||opt?.value||'';
     const netBtn=document.querySelector('#svc-body div button[style*="green-xl"]');
     const provider=(netBtn?netBtn.textContent.trim():'DSTV').toLowerCase().replace(/\s/g,'');
-    const svcMap={'dstv':'dstv','gotv':'gotv','startimes':'startimes'};
+    const svcMap={'dstv':'DSTV','gotv':'GOTV','startimes':'STARTIMES'};
     extra={smartcard,serviceId:svcMap[provider]||'dstv',variationCode:code,planName:opt?.text||'Cable TV'};
   }else if(type==='electricity'){
     const meter=document.getElementById('s-meter')?.value?.trim();
@@ -1252,9 +1252,9 @@ function procSvc(type){
     const disco=document.getElementById('s-phone')?.value||'';
     // VTPass electricity serviceIDs (exact, case-sensitive)
     const discoMap={
-      'EKEDC':'ekedc','IKEDC':'ikeja-electric','AEDC':'abuja-electric',
-      'IBEDC':'ibadan-electric','PHEDC':'phed','EEDC':'enugu-electric',
-      'KEDC':'kano-electric','JED':'jos-electric'
+      'EKEDC':'EKEDC','IKEDC':'IKEDC','AEDC':'AEDC',
+      'IBEDC':'IBEDC','PHEDC':'PHEDC','EEDC':'EEDC',
+      'KEDC':'KEDC','JED':'JED'
     };
     const svcKey=Object.keys(discoMap).find(k=>disco.includes(k));
     const serviceId=discoMap[svcKey]||'ikeja-electric';
@@ -1283,8 +1283,21 @@ async function verPin(){
   closeM('m-pin');
   if(pSvc){
     const useRewards=document.getElementById('use-rewards-chk')?.checked||false;
+    const btn=document.querySelector('#m-pin .btn-g');
+    if(btn){btn.textContent='Processing...';btn.disabled=true;}
     toast('Processing...');
-    await execSvc({...pSvc,useRewards});
+    console.log('[verPin] Calling execSvc with pSvc:',JSON.stringify(pSvc));
+    try{
+      await execSvc({...pSvc,useRewards});
+    }catch(e){
+      console.error('[verPin] execSvc threw:',e);
+      toast('Error: '+e.message);
+    }finally{
+      if(btn){btn.textContent='Confirm';btn.disabled=false;}
+    }
+  }else{
+    console.warn('[verPin] pSvc is null — nothing to process');
+    toast('Session expired. Please start the transaction again.');
   }
 }
 // ===== TRANSACTION EXECUTOR =====
@@ -1310,6 +1323,10 @@ async function execSvc({type, amt, extra, useRewards}){
     createdAt:firebase.firestore.FieldValue.serverTimestamp()
   });
 
+  console.log('[EXEC] ── START execSvc ──');
+  console.log('[EXEC] type:',type,'amt:',amt,'extra:',JSON.stringify(extra),'useRewards:',useRewards);
+  console.log('[EXEC] user balance:',bal,'required:',amt);
+
   let apiResult = null;
   try{
     if(type==='airtime'){
@@ -1325,9 +1342,12 @@ async function execSvc({type, amt, extra, useRewards}){
       apiResult = {status:'error', message:'Service not supported yet.'};
     }
 
-    console.log('[EXEC] Full API response:', JSON.stringify(apiResult));
+    console.log('[EXEC] ── API RESPONSE RECEIVED ──');
+    console.log('[EXEC] Full response:', JSON.stringify(apiResult));
+    console.log('[EXEC] response keys:', apiResult ? Object.keys(apiResult) : 'null');
 
     const success = isApiSuccess(apiResult);
+    console.log('[EXEC] isApiSuccess result:', success);
     const respCode = String(apiResult?.status||apiResult?.Status||apiResult?.StatusCode||'');
     const respDesc = getApiError(apiResult);
 
@@ -1384,13 +1404,16 @@ async function execSvc({type, amt, extra, useRewards}){
 }
 
 function showApiError(type, amt, ref, code, desc, raw){
+  // Always show toast first so user sees something even if modal fails
+  toast('Failed: '+(desc||code||'Transaction error'));
+  console.error('[showApiError] type:',type,'code:',code,'desc:',desc,'raw:',JSON.stringify(raw));
   const el = document.getElementById('svc-body');
-  if(!el) return;
+  if(!el){ return; }
   const rawStr = raw ? JSON.stringify(raw, null, 2) : 'No response body';
   closeM('m-svc');
   setTimeout(()=>{
     openM('m-svc');
-    document.getElementById('svc-title').textContent='Transaction Failed';
+    const svcTtl=document.getElementById('svc-ttl');if(svcTtl)svcTtl.textContent='Transaction Failed';
     el.innerHTML=`
     <div style="text-align:center;padding:10px 0 6px">
       <div style="font-size:44px">⚠️</div>
@@ -1525,10 +1548,14 @@ async function apiFetch(endpointKey, params={}, txMeta={}){
 // ── Success detection for Nellobytesystems responses ──
 function isApiSuccess(res){
   if(!res) return false;
-  const st = String(res.status||res.Status||res.StatusCode||'').toLowerCase();
-  const msg = String(res.message||res.Message||res.description||'').toLowerCase();
-  // Nellobytesystems returns status='successful' or status='00' on success
-  return st.includes('success') || st==='00' || st==='1' || msg.includes('successful');
+  // Check every possible field Nellobytesystems might use
+  const st  = String(res.status||res.Status||res.StatusCode||res.code||res.Code||'').toLowerCase();
+  const msg = String(res.message||res.Message||res.description||res.Description||res.response_description||'').toLowerCase();
+  const ok = st.includes('success') || st==='00' || st==='0' || st==='1'
+    || msg.includes('successful') || msg.includes('success');
+  // Log exact values so admin can see in console what came back
+  console.log('[isApiSuccess] st='+JSON.stringify(st)+' msg='+JSON.stringify(msg)+' → '+ok);
+  return ok;
 }
 
 function getApiError(res){
