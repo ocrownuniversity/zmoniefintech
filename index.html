@@ -1637,7 +1637,12 @@ function extractNBSPlans(res, networkId){
           // Fall back to PRODUCT_SNO if PRODUCT_CODE is missing/empty
           const pSno  = String(prod.PRODUCT_SNO || prod.SNO || prod.sno || (idx+1));
           const pCode = String(prod.PRODUCT_CODE|| prod.product_code || prod.code || pSno);
-          if(idx===0) console.log('[NBS] Product fields — SNO:'+pSno+' CODE:'+pCode+' NAME:'+(prod.PRODUCT_NAME||'')+ ' AMT:'+(prod.PRODUCT_AMOUNT||''));
+          if(idx===0){
+            console.log('[NBS] Product fields — SNO:'+pSno+' CODE:'+pCode+' NAME:'+(prod.PRODUCT_NAME||'')+ ' AMT:'+(prod.PRODUCT_AMOUNT||''));
+            console.log('[NBS] Full first product JSON:', JSON.stringify(prod));
+            // Show on screen so we can see without DevTools
+            setTimeout(()=>toast('Plan 1: SNO='+pSno+' CODE='+pCode),500);
+          }
           allPlans.push({
             variation_code   : pCode,  // PRODUCT_CODE (internal ref)
             variation_sno    : pSno,   // PRODUCT_SNO  (what NBS DataPlan param needs)
@@ -1953,14 +1958,18 @@ async function apiData(phone, network, planCode, amount, reqId, planSno){
   // NBS DataPlan param = PRODUCT_SNO (the plan serial number like "1","2","3")
   // PRODUCT_CODE is an internal reference — NBS purchase endpoint uses SNO
   const dataplanId = planSno || planCode;
+  // Show exactly what we're sending — visible on screen
+  toast('Sending → Network:'+netId+' Plan:'+dataplanId);
   console.log('[API] Data → MobileNetwork:'+netId+' DataPlan:'+dataplanId+' (code:'+planCode+' sno:'+planSno+')');
-  return apiFetch('data',{
+  const result = await apiFetch('data',{
     MobileNumber : phone,
     MobileNetwork: netId,
     DataPlan     : dataplanId,
     Amount       : amount,
     RequestID    : reqId
   },{ type:'data', amount, userId:CU?.uid||'' });
+  toast('Response: '+JSON.stringify(result).slice(0,80));
+  return result;
 }
 async function apiCable(smartcard, provider, planCode, amount, reqId){
   // Nellobytesystems cable params
