@@ -168,56 +168,69 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--black);over
 //  native install dialog is never available for that page load.
 // ─────────────────────────────────────────────────────────────
 window.__pwaPrompt = null;
-window.__pwaInstalled = false;
+window.__pwaInstalled = !!localStorage.getItem('zmonie_installed');
 
+// ── Capture install prompt as early as possible ──
 window.addEventListener('beforeinstallprompt', function(e) {
-  e.preventDefault();                 // stop Chrome's mini infobar
-  window.__pwaPrompt = e;             // stash it globally
-  // Show banner as soon as the prompt is capturable
-  var b = document.getElementById('pwa-banner');
-  if (b) {
-    var dismissed = localStorage.getItem('zmonie_banner_dismissed');
-    var hidePermanently = localStorage.getItem('zmonie_installed');
-    if (!hidePermanently && !(dismissed && Date.now() - parseInt(dismissed) < 3*24*60*60*1000)) {
-      b.style.display = 'flex';
-    }
-  }
+  e.preventDefault();
+  window.__pwaPrompt = e;
+  showPwaBannerIfEligible();
 });
 
 window.addEventListener('appinstalled', function() {
   window.__pwaInstalled = true;
   window.__pwaPrompt = null;
   localStorage.setItem('zmonie_installed', '1');
-  var b = document.getElementById('pwa-banner');
-  if (b) b.style.display = 'none';
+  hidePwaBanner();
 });
 
-// Stub functions — overridden below after full script loads
+function showPwaBannerIfEligible() {
+  if (window.__pwaInstalled) return;
+  // Check if running in standalone mode already
+  if (window.matchMedia('(display-mode: standalone)').matches || navigator.standalone) return;
+  var b = document.getElementById('pwa-banner');
+  if (b) b.style.display = 'flex';
+}
+
+function hidePwaBanner() {
+  var b = document.getElementById('pwa-banner');
+  if (b) b.style.display = 'none';
+}
+
 window.triggerPwaInstall = function() {
   if (window.__pwaPrompt) {
+    // Real native one-tap install
     window.__pwaPrompt.prompt();
     window.__pwaPrompt.userChoice.then(function(r) {
       if (r.outcome === 'accepted') {
         localStorage.setItem('zmonie_installed', '1');
-        var b = document.getElementById('pwa-banner');
-        if (b) b.style.display = 'none';
+        hidePwaBanner();
       }
       window.__pwaPrompt = null;
     });
   } else {
-    // No native prompt available — show manual guide
-    if (window.showInstallGuide) window.showInstallGuide();
+    // iOS or browser without native prompt — show manual guide
+    if (typeof showInstallGuide === 'function') showInstallGuide();
   }
 };
+
 window.dismissPwaBanner = function() {
-  var b = document.getElementById('pwa-banner');
-  if (b) b.style.display = 'none';
+  hidePwaBanner();
+  // Only snooze for 1 day (not 3) so it comes back sooner
   try { localStorage.setItem('zmonie_banner_dismissed', Date.now()); } catch(e) {}
 };
+
 window.closePwaGuide = function() {
   var m = document.getElementById('pwa-guide-modal');
   if (m) m.style.display = 'none';
 };
+
+// Show banner on load even before beforeinstallprompt fires
+// (covers browsers that fire it after DOMContentLoaded)
+document.addEventListener('DOMContentLoaded', function() {
+  // Small delay so standalone check is accurate
+  setTimeout(showPwaBannerIfEligible, 500);
+});
 </script>
 <div id="pwa-banner" role="banner" aria-label="Install ZMONIE App" style="display:none">
   <div class="pwa-icon"><span style="font-weight:800;font-size:18px;color:#fff">Z</span></div>
@@ -1198,14 +1211,27 @@ function previewRegPhoto(event){
 }
 async function doGoogle(){
   try{
-    const r=await auth.signInWithPopup(gp);
-    const ref=db.collection('users').doc(r.user.uid);
-    if(!(await ref.get()).exists){
-      await ref.set({name:r.user.displayName||'User',email:r.user.email,phone:'',balance:0,pin:'',role:'user',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-      await addNotif(r.user.uid,'Welcome to ZMONIE!','Account created via Google. Set your transaction PIN in Profile.');
-    }
-  }catch(er){toast('Google sign-in failed: '+er.message);}
+    // Use redirect instead of popup — popups are blocked in PWA/standalone/Android WebView
+    await auth.signInWithRedirect(gp);
+    // Page will redirect to Google then return; result handled by getRedirectResult below
+  }catch(er){
+    toast('Google sign-in failed: '+er.message);
+  }
 }
+
+// Called automatically when page loads after Google redirect
+auth.getRedirectResult().then(async function(result){
+  if(!result||!result.user)return;
+  const ref=db.collection('users').doc(result.user.uid);
+  if(!(await ref.get()).exists){
+    await ref.set({name:result.user.displayName||'User',email:result.user.email,phone:'',balance:0,pin:'',role:'user',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+    await addNotif(result.user.uid,'Welcome to ZMONIE!','Account created via Google. Set your transaction PIN in Profile.');
+  }
+}).catch(function(er){
+  if(er.code&&er.code!=='auth/no-current-user'&&er.code!=='auth/null-user'){
+    toast('Google sign-in error: '+er.message);
+  }
+});
 async function doLogout(){await auth.signOut();}
 function tpw(id){const el=document.getElementById(id);el.type=el.type==='password'?'text':'password';}
 
@@ -5318,63 +5344,10 @@ window.addEventListener('load', () => {
 });
 
 // ══════════════════════════════════════════════════
-// PWA INSTALL — full implementation (syncs with top-of-page capture)
+// PWA INSTALL — showInstallGuide + Service Worker registration
+// (banner & prompt logic handled at top of page for early capture)
 // ══════════════════════════════════════════════════
 (function() {
-  var DISMISS_KEY   = 'zmonie_banner_dismissed';
-  var INSTALLED_KEY = 'zmonie_installed';
-
-  function isStandalone() {
-    return window.matchMedia('(display-mode: standalone)').matches
-      || window.navigator.standalone === true
-      || document.referrer.startsWith('android-app://');
-  }
-
-  function setBanner(visible) {
-    var b = document.getElementById('pwa-banner');
-    if (b) b.style.display = visible ? 'flex' : 'none';
-  }
-
-  function canShow() {
-    if (isStandalone()) return false;
-    if (localStorage.getItem(INSTALLED_KEY)) return false;
-    var dismissed = localStorage.getItem(DISMISS_KEY);
-    if (dismissed && (Date.now() - parseInt(dismissed)) < 3 * 24 * 60 * 60 * 1000) return false;
-    return true;
-  }
-
-  // If prompt was already captured before this script ran, show banner now
-  if (window.__pwaPrompt && canShow()) setBanner(true);
-
-  // Re-assign triggerPwaInstall with full logic now that showInstallGuide is available
-  window.triggerPwaInstall = async function() {
-    if (window.__pwaPrompt) {
-      // ✅ Real native install dialog — one tap, no extra steps
-      window.__pwaPrompt.prompt();
-      var choice = await window.__pwaPrompt.userChoice;
-      if (choice.outcome === 'accepted') {
-        setBanner(false);
-        localStorage.setItem(INSTALLED_KEY, '1');
-      }
-      window.__pwaPrompt = null;
-    } else if (isStandalone()) {
-      // Already installed
-      setBanner(false);
-    } else {
-      // iOS or browser with no native prompt — show manual guide
-      showInstallGuide();
-    }
-  };
-
-  window.dismissPwaBanner = function() {
-    setBanner(false);
-    localStorage.setItem(DISMISS_KEY, Date.now().toString());
-  };
-
-  window.closePwaGuide = function() {
-    var m = document.getElementById('pwa-guide-modal');
-    if (m) m.style.display = 'none';
-  };
 
   window.showInstallGuide = function() {
     var isIos     = /iphone|ipad|ipod/i.test(navigator.userAgent);
