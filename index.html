@@ -857,35 +857,33 @@ document.addEventListener('DOMContentLoaded', function() {
 <!-- ======== EASYBUY APPLY MODAL ======== -->
 <div class="modal" id="m-easybuy-apply">
   <div class="mbox" style="max-height:92vh;overflow-y:auto">
-
-    <!-- Sticky Header -->
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1">
       <div><h3 style="font-size:17px;font-weight:700">&#128717; Apply for EasyBuy</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Buy now, pay daily from your Zmonie wallet</p></div>
       <button onclick="closeM('m-easybuy-apply')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button>
     </div>
 
-    <!-- Terms Banner -->
+    <!-- Terms -->
     <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:11px;padding:13px;margin-bottom:14px">
-      <div style="font-size:11px;font-weight:800;color:#c2410c;margin-bottom:8px;text-transform:uppercase">EASYBUY TERMS - READ CAREFULLY</div>
+      <div style="font-size:11px;font-weight:800;color:#c2410c;margin-bottom:8px">EASYBUY TERMS</div>
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:8px">
-        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:800;color:#c2410c">Deposit</div><div style="font-size:10px;color:#92400e">You choose amount</div></div>
-        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:800;color:#c2410c">NGN 1,500</div><div style="font-size:10px;color:#92400e">Doc Fee</div></div>
-        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:14px;font-weight:800;color:#c2410c">Daily</div><div style="font-size:10px;color:#92400e">Auto Deductions</div></div>
+        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:800;color:#c2410c">Deposit</div><div style="font-size:10px;color:#92400e">You choose</div></div>
+        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:800;color:#c2410c">NGN 1,500</div><div style="font-size:10px;color:#92400e">Doc Fee</div></div>
+        <div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:13px;font-weight:800;color:#c2410c">Daily</div><div style="font-size:10px;color:#92400e">Auto Deduct</div></div>
       </div>
-      <div style="font-size:11px;color:#92400e;line-height:1.7">&#8226; NGN 1,500 documentation fee deducted when you submit<br/>&#8226; Enter how much you want to pay as deposit — balance spread over repayment days<br/>&#8226; Remaining balance deducted daily from your Zmonie wallet<br/>&#8226; Two guarantors with photos and ID required</div>
+      <div style="font-size:11px;color:#92400e;line-height:1.7">&#8226; NGN 1,500 doc fee deducted on submission<br/>&#8226; Enter deposit amount — balance spread over repayment days<br/>&#8226; One guarantor with photo required<br/>&#8226; Daily deductions from Zmonie wallet until balance is zero</div>
     </div>
 
     <!-- Live Calculator -->
     <div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:11px;padding:13px;margin-bottom:14px">
-      <div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:10px">&#127381; LIVE EASYBUY CALCULATOR</div>
+      <div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:10px">&#127381; LIVE CALCULATOR</div>
       <div style="margin-bottom:10px">
         <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Product Price (NGN) *</label>
-        <input class="inp" type="number" id="eb-price" placeholder="e.g. 150000" min="5000" oninput="calcEasyBuyDeposit()"/>
+        <input class="inp" type="number" id="eb-price" placeholder="e.g. 150000" min="1000" oninput="calcEasyBuyDeposit()"/>
       </div>
       <div style="margin-bottom:10px">
-        <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Your Deposit Amount (NGN) * <span style="font-weight:400;color:var(--g400)">— enter how much you will pay upfront</span></label>
+        <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Your Deposit Amount (NGN) * <span style="font-weight:400;color:var(--g400)">— how much you pay upfront</span></label>
         <input class="inp" type="number" id="eb-deposit-input" placeholder="e.g. 30000" min="0" oninput="calcEasyBuyDeposit()"/>
-        <div style="font-size:11px;color:var(--g400);margin-top:4px" id="eb-deposit-hint">Enter product price first, then your deposit amount</div>
+        <div style="font-size:11px;color:#b45309;margin-top:4px" id="eb-deposit-hint"></div>
       </div>
       <div style="margin-bottom:10px">
         <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Repayment Days *</label>
@@ -913,7 +911,7 @@ document.addEventListener('DOMContentLoaded', function() {
       <div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Surname *</label><input class="inp" id="eb-surname" placeholder="e.g. Adeleke"/></div>
       <div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">First Name *</label><input class="inp" id="eb-firstname" placeholder="e.g. Emmanuel"/></div>
     </div>
-    <div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Other Name <span style="font-weight:400;color:var(--g400)">(optional)</span></label><input class="inp" id="eb-othername" placeholder="Middle name or other name"/></div>
+    <div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Other Name <span style="font-weight:400;color:var(--g400)">(optional)</span></label><input class="inp" id="eb-othername" placeholder="Middle name"/></div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
       <div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Phone Number 1 *</label><input class="inp" type="tel" id="eb-phone1" placeholder="080XXXXXXXX"/></div>
       <div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Phone Number 2 *</label><input class="inp" type="tel" id="eb-phone2" placeholder="080XXXXXXXX"/></div>
@@ -922,9 +920,9 @@ document.addEventListener('DOMContentLoaded', function() {
     <div style="margin-bottom:14px">
       <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Gender *</label>
       <div style="display:flex;gap:8px">
-        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500" id="eb-gen-m-lbl"><input type="radio" name="eb-gender" value="Male" id="eb-gen-m" style="accent-color:var(--green)" onchange="ebGenderStyle()"/> Male</label>
-        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500" id="eb-gen-f-lbl"><input type="radio" name="eb-gender" value="Female" id="eb-gen-f" style="accent-color:var(--green)" onchange="ebGenderStyle()"/> Female</label>
-        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500" id="eb-gen-n-lbl"><input type="radio" name="eb-gender" value="Other" id="eb-gen-n" style="accent-color:var(--green)" onchange="ebGenderStyle()"/> Other</label>
+        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px" id="eb-gen-m-lbl"><input type="radio" name="eb-gender" value="Male" id="eb-gen-m" style="accent-color:var(--green)" onchange="ebGenderStyle()"/> Male</label>
+        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px" id="eb-gen-f-lbl"><input type="radio" name="eb-gender" value="Female" id="eb-gen-f" style="accent-color:var(--green)" onchange="ebGenderStyle()"/> Female</label>
+        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:10px 12px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px" id="eb-gen-n-lbl"><input type="radio" name="eb-gender" value="Other" id="eb-gen-n" style="accent-color:var(--green)" onchange="ebGenderStyle()"/> Other</label>
       </div>
     </div>
 
@@ -935,32 +933,57 @@ document.addEventListener('DOMContentLoaded', function() {
       <div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">State *</label><input class="inp" id="eb-state" placeholder="e.g. Lagos"/></div>
       <div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">LGA *</label><input class="inp" id="eb-lga" placeholder="e.g. Ikeja"/></div>
     </div>
-    <div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Work / Business Address <span style="font-weight:400;color:var(--g400)">(optional)</span></label><input class="inp" id="eb-workaddr" placeholder="Office or business address"/></div>
+    <div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Office / Work Address <span style="font-weight:400;color:var(--g400)">(optional)</span></label><input class="inp" id="eb-workaddr" placeholder="Office or business address"/></div>
 
     <!-- SECTION 3: Product Details -->
     <div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#fffbeb,#fef3c7);border-radius:10px;border-left:4px solid #f59e0b">&#128717; Product Details</div>
     <div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Product Name *</label><input class="inp" id="eb-product-name" placeholder="e.g. Samsung Galaxy A35, HP Laptop 15"/></div>
-    <div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Merchant / Store *</label><input class="inp" id="eb-merchant" placeholder="e.g. TechZone Electronics, Lagos Island"/></div>
-    <div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Additional Note <span style="font-weight:400;color:var(--g400)">(optional)</span></label><textarea class="inp" id="eb-note" placeholder="Colour, size, specifications..."></textarea></div>
+
+    <!-- Pick-up Location (replaces Merchant) -->
     <div style="margin-bottom:14px">
-      <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Product Photo * <span style="font-weight:400;color:var(--g400)">(picture of the product you want to buy)</span></label>
+      <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Pick-up Location * <span style="font-weight:400;color:var(--g400)">— select where you will collect the product</span></label>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1.5px solid var(--g200);border-radius:11px;cursor:pointer" id="eb-loc1-lbl">
+          <input type="radio" name="eb-location" value="No1 Ibijoke Street, Kudirat Abiola Way, Oregun Ikeja, Lagos" id="eb-loc1" style="accent-color:var(--green);margin-top:2px;flex-shrink:0" onchange="ebLocationStyle()"/>
+          <div><div style="font-weight:700;font-size:13px">Location 1</div><div style="font-size:12px;color:var(--g500);margin-top:2px">No1 Ibijoke Street, Kudirat Abiola Way, Oregun Ikeja, Lagos</div></div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1.5px solid var(--g200);border-radius:11px;cursor:pointer" id="eb-loc2-lbl">
+          <input type="radio" name="eb-location" value="No1 Odewale Street, Alausa Ikeja, Lagos State" id="eb-loc2" style="accent-color:var(--green);margin-top:2px;flex-shrink:0" onchange="ebLocationStyle()"/>
+          <div><div style="font-weight:700;font-size:13px">Location 2</div><div style="font-size:12px;color:var(--g500);margin-top:2px">No1 Odewale Street, Alausa Ikeja, Lagos State</div></div>
+        </label>
+        <label style="display:flex;align-items:flex-start;gap:10px;padding:12px;border:1.5px solid var(--g200);border-radius:11px;cursor:pointer" id="eb-loc3-lbl">
+          <input type="radio" name="eb-location" value="No5 Odewale Street, Alausa Ikeja, Lagos State" id="eb-loc3" style="accent-color:var(--green);margin-top:2px;flex-shrink:0" onchange="ebLocationStyle()"/>
+          <div><div style="font-weight:700;font-size:13px">Location 3</div><div style="font-size:12px;color:var(--g500);margin-top:2px">No5 Odewale Street, Alausa Ikeja, Lagos State</div></div>
+        </label>
+      </div>
+    </div>
+
+    <div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Additional Note <span style="font-weight:400;color:var(--g400)">(optional)</span></label><textarea class="inp" id="eb-note" placeholder="Colour, size, specifications..."></textarea></div>
+
+    <!-- Product Photo — gallery only -->
+    <div style="margin-bottom:14px">
+      <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Product Photo * <span style="font-weight:400;color:var(--g400)">— upload a picture of the product you want</span></label>
       <div style="border:2px dashed #fcd34d;border-radius:11px;padding:14px;text-align:center;cursor:pointer;background:#fffbeb" id="eb-product-pic-drop" onclick="document.getElementById('eb-product-pic').click()">
-        <div id="eb-product-pic-preview"><div style="font-size:28px;margin-bottom:6px">&#128717;</div><div style="font-size:12px;color:var(--g400)">Tap to upload product picture</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div>
+        <div id="eb-product-pic-preview"><div style="font-size:28px;margin-bottom:6px">&#128717;</div><div style="font-size:12px;color:var(--g400)">Tap to upload product picture</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB &bull; Gallery only</div></div>
       </div>
       <input type="file" id="eb-product-pic" accept="image/*" style="display:none" onchange="previewImg('eb-product-pic','eb-product-pic-preview','eb-product-pic-drop')"/>
     </div>
 
-    <!-- SECTION 4: Your Documents -->
-    <div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;border-left:4px solid #2563eb">&#128248; Your Documents (Mandatory)</div>
+    <!-- SECTION 4: Buyer Documents -->
+    <div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;border-left:4px solid #2563eb">&#128248; Your Documents</div>
+
+    <!-- Passport — camera snap -->
     <div style="margin-bottom:12px">
-      <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Your Passport Photograph * <span style="font-weight:400;color:var(--g400)">(clear face photo)</span></label>
-      <div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer" id="eb-passport-drop" onclick="document.getElementById('eb-passport').click()">
-        <div id="eb-passport-preview"><div style="font-size:28px;margin-bottom:6px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Tap to upload your passport photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div>
+      <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Your Passport Photo * <span style="font-weight:400;color:var(--g400)">— take a clear selfie now</span></label>
+      <div style="border:2px dashed #93c5fd;border-radius:11px;padding:14px;text-align:center;cursor:pointer;background:#eff6ff" id="eb-passport-drop" onclick="document.getElementById('eb-passport').click()">
+        <div id="eb-passport-preview"><div style="font-size:28px;margin-bottom:6px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Tap to snap your passport photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">Camera only &bull; Max 3MB</div></div>
       </div>
       <input type="file" id="eb-passport" accept="image/*" capture="user" style="display:none" onchange="previewImg('eb-passport','eb-passport-preview','eb-passport-drop')"/>
     </div>
+
+    <!-- ID — gallery -->
     <div style="margin-bottom:14px">
-      <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Your Means of Identification *</label>
+      <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Means of Identification *</label>
       <select class="inp" id="eb-idtype" style="margin-bottom:8px">
         <option value="">Select ID type</option>
         <option>National ID Card (NIN)</option>
@@ -969,78 +992,45 @@ document.addEventListener('DOMContentLoaded', function() {
         <option>Driver's License</option>
       </select>
       <div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer" id="eb-idimg-drop" onclick="document.getElementById('eb-idimg').click()">
-        <div id="eb-idimg-preview"><div style="font-size:28px;margin-bottom:6px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Tap to upload your ID document</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div>
+        <div id="eb-idimg-preview"><div style="font-size:28px;margin-bottom:6px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Upload your ID document</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Gallery only &bull; Max 3MB</div></div>
       </div>
-      <input type="file" id="eb-idimg" accept="image/*,.pdf" style="display:none" onchange="previewImg('eb-idimg','eb-idimg-preview','eb-idimg-drop')"/>
+      <input type="file" id="eb-idimg" accept="image/*" style="display:none" onchange="previewImg('eb-idimg','eb-idimg-preview','eb-idimg-drop')"/>
     </div>
 
-    <!-- SECTION 5: Guarantor 1 -->
-    <div style="background:#faf5ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:14px;margin-bottom:12px">
-      <div style="font-size:13px;font-weight:700;color:#5b21b6;margin-bottom:12px">&#128100; Guarantor 1 (Required)</div>
-      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Full Name *</label><input class="inp" id="eb-g1name" placeholder="Full legal name"/></div>
+    <!-- SECTION 5: Guarantor (one only) -->
+    <div style="background:#faf5ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:14px;margin-bottom:14px">
+      <div style="font-size:13px;font-weight:700;color:#5b21b6;margin-bottom:14px">&#128100; Guarantor Details (Required)</div>
+
+      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Full Name *</label><input class="inp" id="eb-g1name" placeholder="Guarantor full legal name"/></div>
       <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Phone Number *</label><input class="inp" type="tel" id="eb-g1phone" placeholder="080XXXXXXXX"/></div>
-      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Relationship *</label><select class="inp" id="eb-g1rel"><option value="">Select</option><option>Family Member</option><option>Friend</option><option>Colleague</option><option>Employer</option><option>Business Partner</option><option>Other</option></select></div>
-      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Home Address *</label><input class="inp" id="eb-g1addr" placeholder="Guarantor 1 home address"/></div>
-      <div style="margin-bottom:9px">
-        <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Guarantor 1 Passport Photo *</label>
+      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Relationship *</label>
+        <select class="inp" id="eb-g1rel">
+          <option value="">Select relationship</option>
+          <option>Family Member</option><option>Spouse</option><option>Friend</option>
+          <option>Colleague</option><option>Employer</option><option>Business Partner</option><option>Other</option>
+        </select>
+      </div>
+      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Occupation *</label><input class="inp" id="eb-g1occupation" placeholder="e.g. Teacher, Engineer, Trader"/></div>
+      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Home Address *</label><input class="inp" id="eb-g1addr" placeholder="Guarantor home address"/></div>
+      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Office / Work Address <span style="font-weight:400;color:var(--g400)">(optional)</span></label><input class="inp" id="eb-g1workaddr" placeholder="Guarantor office address"/></div>
+
+      <!-- Guarantor photo — gallery only -->
+      <div style="margin-bottom:0">
+        <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Guarantor Passport Photo * <span style="font-weight:400;color:var(--g400)">— upload from gallery</span></label>
         <div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="eb-g1photo-drop" onclick="document.getElementById('eb-g1photo').click()">
-          <div id="eb-g1photo-preview"><div style="font-size:24px;margin-bottom:4px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Upload Guarantor 1 passport photo</div></div>
+          <div id="eb-g1photo-preview"><div style="font-size:24px;margin-bottom:4px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Upload guarantor passport photo</div><div style="font-size:11px;color:var(--g300);margin-top:2px">Gallery only &bull; Max 3MB</div></div>
         </div>
         <input type="file" id="eb-g1photo" accept="image/*" style="display:none" onchange="previewImg('eb-g1photo','eb-g1photo-preview','eb-g1photo-drop')"/>
       </div>
-      <div style="margin-bottom:9px">
-        <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Guarantor 1 ID Type *</label>
-        <select class="inp" id="eb-g1idtype" style="margin-bottom:8px">
-          <option value="">Select ID type</option>
-          <option>National ID Card (NIN)</option>
-          <option>Voter's Card</option>
-          <option>International Passport</option>
-          <option>Driver's License</option>
-        </select>
-        <div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="eb-g1id-drop" onclick="document.getElementById('eb-g1id').click()">
-          <div id="eb-g1id-preview"><div style="font-size:24px;margin-bottom:4px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Upload Guarantor 1 ID document</div></div>
-        </div>
-        <input type="file" id="eb-g1id" accept="image/*,.pdf" style="display:none" onchange="previewImg('eb-g1id','eb-g1id-preview','eb-g1id-drop')"/>
-      </div>
     </div>
 
-    <!-- SECTION 6: Guarantor 2 -->
-    <div style="background:#faf5ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:14px;margin-bottom:14px">
-      <div style="font-size:13px;font-weight:700;color:#5b21b6;margin-bottom:12px">&#128100; Guarantor 2 (Required)</div>
-      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Full Name *</label><input class="inp" id="eb-g2name" placeholder="Full legal name"/></div>
-      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Phone Number *</label><input class="inp" type="tel" id="eb-g2phone" placeholder="080XXXXXXXX"/></div>
-      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Relationship *</label><select class="inp" id="eb-g2rel"><option value="">Select</option><option>Family Member</option><option>Friend</option><option>Colleague</option><option>Employer</option><option>Business Partner</option><option>Other</option></select></div>
-      <div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Home Address *</label><input class="inp" id="eb-g2addr" placeholder="Guarantor 2 home address"/></div>
-      <div style="margin-bottom:9px">
-        <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Guarantor 2 Passport Photo *</label>
-        <div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="eb-g2photo-drop" onclick="document.getElementById('eb-g2photo').click()">
-          <div id="eb-g2photo-preview"><div style="font-size:24px;margin-bottom:4px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Upload Guarantor 2 passport photo</div></div>
-        </div>
-        <input type="file" id="eb-g2photo" accept="image/*" style="display:none" onchange="previewImg('eb-g2photo','eb-g2photo-preview','eb-g2photo-drop')"/>
-      </div>
-      <div style="margin-bottom:0">
-        <label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Guarantor 2 ID Type *</label>
-        <select class="inp" id="eb-g2idtype" style="margin-bottom:8px">
-          <option value="">Select ID type</option>
-          <option>National ID Card (NIN)</option>
-          <option>Voter's Card</option>
-          <option>International Passport</option>
-          <option>Driver's License</option>
-        </select>
-        <div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="eb-g2id-drop" onclick="document.getElementById('eb-g2id').click()">
-          <div id="eb-g2id-preview"><div style="font-size:24px;margin-bottom:4px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Upload Guarantor 2 ID document</div></div>
-        </div>
-        <input type="file" id="eb-g2id" accept="image/*,.pdf" style="display:none" onchange="previewImg('eb-g2id','eb-g2id-preview','eb-g2id-drop')"/>
-      </div>
-    </div>
-
-    <!-- Documentation Fee Notice -->
+    <!-- Doc Fee -->
     <div style="background:#fef3c7;border:1.5px solid #fcd34d;border-radius:12px;padding:14px;margin-bottom:16px">
       <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
         <div style="width:36px;height:36px;background:#f59e0b;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">&#128179;</div>
         <div><div style="font-weight:800;font-size:14px;color:#78350f">Documentation Fee: NGN 1,500</div><div style="font-size:11px;color:#92400e;margin-top:2px">Deducted from your wallet on submission</div></div>
       </div>
-      <p style="font-size:12px;color:#92400e;line-height:1.7">This non-refundable fee covers verification and documentation processing. Ensure your wallet has at least NGN 1,500 before submitting.</p>
+      <p style="font-size:12px;color:#92400e;line-height:1.7">Non-refundable fee covering verification and documentation processing. Ensure your wallet has at least NGN 1,500.</p>
       <div style="margin-top:10px;background:#fff;border-radius:9px;padding:10px;display:flex;justify-content:space-between;align-items:center">
         <div style="font-size:12px;color:var(--g600)">Your wallet balance</div>
         <div style="font-size:14px;font-weight:800;color:#15803d" id="eb-wallet-bal-show">-</div>
@@ -1050,7 +1040,7 @@ document.addEventListener('DOMContentLoaded', function() {
     <!-- Agreement -->
     <div style="margin-bottom:16px;display:flex;align-items:flex-start;gap:10px;padding:12px;background:#f8fafc;border-radius:11px">
       <input type="checkbox" id="eb-agree" style="margin-top:3px;accent-color:var(--green);width:18px;height:18px;flex-shrink:0"/>
-      <label for="eb-agree" style="font-size:12px;color:var(--g600);line-height:1.7;cursor:pointer">I confirm all information is accurate. I agree to EasyBuy terms including daily wallet deductions and guarantor obligations. I authorise Zmonie to deduct the documentation fee of <strong>NGN 1,500</strong> from my wallet immediately on submission.</label>
+      <label for="eb-agree" style="font-size:12px;color:var(--g600);line-height:1.7;cursor:pointer">I confirm all information is accurate. I agree to EasyBuy terms including daily wallet deductions and guarantor obligations. I authorise Zmonie to deduct the <strong>NGN 1,500 documentation fee</strong> from my wallet immediately on submission.</label>
     </div>
 
     <button onclick="submitEasyBuyApp()" class="btn-g" style="width:100%;padding:14px;border-radius:12px;font-size:15px;font-weight:700">Submit EasyBuy Application</button>
@@ -1058,8 +1048,6 @@ document.addEventListener('DOMContentLoaded', function() {
   </div>
 </div>
 
-
-<!-- ======== EASYBUY PLAN DETAIL MODAL ======== -->
 <div class="modal" id="m-easybuy-detail">
   <div class="mbox" id="eb-detail-body"></div>
 </div>
@@ -5864,6 +5852,17 @@ function calcEasyBuyDeposit(){
 }
 
 // ── Submit Application ──
+function ebLocationStyle(){
+  [1,2,3].forEach(n=>{
+    const lbl=document.getElementById('eb-loc'+n+'-lbl');
+    const inp=document.getElementById('eb-loc'+n);
+    if(lbl&&inp){
+      lbl.style.borderColor=inp.checked?'var(--green)':'var(--g200)';
+      lbl.style.background=inp.checked?'#f0fdf4':'#fff';
+    }
+  });
+}
+
 function ebGenderStyle(){
   ['m','f','n'].forEach(g=>{
     const lbl=document.getElementById('eb-gen-'+g+'-lbl');
@@ -5882,7 +5881,7 @@ function openEasyBuyApply(){
 async function submitEasyBuyApp(){
   if(!CU){toast('Please log in first');return;}
 
-  // Collect all fields
+  // Personal
   const surname=(document.getElementById('eb-surname').value||'').trim();
   const firstname=(document.getElementById('eb-firstname').value||'').trim();
   const othername=(document.getElementById('eb-othername').value||'').trim();
@@ -5890,25 +5889,27 @@ async function submitEasyBuyApp(){
   const phone2=(document.getElementById('eb-phone2').value||'').trim();
   const dob=(document.getElementById('eb-dob').value||'').trim();
   const gender=document.querySelector('input[name="eb-gender"]:checked')?.value||'';
+  // Address
   const address=(document.getElementById('eb-address').value||'').trim();
   const state=(document.getElementById('eb-state').value||'').trim();
   const lga=(document.getElementById('eb-lga').value||'').trim();
   const workaddr=(document.getElementById('eb-workaddr').value||'').trim();
+  // Product
   const product=(document.getElementById('eb-product-name').value||'').trim();
-  const merchant=(document.getElementById('eb-merchant').value||'').trim();
+  const pickupLocation=document.querySelector('input[name="eb-location"]:checked')?.value||'';
   const note=(document.getElementById('eb-note').value||'').trim();
   const price=parseFloat(document.getElementById('eb-price').value||0);
   const depositInput=parseFloat(document.getElementById('eb-deposit-input').value||0);
   const days=parseInt(document.getElementById('eb-days').value||30);
+  // Documents
   const idtype=(document.getElementById('eb-idtype').value||'').trim();
+  // Guarantor
   const g1name=(document.getElementById('eb-g1name').value||'').trim();
   const g1phone=(document.getElementById('eb-g1phone').value||'').trim();
   const g1rel=(document.getElementById('eb-g1rel').value||'').trim();
+  const g1occupation=(document.getElementById('eb-g1occupation').value||'').trim();
   const g1addr=(document.getElementById('eb-g1addr').value||'').trim();
-  const g2name=(document.getElementById('eb-g2name').value||'').trim();
-  const g2phone=(document.getElementById('eb-g2phone').value||'').trim();
-  const g2rel=(document.getElementById('eb-g2rel').value||'').trim();
-  const g2addr=(document.getElementById('eb-g2addr').value||'').trim();
+  const g1workaddr=(document.getElementById('eb-g1workaddr').value||'').trim();
   const agreed=document.getElementById('eb-agree').checked;
 
   // Validate
@@ -5916,66 +5917,59 @@ async function submitEasyBuyApp(){
   if(!firstname){toast('Enter your First Name');document.getElementById('eb-firstname').focus();return;}
   if(!phone1||phone1.length<10){toast('Enter a valid Phone Number 1');document.getElementById('eb-phone1').focus();return;}
   if(!phone2||phone2.length<10){toast('Enter a valid Phone Number 2');document.getElementById('eb-phone2').focus();return;}
-  if(!dob){toast('Enter your Date of Birth');document.getElementById('eb-dob').focus();return;}
+  if(!dob){toast('Enter your Date of Birth');return;}
   if(!gender){toast('Select your Gender');return;}
   if(!address){toast('Enter your Home Address');document.getElementById('eb-address').focus();return;}
   if(!state){toast('Enter your State');document.getElementById('eb-state').focus();return;}
   if(!lga){toast('Enter your LGA');document.getElementById('eb-lga').focus();return;}
   if(!product){toast('Enter Product Name');document.getElementById('eb-product-name').focus();return;}
-  if(!merchant){toast('Enter Merchant/Store Name');document.getElementById('eb-merchant').focus();return;}
+  if(!pickupLocation){toast('Select a Pick-up Location');return;}
   if(!price||price<1000){toast('Enter a valid product price (min NGN 1,000)');document.getElementById('eb-price').focus();return;}
-  if(isNaN(depositInput)||depositInput<0){toast('Enter your deposit amount (can be 0 if no deposit)');document.getElementById('eb-deposit-input').focus();return;}
-  if(depositInput>price){toast('Deposit cannot exceed product price of NGN '+fmt(price));return;}
+  if(isNaN(depositInput)||depositInput<0){toast('Enter your deposit amount');document.getElementById('eb-deposit-input').focus();return;}
+  if(depositInput>price){toast('Deposit cannot exceed the product price of NGN '+fmt(price));return;}
   if(!idtype){toast('Select your means of identification');return;}
-  if(!document.getElementById('eb-passport').files[0]){toast('Upload your Passport Photograph');document.getElementById('eb-passport').click();return;}
+  if(!document.getElementById('eb-passport').files[0]){toast('Take your passport selfie photo');document.getElementById('eb-passport').click();return;}
   if(!document.getElementById('eb-idimg').files[0]){toast('Upload your ID document');document.getElementById('eb-idimg').click();return;}
   if(!document.getElementById('eb-product-pic').files[0]){toast('Upload a picture of the product you want');document.getElementById('eb-product-pic').click();return;}
-  const g1idtype=(document.getElementById('eb-g1idtype').value||'').trim();
-  const g2idtype=(document.getElementById('eb-g2idtype').value||'').trim();
-  if(!g1name||!g1phone||!g1rel||!g1addr){toast('Complete all Guarantor 1 details');return;}
-  if(!g1idtype){toast('Select Guarantor 1 ID type');return;}
-  if(!document.getElementById('eb-g1photo').files[0]){toast('Upload Guarantor 1 passport photo');document.getElementById('eb-g1photo').click();return;}
-  if(!document.getElementById('eb-g1id').files[0]){toast('Upload Guarantor 1 ID document');document.getElementById('eb-g1id').click();return;}
-  if(!g2name||!g2phone||!g2rel||!g2addr){toast('Complete all Guarantor 2 details');return;}
-  if(!g2idtype){toast('Select Guarantor 2 ID type');return;}
-  if(!document.getElementById('eb-g2photo').files[0]){toast('Upload Guarantor 2 passport photo');document.getElementById('eb-g2photo').click();return;}
-  if(!document.getElementById('eb-g2id').files[0]){toast('Upload Guarantor 2 ID document');document.getElementById('eb-g2id').click();return;}
-  if(!agreed){toast('Please read and accept the EasyBuy terms to continue');document.getElementById('eb-agree').focus();return;}
+  if(!g1name){toast('Enter Guarantor full name');document.getElementById('eb-g1name').focus();return;}
+  if(!g1phone||g1phone.length<10){toast('Enter a valid Guarantor phone number');document.getElementById('eb-g1phone').focus();return;}
+  if(!g1rel){toast('Select your relationship with Guarantor');return;}
+  if(!g1occupation){toast('Enter Guarantor occupation');document.getElementById('eb-g1occupation').focus();return;}
+  if(!g1addr){toast('Enter Guarantor home address');document.getElementById('eb-g1addr').focus();return;}
+  if(!document.getElementById('eb-g1photo').files[0]){toast('Upload Guarantor passport photo');document.getElementById('eb-g1photo').click();return;}
+  if(!agreed){toast('Please accept the EasyBuy terms to continue');return;}
 
-  // Check wallet balance for doc fee
+  // Doc fee check
   const DOC_FEE=1500;
   const walBal=UD&&UD.balance||0;
-  if(walBal<DOC_FEE){toast('Insufficient wallet balance for documentation fee. Need NGN '+fmt(DOC_FEE)+'. Fund your wallet first.');return;}
-
+  if(walBal<DOC_FEE){toast('Insufficient wallet balance for NGN 1,500 doc fee. Fund your wallet first.');return;}
   if(!confirm('NGN 1,500 documentation fee will be deducted from your wallet. Proceed?'))return;
 
-  // Calculations — deposit chosen by user, no service fee
+  // Calculations — no service fee
   const deposit=Math.min(depositInput,price);
-  const balanceAmt=Math.max(0,price-deposit); // remaining after deposit
-  const totalRepay=balanceAmt; // no service fee
+  const balanceAmt=Math.max(0,price-deposit);
   const daily=balanceAmt>0?Math.round((balanceAmt/days)*100)/100:0;
 
   // Convert images to base64
-  async function toBase64(fileInput){
-    const file=document.getElementById(fileInput).files[0];
-    if(!file)return'';
-    return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(file);});
+  async function toBase64(id){
+    const f=document.getElementById(id).files[0];
+    if(!f)return'';
+    return new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(f);});
   }
 
   try{
     toast('Processing... please wait');
-    const [passportB64,idImgB64,productPicB64,g1PhotoB64,g1IDB64,g2PhotoB64,g2IDB64]=await Promise.all([
-      toBase64('eb-passport'),toBase64('eb-idimg'),toBase64('eb-product-pic'),
-      toBase64('eb-g1photo'),toBase64('eb-g1id'),toBase64('eb-g2photo'),toBase64('eb-g2id')
+    const [passportB64,idImgB64,productPicB64,g1PhotoB64]=await Promise.all([
+      toBase64('eb-passport'),toBase64('eb-idimg'),
+      toBase64('eb-product-pic'),toBase64('eb-g1photo')
     ]);
 
     const fullName=surname+' '+firstname+(othername?' '+othername:'');
 
-    // Deduct doc fee from wallet
+    // Deduct doc fee
     await db.collection('users').doc(CU.uid).update({
       balance:firebase.firestore.FieldValue.increment(-DOC_FEE)
     });
-    // Log doc fee transaction
     await db.collection('transactions').add({
       userId:CU.uid,type:'debit',amount:DOC_FEE,
       description:'EasyBuy Documentation Fee — '+product,
@@ -5984,30 +5978,27 @@ async function submitEasyBuyApp(){
 
     // Save application
     await db.collection('easyBuy').add({
-      userId:CU.uid,
-      userName:fullName,
-      userEmail:CU.email||'',
-      userPhone:phone1,
-      fullName,surname,firstname,othername,
-      phone1,phone2,dob,gender,
+      userId:CU.uid,userName:fullName,userEmail:CU.email||'',userPhone:phone1,
+      fullName,surname,firstname,othername,phone1,phone2,dob,gender,
       address,state,lga,workaddr,
-      product,merchant,price,deposit,
-      balance:totalRepay,totalRepay,
-      serviceFee:0,daily,days,note,
+      product,merchant:pickupLocation,pickupLocation,note,
+      price,deposit,balance:balanceAmt,totalRepay:balanceAmt,
+      serviceFee:0,daily,days,
       idType:idtype,
       passportPhoto:passportB64,
       idDocument:idImgB64,
       productPhoto:productPicB64,
-      guarantor1:{name:g1name,phone:g1phone,relationship:g1rel,address:g1addr,idType:g1idtype,photo:g1PhotoB64,idDocument:g1IDB64},
-      guarantor2:{name:g2name,phone:g2phone,relationship:g2rel,address:g2addr,idType:g2idtype,photo:g2PhotoB64,idDocument:g2IDB64},
+      guarantor:{
+        name:g1name,phone:g1phone,relationship:g1rel,
+        occupation:g1occupation,address:g1addr,workAddress:g1workaddr,
+        photo:g1PhotoB64
+      },
       docFee:DOC_FEE,docFeePaid:true,
-      status:'pending',
-      repaymentSchedule:[],
-      lastDeductionDate:null,
+      status:'pending',repaymentSchedule:[],lastDeductionDate:null,
       createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
 
-    // Update local UD balance
+    // Update local balance
     UD=(await db.collection('users').doc(CU.uid).get()).data();
     const balEl=document.getElementById('d-bal');
     if(balEl)balEl.textContent=bHid?'NGN ****':'NGN '+fmt(UD.balance||0);
@@ -6015,7 +6006,7 @@ async function submitEasyBuyApp(){
     // Notify admin
     await db.collection('financeNotifications').add({
       userId:'admin',title:'New EasyBuy Application',
-      body:fullName+' applied for EasyBuy: '+product+' from '+merchant+' (NGN '+fmt(price)+'). Deposit: NGN '+fmt(deposit)+'. Doc fee paid.',
+      body:fullName+' applied for EasyBuy: '+product+' — Pick-up: '+pickupLocation+' (NGN '+fmt(price)+'). Deposit: NGN '+fmt(deposit)+'. Doc fee paid.',
       read:false,type:'easybuy',createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     // Notify user
@@ -6027,19 +6018,23 @@ async function submitEasyBuyApp(){
 
     // Reset form
     ['eb-surname','eb-firstname','eb-othername','eb-phone1','eb-phone2','eb-dob',
-     'eb-address','eb-state','eb-lga','eb-workaddr','eb-product-name','eb-merchant',
-     'eb-note','eb-price','eb-deposit-input','eb-g1name','eb-g1phone','eb-g1addr',
-     'eb-g2name','eb-g2phone','eb-g2addr'].forEach(id=>{
-      const el=document.getElementById(id);if(el)el.value='';
+     'eb-address','eb-state','eb-lga','eb-workaddr','eb-product-name','eb-note',
+     'eb-price','eb-deposit-input','eb-g1name','eb-g1phone','eb-g1addr','eb-g1workaddr','eb-g1occupation'
+    ].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+    ['eb-idtype','eb-g1rel'].forEach(id=>{const el=document.getElementById(id);if(el)el.selectedIndex=0;});
+    document.querySelectorAll('input[name="eb-gender"]').forEach(r=>r.checked=false);
+    document.querySelectorAll('input[name="eb-location"]').forEach(r=>r.checked=false);
+    ['eb-gen-m-lbl','eb-gen-f-lbl','eb-gen-n-lbl'].forEach(id=>{
+      const el=document.getElementById(id);if(el){el.style.borderColor='var(--g200)';el.style.background='#fff';}
     });
-    ['eb-idtype','eb-g1idtype','eb-g2idtype','eb-g1rel','eb-g2rel'].forEach(id=>{
-      const el=document.getElementById(id);if(el)el.selectedIndex=0;
+    ['eb-loc1-lbl','eb-loc2-lbl','eb-loc3-lbl'].forEach(id=>{
+      const el=document.getElementById(id);if(el){el.style.borderColor='var(--g200)';el.style.background='#fff';}
     });
     document.getElementById('eb-agree').checked=false;
     document.getElementById('eb-calc-preview').style.display='none';
-    ['eb-passport-preview','eb-idimg-preview','eb-product-pic-preview','eb-g1photo-preview','eb-g1id-preview','eb-g2photo-preview','eb-g2id-preview'].forEach(id=>{
+    ['eb-passport-preview','eb-idimg-preview','eb-product-pic-preview','eb-g1photo-preview'].forEach(id=>{
       const el=document.getElementById(id);
-      if(el)el.innerHTML='<div style="font-size:28px;margin-bottom:6px">&#128247;</div><div style="font-size:12px;color:var(--g400)">Upload removed</div>';
+      if(el)el.innerHTML='<div style="font-size:24px;margin-bottom:4px">&#128247;</div><div style="font-size:12px;color:var(--g400)">Uploaded</div>';
     });
 
     closeM('m-easybuy-apply');
@@ -6048,470 +6043,154 @@ async function submitEasyBuyApp(){
   }catch(e){toast('Error: '+e.message);}
 }
 
-// ── Load EasyBuy Dashboard ──
-async function loadEasyBuyDash(){
-  if(!CU)return;
-  try{
-    const snap=await db.collection('easyBuy').where('userId','==',CU.uid).get();
-    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
-    const active=all.filter(e=>e.status==='active');
-    const done=all.filter(e=>e.status==='completed');
-    const pend=all.filter(e=>e.status==='pending');
-    const totalBal=active.reduce((s,e)=>s+(e.balance||0),0);
-    const balEl=document.getElementById('eb-total-bal');
-    const acEl=document.getElementById('eb-active-count');
-    const dEl=document.getElementById('eb-done-count');
-    const pEl=document.getElementById('eb-pend-count');
-    if(balEl)balEl.textContent='NGN '+fmt(totalBal);
-    if(acEl)acEl.textContent=active.length;
-    if(dEl)dEl.textContent=done.length;
-    if(pEl)pEl.textContent=pend.length;
-    // Run daily deductions for this user
-    await runEasyBuyDeductions(active);
-    loadEasyBuyTab('active');
-  }catch(e){console.warn('EasyBuy dash:',e.message);}
+// ── Open EasyBuy cash repayment modal ──
+function adminEbCashRepay(ebId, userId, product){
+  // Build or reuse modal
+  let modal = document.getElementById('m-eb-cash-repay');
+  if(!modal){
+    modal = document.createElement('div');
+    modal.id = 'm-eb-cash-repay';
+    modal.className = 'modal';
+    document.body.appendChild(modal);
+  }
+  modal.innerHTML =
+    '<div class="mbox" style="max-width:480px;margin:0 auto">' +
+    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">' +
+    '<div><h3 style="font-size:16px;font-weight:800">&#128181; Record Cash Repayment</h3>' +
+    '<p style="font-size:12px;color:var(--g400);margin-top:2px">EasyBuy: <strong>'+product+'</strong></p></div>' +
+    '<button onclick="closeM(\'m-eb-cash-repay\')" style="background:var(--g100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">&#10005;</button></div>' +
+
+    '<div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:12px;padding:12px;margin-bottom:14px">' +
+    '<p style="font-size:12px;color:#92400e;line-height:1.7">Record cash physically paid by the customer. This will mark installment days as paid and update their outstanding balance. <strong>Wallet is NOT deducted</strong> — cash was paid in person.</p></div>' +
+
+    '<div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Amount Paid (NGN) *</label>' +
+    '<input class="inp" type="number" id="ebcr-amt" placeholder="Enter cash amount received"/></div>' +
+
+    '<div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Payment Date *</label>' +
+    '<input class="inp" type="date" id="ebcr-date" value="'+new Date().toISOString().split('T')[0]+'"/></div>' +
+
+    '<div style="margin-bottom:16px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Note <span style="font-weight:400;color:var(--g400)">(optional)</span></label>' +
+    '<input class="inp" id="ebcr-note" placeholder="e.g. Cash collected at office"/></div>' +
+
+    '<button onclick="confirmEbCashRepay(\''+ebId+'\',' +'\''+userId+'\')" class="btn-g" style="width:100%;padding:13px;border-radius:11px;font-size:15px">&#10003; Record Cash Payment</button>' +
+    '</div>';
+
+  modal.classList.add('open');
 }
 
-// ── Tab Switcher ──
-function loadEasyBuyTab(tab){
-  ['active','pending','completed','history'].forEach(t=>{
-    const btn=document.getElementById('ebt-'+t);
-    if(btn){
-      btn.style.background=t===tab?'#f59e0b':'#fff';
-      btn.style.color=t===tab?'#fff':'var(--g600)';
-      btn.style.border=t===tab?'none':'1.5px solid var(--g200)';
-      btn.style.fontWeight=t===tab?'700':'600';
+// ── Process EasyBuy cash repayment ──
+async function confirmEbCashRepay(ebId, userId){
+  const amtEl = document.getElementById('ebcr-amt');
+  const dateEl = document.getElementById('ebcr-date');
+  const noteEl = document.getElementById('ebcr-note');
+  const amt = parseFloat(amtEl?.value || 0);
+  const payDate = dateEl?.value || ebLocalDate();
+  const note = (noteEl?.value || '').trim();
+
+  if(!amt || amt <= 0){ toast('Enter a valid amount'); return; }
+  if(!confirm('Record cash payment of NGN '+fmt(amt)+' for this EasyBuy plan?')) return;
+
+  try{
+    // Step 1: Read EasyBuy plan
+    const snap = await db.collection('easyBuy').doc(ebId).get();
+    if(!snap.exists){ toast('EasyBuy plan not found'); return; }
+    const eb = snap.data();
+
+    // Step 2: Build schedule if missing (same fix as loan)
+    let sch = [...(eb.repaymentSchedule || [])];
+    if(!sch.length){
+      const baseDate =
+        (eb.activatedAt?.toDate ? eb.activatedAt.toDate() : null) ||
+        (eb.createdAt?.toDate ? eb.createdAt.toDate() : null) ||
+        new Date();
+      const totalRepay = eb.balance || eb.totalRepay || eb.price || 0;
+      const daily = eb.daily || Math.round((totalRepay / (eb.days||30)) * 100) / 100;
+      for(let d = 1; d <= (eb.days||30); d++){
+        const due = new Date(baseDate);
+        due.setDate(due.getDate() + d);
+        sch.push({day:d, dueDate:ebLocalDate(due), amount:daily, paid:false});
+      }
     }
-  });
-  const el=document.getElementById('eb-content');
-  if(!el)return;
-  el.innerHTML='<div style="text-align:center;padding:24px;color:var(--g400)"><div style="font-size:28px">&#8987;</div><p style="font-size:12px;margin-top:6px">Loading...</p></div>';
-  if(tab==='history'){loadEasyBuyHistory();return;}
-  db.collection('easyBuy').where('userId','==',CU.uid).get().then(snap=>{
-    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
-    let items=all;
-    if(tab==='active')items=all.filter(e=>e.status==='active');
-    else if(tab==='pending')items=all.filter(e=>e.status==='pending'||e.status==='approved');
-    else if(tab==='completed')items=all.filter(e=>e.status==='completed');
-    items.sort((a,b)=>{
-      const ta=a.createdAt&&a.createdAt.toDate?a.createdAt.toDate():new Date(0);
-      const tb=b.createdAt&&b.createdAt.toDate?b.createdAt.toDate():new Date(0);
-      return tb-ta;
-    });
-    if(!items.length){
-      el.innerHTML='<div style="text-align:center;padding:32px;color:var(--g400)"><div style="font-size:36px;margin-bottom:8px">&#128717;</div><p style="font-size:13px;font-weight:600">No '+tab+' EasyBuy plans</p><p style="font-size:12px;margin-top:4px">'+
-        (tab==='active'?'Apply for a product to get started':tab==='pending'?'No pending applications':'No completed plans yet')+'</p></div>';
+
+    // Step 3: Mark next N unpaid days (no date filter — same fix as loan)
+    let remaining = amt;
+    let paidDays = 0;
+    for(let i = 0; i < sch.length; i++){
+      if(sch[i].paid) continue;
+      if(remaining <= 0) break;
+      const dayAmt = sch[i].amount || (eb.daily || 0);
+      if(remaining >= dayAmt){
+        sch[i].paid = true;
+        sch[i].paidAt = payDate;
+        sch[i].cashPayment = true;
+        sch[i].adminNote = note || 'Cash payment recorded by admin';
+        remaining -= dayAmt;
+        paidDays++;
+      } else {
+        sch[i].paid = true;
+        sch[i].paidAt = payDate;
+        sch[i].cashPayment = true;
+        sch[i].amount = remaining;
+        sch[i].adminNote = 'Partial cash payment' + (note ? ' · '+note : '');
+        remaining = 0;
+        paidDays++;
+      }
+    }
+
+    const newBal = Math.max(0, (eb.balance || 0) - amt);
+    const allPaid = sch.every(s => s.paid) || newBal <= 0;
+    const totalPaid = sch.filter(s => s.paid).length;
+
+    // Step 4: Update EasyBuy plan
+    try{
+      await db.collection('easyBuy').doc(ebId).update({
+        repaymentSchedule: sch,
+        balance: newBal,
+        status: allPaid ? 'completed' : 'active',
+        lastCashPaymentDate: payDate,
+        daily: eb.daily || (eb.balance / (eb.days||30))
+      });
+    }catch(e){
+      toast('Failed to update plan: ' + e.message);
       return;
     }
-    el.innerHTML=items.map(e=>{
-      const pct=e.totalRepay?Math.round(((e.totalRepay-(e.balance||0))/e.totalRepay)*100):0;
-      const statusColor={active:'#dbeafe',pending:'#fef3c7',approved:'#fef3c7',completed:'#dcfce7',rejected:'#fee2e2'}[e.status]||'#f1f5f9';
-      const statusText={active:'#1d4ed8',pending:'#92400e',approved:'#92400e',completed:'#15803d',rejected:'#dc2626'}[e.status]||'var(--g600)';
-      return '<div class="card" style="padding:16px;margin-bottom:10px;cursor:pointer" onclick="showEasyBuyDetail(\''+e.id+'\')">'+
-        '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">'+
-        '<div style="flex:1;min-width:0"><div style="font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e.product+'</div>'+
-        '<div style="font-size:11px;color:var(--g400);margin-top:2px">'+e.merchant+'</div></div>'+
-        '<span style="background:'+statusColor+';color:'+statusText+';padding:4px 10px;border-radius:50px;font-size:10px;font-weight:800;flex-shrink:0;margin-left:8px">'+e.status.toUpperCase()+'</span></div>'+
-        '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:10px">'+
-        '<div style="background:#f8fafc;border-radius:10px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--g400)">Price</div><div style="font-size:12px;font-weight:700">NGN '+fmt(e.price)+'</div></div>'+
-        '<div style="background:#fff8f0;border-radius:10px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--g400)">Balance</div><div style="font-size:12px;font-weight:700;color:#b45309">NGN '+fmt(e.balance||0)+'</div></div>'+
-        '<div style="background:#f0fdf4;border-radius:10px;padding:8px;text-align:center"><div style="font-size:10px;color:var(--g400)">Daily</div><div style="font-size:12px;font-weight:700;color:#15803d">NGN '+fmt(e.daily||0)+'</div></div>'+
-        '</div>'+
-        (e.status==='active'?'<div style="background:#f1f5f9;border-radius:8px;height:8px;overflow:hidden"><div style="background:linear-gradient(90deg,#f59e0b,#16a34a);height:100%;width:'+pct+'%;transition:width .3s;border-radius:8px"></div></div>'+
-        '<div style="display:flex;justify-content:space-between;margin-top:4px"><div style="font-size:10px;color:var(--g400)">Repaid</div><div style="font-size:10px;font-weight:700;color:#15803d">'+pct+'%</div></div>':'')+
-        (e.status==='approved'?'<button onclick="event.stopPropagation();payEasyBuyDeposit(\''+e.id+'\',\''+e.userId+'\','+e.deposit+')" style="width:100%;margin-top:8px;padding:10px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Pay Deposit NGN '+fmt(e.deposit)+' &amp; Activate</button>':'')+
-        '</div>';
-    }).join('');
-  }).catch(e=>el.innerHTML='<div style="padding:20px;color:var(--err);font-size:13px">Error: '+e.message+'</div>');
-}
 
-// ── Pay Deposit & Activate ──
-async function payEasyBuyDeposit(ebId, userId, depositAmt){
-  if(!CU)return;
-  if(!confirm('Deduct deposit of NGN '+fmt(depositAmt)+' from your wallet and activate EasyBuy?'))return;
-  const uSnap=await db.collection('users').doc(CU.uid).get();
-  const bal=uSnap.data().balance||0;
-  if(bal<depositAmt){toast('Insufficient wallet balance. Fund your wallet first.');return;}
-  try{
-    const ebSnap=await db.collection('easyBuy').doc(ebId).get();
-    const eb=ebSnap.data();
-    // Build repayment schedule
-    const today=new Date();
-    const schedule=[];
-    for(let d=1;d<=eb.days;d++){
-      const due=new Date(today);due.setDate(due.getDate()+d);
-      schedule.push({day:d,dueDate:ebLocalDate(due),amount:eb.daily,paid:false});
-    }
-    // Deduct deposit from wallet
-    await db.collection('users').doc(CU.uid).update({balance:firebase.firestore.FieldValue.increment(-depositAmt)});
-    // Activate plan
-    await db.collection('easyBuy').doc(ebId).update({
-      status:'active',activatedAt:firebase.firestore.FieldValue.serverTimestamp(),
-      repaymentSchedule:schedule,lastDeductionDate:null
-    });
-    // Log deposit transaction
-    await db.collection('transactions').add({
-      userId:CU.uid,type:'debit',amount:depositAmt,
-      description:'EasyBuy Deposit — '+eb.product+' ('+eb.merchant+')',
-      status:'success',ebId,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    // Notify user
-    await db.collection('notifications').add({
-      userId:CU.uid,title:'EasyBuy Activated!',
-      body:'Your EasyBuy for '+eb.product+' is now active. Deposit of NGN '+fmt(depositAmt)+' deducted. Daily repayment of NGN '+fmt(eb.daily)+' starts tomorrow.',
-      read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    UD=(await db.collection('users').doc(CU.uid).get()).data();
-    const balEl=document.getElementById('d-bal');
-    if(balEl)balEl.textContent=bHid?'NGN ****':'NGN '+fmt(UD.balance||0);
-    toast('EasyBuy activated! Daily deductions start tomorrow.');
-    loadEasyBuyDash();
-  }catch(e){toast('Error: '+e.message);}
-}
-
-// ── Daily Deduction Engine (runs on login for this user) ──
-async function runEasyBuyDeductions(activePlans){
-  const todayStr=ebLocalDate();
-  for(const eb of activePlans){
-    if(eb.lastDeductionDate===todayStr)continue;
-    if(!eb.repaymentSchedule||!eb.repaymentSchedule.length)continue;
-    const overdue=eb.repaymentSchedule.filter(s=>!s.paid&&s.dueDate<=todayStr);
-    if(!overdue.length)continue;
-    const uSnap=await db.collection('users').doc(CU.uid).get();
-    let bal=uSnap.data().balance||0;
-    const sch=[...eb.repaymentSchedule];
-    let changed=false;
-    for(const day of overdue){
-      const dayAmt=day.amount;
-      if(bal<dayAmt){
-        // Missed payment
-        await db.collection('notifications').add({
-          userId:CU.uid,title:'EasyBuy Payment Missed',
-          body:'Day '+day.day+' payment of NGN '+fmt(dayAmt)+' for '+eb.product+' could not be deducted — wallet balance NGN '+fmt(bal)+'. Fund your wallet now.',
-          read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-        });
-        break;
-      }
-      await db.collection('users').doc(CU.uid).update({balance:firebase.firestore.FieldValue.increment(-dayAmt)});
-      bal-=dayAmt;
-      const idx=sch.findIndex(s=>s.day===day.day);
-      if(idx>-1){sch[idx].paid=true;sch[idx].paidAt=todayStr;}
+    // Step 5: Log transaction
+    try{
       await db.collection('transactions').add({
-        userId:CU.uid,type:'debit',amount:dayAmt,
-        description:'EasyBuy Repayment — Day '+day.day+'/'+eb.days+' ('+eb.product+')',
-        status:'success',ebId:eb.id,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        userId,
+        type: 'loan_repayment',
+        subType: 'cash',
+        amount: amt,
+        description: 'EasyBuy Cash Repayment — ' + eb.product + ' (' + paidDays + ' day(s) — NGN '+fmt(amt)+')'+(note?' · '+note:''),
+        status: 'success',
+        ebId,
+        paymentDate: payDate,
+        recordedBy: 'admin',
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-      changed=true;
-    }
-    if(changed){
-      const newBal=Math.max(0,eb.balance-(overdue.filter((_,i)=>{
-        const idx=sch.findIndex(s=>s.day===overdue[i].day);return idx>-1&&sch[idx].paid;
-      }).length*eb.daily));
-      const allPaid=sch.every(s=>s.paid)||newBal<=0;
-      await db.collection('easyBuy').doc(eb.id).update({
-        repaymentSchedule:sch,balance:newBal,
-        status:allPaid?'completed':'active',lastDeductionDate:todayStr
-      });
-      if(allPaid){
-        await db.collection('notifications').add({
-          userId:CU.uid,title:'EasyBuy Completed!',
-          body:'Congratulations! Your EasyBuy plan for '+eb.product+' is fully paid. All deductions complete.',
-          read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-        });
-        await db.collection('financeNotifications').add({
-          userId:'admin',title:'EasyBuy Plan Completed',
-          body:((UD&&UD.name)||CU.email||'A user')+'\'s EasyBuy for '+eb.product+' is fully repaid.',
-          read:false,type:'easybuy',createdAt:firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }else{
-        const remaining=sch.filter(s=>!s.paid).length;
-        await db.collection('notifications').add({
-          userId:CU.uid,title:'EasyBuy Payment Deducted',
-          body:'NGN '+fmt(overdue[0].amount)+' deducted for '+eb.product+'. Balance remaining: NGN '+fmt(newBal)+'. '+remaining+' day(s) left.',
-          read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-        });
-      }
-    }
-  }
-  // Refresh wallet display
-  UD=(await db.collection('users').doc(CU.uid).get()).data();
-  const balEl=document.getElementById('d-bal');
-  if(balEl)balEl.textContent=bHid?'NGN ****':'NGN '+fmt(UD.balance||0);
-}
+    }catch(e){ console.warn('Transaction log skipped:', e.message); }
 
-// ── Show Plan Detail ──
-async function showEasyBuyDetail(ebId){
-  const snap=await db.collection('easyBuy').doc(ebId).get();
-  if(!snap.exists)return;
-  const eb=snap.data();
-  const pct=eb.totalRepay?Math.round(((eb.totalRepay-(eb.balance||0))/eb.totalRepay)*100):0;
-  const sch=eb.repaymentSchedule||[];
-  const paidCount=sch.filter(s=>s.paid).length;
-  const body=document.getElementById('eb-detail-body');
-  body.innerHTML=
-    '<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">'+
-    '<div><h3 style="font-size:16px;font-weight:800">'+eb.product+'</h3><p style="font-size:11px;color:var(--g400)">'+eb.merchant+'</p></div>'+
-    '<button onclick="closeM(\'m-easybuy-detail\')" style="background:var(--g100);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:16px">&#10005;</button></div>'+
-
-    '<div style="background:linear-gradient(135deg,#78350f,#b45309);border-radius:14px;padding:16px;color:#fff;margin-bottom:14px">'+
-    '<div style="font-size:10px;color:rgba(255,255,255,.6);margin-bottom:4px">OUTSTANDING BALANCE</div>'+
-    '<div style="font-size:28px;font-weight:900">NGN '+fmt(eb.balance||0)+'</div>'+
-    '<div style="display:flex;gap:12px;margin-top:10px">'+
-    '<div><div style="font-size:9px;color:rgba(255,255,255,.5)">Product Price</div><div style="font-size:13px;font-weight:700">NGN '+fmt(eb.price)+'</div></div>'+
-    '<div><div style="font-size:9px;color:rgba(255,255,255,.5)">Deposit Paid</div><div style="font-size:13px;font-weight:700">NGN '+fmt(eb.deposit)+'</div></div>'+
-    '<div><div style="font-size:9px;color:rgba(255,255,255,.5)">Daily</div><div style="font-size:13px;font-weight:700">NGN '+fmt(eb.daily)+'</div></div>'+
-    '</div></div>'+
-
-    '<div style="background:#f8fafc;border-radius:12px;padding:12px;margin-bottom:14px">'+
-    '<div style="display:flex;justify-content:space-between;margin-bottom:6px"><div style="font-size:12px;font-weight:600">Repayment Progress</div><div style="font-size:12px;font-weight:700;color:#15803d">'+pct+'%</div></div>'+
-    '<div style="background:#e2e8f0;border-radius:6px;height:10px;overflow:hidden"><div style="background:linear-gradient(90deg,#f59e0b,#16a34a);height:100%;width:'+pct+'%;border-radius:6px"></div></div>'+
-    '<div style="display:flex;justify-content:space-between;margin-top:6px"><div style="font-size:11px;color:var(--g400)">'+paidCount+' of '+eb.days+' days paid</div><div style="font-size:11px;color:var(--g400)">'+(eb.days-paidCount)+' remaining</div></div></div>'+
-
-    (eb.status==='active'?
-    '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">'+
-    '<button onclick="manualEasyBuyRepay(\''+ebId+'\')" style="padding:11px;background:#f0fdf4;border:1.5px solid #86efac;color:#15803d;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Pay Manually</button>'+
-    '<button onclick="clearEasyBuyBalance(\''+ebId+'\')" style="padding:11px;background:linear-gradient(135deg,#f59e0b,#d97706);color:#fff;border:none;border-radius:11px;font-size:13px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Clear Balance</button>'+
-    '</div>':'')+
-
-    '<div style="font-size:13px;font-weight:700;margin-bottom:8px">Repayment Schedule</div>'+
-    '<div style="max-height:240px;overflow-y:auto;border:1px solid var(--g200);border-radius:10px">'+
-    (sch.length?sch.map(s=>'<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-bottom:1px solid #f8fafc;background:'+(s.paid?'#f0fdf4':'#fff')+'">'+
-      '<div style="display:flex;align-items:center;gap:8px">'+
-      '<div style="width:24px;height:24px;border-radius:50%;background:'+(s.paid?'#dcfce7':'#f1f5f9')+';display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:'+(s.paid?'#15803d':'var(--g400)')+'">'+s.day+'</div>'+
-      '<div style="font-size:11px;color:var(--g500)">'+s.dueDate+'</div></div>'+
-      '<div style="display:flex;align-items:center;gap:6px">'+
-      '<div style="font-size:12px;font-weight:600">NGN '+fmt(s.amount)+'</div>'+
-      '<span style="font-size:9px;font-weight:800;padding:3px 7px;border-radius:50px;background:'+(s.paid?(s.cashPayment?'#fef3c7':'#dcfce7'):'#fef3c7')+';color:'+(s.paid?(s.cashPayment?'#92400e':'#15803d'):'#92400e')+'">'+(s.paid?(s.cashPayment?'CASH':'AUTO'):'DUE')+'</span></div>'+
-      '</div>').join(''):'<div style="padding:16px;text-align:center;color:var(--g400);font-size:12px">No schedule yet</div>')+
-    '</div>';
-  openM('m-easybuy-detail');
-}
-
-// ── Manual Repayment ──
-async function manualEasyBuyRepay(ebId){
-  const snap=await db.collection('easyBuy').doc(ebId).get();
-  if(!snap.exists)return;
-  const eb=snap.data();
-  const amtStr=prompt('Enter amount to repay (NGN). Outstanding: NGN '+fmt(eb.balance||0));
-  if(!amtStr)return;
-  const amt=parseFloat(amtStr);
-  if(!amt||amt<=0){toast('Invalid amount');return;}
-  const uSnap=await db.collection('users').doc(CU.uid).get();
-  const walBal=uSnap.data().balance||0;
-  if(walBal<amt){toast('Insufficient wallet balance');return;}
-  if(!confirm('Deduct NGN '+fmt(amt)+' from your wallet as EasyBuy repayment?'))return;
-  try{
-    await db.collection('users').doc(CU.uid).update({balance:firebase.firestore.FieldValue.increment(-amt)});
-    const sch=[...(eb.repaymentSchedule||[])];
-    let rem=amt;let paid=0;
-    for(let i=0;i<sch.length;i++){
-      if(sch[i].paid)continue;if(rem<=0)break;
-      if(rem>=sch[i].amount){sch[i].paid=true;sch[i].paidAt=ebLocalDate();rem-=sch[i].amount;paid++;}
-      else{sch[i].paid=true;sch[i].paidAt=ebLocalDate();sch[i].amount=rem;rem=0;paid++;}
-    }
-    const newBal=Math.max(0,(eb.balance||0)-amt);
-    const allPaid=sch.every(s=>s.paid)||newBal<=0;
-    await db.collection('easyBuy').doc(ebId).update({
-      repaymentSchedule:sch,balance:newBal,
-      status:allPaid?'completed':'active',lastDeductionDate:ebLocalDate()
-    });
-    await db.collection('transactions').add({
-      userId:CU.uid,type:'debit',amount:amt,
-      description:'EasyBuy Manual Repayment — '+eb.product+' ('+paid+' day(s))',
-      status:'success',ebId,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    if(allPaid){
+    // Step 6: Notify user
+    try{
       await db.collection('notifications').add({
-        userId:CU.uid,title:'EasyBuy Completed!',
-        body:'Your EasyBuy plan for '+eb.product+' is fully repaid. Congratulations!',
-        read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        userId,
+        title: allPaid ? 'EasyBuy Fully Paid!' : 'EasyBuy Cash Payment Recorded',
+        body: 'Admin recorded your cash payment of NGN '+fmt(amt)+' on '+payDate+'. '
+          + paidDays + ' day(s) marked paid. '
+          + (allPaid ? 'Your EasyBuy plan is now COMPLETED!' : 'Balance remaining: NGN '+fmt(newBal)+'. Days paid: '+totalPaid+'/'+(eb.days||30)+'.'),
+        read: false,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
       });
-    }
-    UD=(await db.collection('users').doc(CU.uid).get()).data();
-    const balEl=document.getElementById('d-bal');
-    if(balEl)balEl.textContent=bHid?'NGN ****':'NGN '+fmt(UD.balance||0);
-    toast(allPaid?'EasyBuy fully paid! Plan completed.':'NGN '+fmt(amt)+' repaid. Balance: NGN '+fmt(newBal));
-    closeM('m-easybuy-detail');loadEasyBuyDash();
-  }catch(e){toast('Error: '+e.message);}
-}
+    }catch(e){ console.warn('Notification skipped:', e.message); }
 
-// ── Clear Full Balance ──
-async function clearEasyBuyBalance(ebId){
-  const snap=await db.collection('easyBuy').doc(ebId).get();
-  if(!snap.exists)return;
-  const eb=snap.data();
-  const outstanding=eb.balance||0;
-  if(outstanding<=0){toast('Balance already cleared');return;}
-  const uSnap=await db.collection('users').doc(CU.uid).get();
-  const walBal=uSnap.data().balance||0;
-  if(walBal<outstanding){toast('Insufficient balance to clear NGN '+fmt(outstanding)+'. Fund your wallet.');return;}
-  if(!confirm('Clear entire outstanding balance of NGN '+fmt(outstanding)+' now?'))return;
-  try{
-    await db.collection('users').doc(CU.uid).update({balance:firebase.firestore.FieldValue.increment(-outstanding)});
-    const sch=(eb.repaymentSchedule||[]).map(s=>({...s,paid:true,paidAt:ebLocalDate()}));
-    await db.collection('easyBuy').doc(ebId).update({
-      repaymentSchedule:sch,balance:0,status:'completed',
-      completedAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await db.collection('transactions').add({
-      userId:CU.uid,type:'debit',amount:outstanding,
-      description:'EasyBuy Full Balance Clearance — '+eb.product,
-      status:'success',ebId,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    await db.collection('notifications').add({
-      userId:CU.uid,title:'EasyBuy Fully Cleared!',
-      body:'You have cleared the full balance of NGN '+fmt(outstanding)+' for '+eb.product+'. Plan completed!',
-      read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    UD=(await db.collection('users').doc(CU.uid).get()).data();
-    const balEl=document.getElementById('d-bal');
-    if(balEl)balEl.textContent=bHid?'NGN ****':'NGN '+fmt(UD.balance||0);
-    toast('Balance cleared! EasyBuy plan completed.');
-    closeM('m-easybuy-detail');loadEasyBuyDash();
-  }catch(e){toast('Error: '+e.message);}
-}
-
-// ── Repayment History ──
-async function loadEasyBuyHistory(){
-  const el=document.getElementById('eb-content');
-  try{
-    const snap=await db.collection('transactions')
-      .where('userId','==',CU.uid).get();
-    const txs=snap.docs.map(d=>({id:d.id,...d.data()}))
-      .filter(t=>t.description&&t.description.toLowerCase().includes('easybuy'))
-      .sort((a,b)=>{
-        const ta=a.createdAt&&a.createdAt.toDate?a.createdAt.toDate():new Date(0);
-        const tb=b.createdAt&&b.createdAt.toDate?b.createdAt.toDate():new Date(0);
-        return tb-ta;
-      });
-    if(!txs.length){el.innerHTML='<div style="text-align:center;padding:32px;color:var(--g400)"><div style="font-size:36px">&#128203;</div><p style="font-size:13px;margin-top:8px">No EasyBuy transactions yet</p></div>';return;}
-    el.innerHTML='<div class="card" style="overflow:hidden">'+txs.map(t=>{
-      const dt=t.createdAt&&t.createdAt.toDate?t.createdAt.toDate():new Date(0);
-      return '<div class="txr"><div style="width:38px;height:38px;background:#fff8f0;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">&#128717;</div>'+
-        '<div style="flex:1;min-width:0"><div style="font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+t.description+'</div>'+
-        '<div style="font-size:11px;color:var(--g400);margin-top:2px">'+fd(t.createdAt)+'</div></div>'+
-        '<div style="font-weight:700;color:#dc2626;flex-shrink:0">-NGN '+fmt(t.amount)+'</div></div>';
-    }).join('')+'</div>';
-  }catch(e){el.innerHTML='<div style="padding:16px;color:var(--err);font-size:13px">Error: '+e.message+'</div>';}
-}
-
-// ══════════════════════════════════════════════════════════════
-//  ADMIN EASYBUY MANAGEMENT
-// ══════════════════════════════════════════════════════════════
-async function loadAdminEasyBuy(el){
-  el.innerHTML='<div style="text-align:center;padding:30px;color:var(--g400)"><div style="font-size:28px">&#8987;</div><p style="font-size:13px;margin-top:6px">Loading EasyBuy data...</p></div>';
-  try{
-    const snap=await db.collection('easyBuy').get();
-    const all=snap.docs.map(d=>({id:d.id,...d.data()}));
-    const pending=all.filter(e=>e.status==='pending');
-    const approved=all.filter(e=>e.status==='approved');
-    const active=all.filter(e=>e.status==='active');
-    const completed=all.filter(e=>e.status==='completed');
-    const rejected=all.filter(e=>e.status==='rejected');
-    const totalSales=all.reduce((s,e)=>s+(e.price||0),0);
-    const totalRepaid=all.reduce((s,e)=>s+((e.totalRepay||0)-(e.balance||0)),0);
-    const totalOut=active.reduce((s,e)=>s+(e.balance||0),0);
-
-    el.innerHTML=
-      // Stats row
-      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">'+
-      '<div class="fin-stat" style="background:linear-gradient(135deg,#78350f,#b45309);color:#fff"><div style="font-size:10px;opacity:.7;margin-bottom:4px">Total Sales</div><div style="font-size:18px;font-weight:800">NGN '+fmt(totalSales)+'</div></div>'+
-      '<div class="fin-stat" style="background:linear-gradient(135deg,#15803d,#16a34a);color:#fff"><div style="font-size:10px;opacity:.7;margin-bottom:4px">Total Repaid</div><div style="font-size:18px;font-weight:800">NGN '+fmt(totalRepaid)+'</div></div>'+
-      '<div class="fin-stat" style="background:linear-gradient(135deg,#1d4ed8,#2563eb);color:#fff"><div style="font-size:10px;opacity:.7;margin-bottom:4px">Outstanding</div><div style="font-size:18px;font-weight:800">NGN '+fmt(totalOut)+'</div></div>'+
-      '</div>'+
-      '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px">'+
-      ['&#8987; '+pending.length+' Pending','&#10003; '+approved.length+' Approved','&#9889; '+active.length+' Active','&#127881; '+completed.length+' Done','&#10007; '+rejected.length+' Rejected'].map((t,i)=>
-        '<div style="background:#f8fafc;border-radius:10px;padding:10px 6px;text-align:center;font-size:11px;font-weight:700;color:var(--g700)">'+t+'</div>'
-      ).join('')+'</div>'+
-
-      // Sections
-      adminEbSection('Pending Approval',pending,'pending')+
-      adminEbSection('Approved — Awaiting Deposit',approved,'approved')+
-      adminEbSection('Active Plans',active,'active')+
-      adminEbSection('Completed',completed,'completed')+
-      adminEbSection('Rejected',rejected,'rejected');
-
-    // Run global deductions when admin loads
-    runAdminEasyBuyDeductions().catch(e=>console.warn(e));
-  }catch(e){el.innerHTML='<div style="padding:20px;color:var(--err)">Error: '+e.message+'</div>';}
-}
-
-function adminEbSection(title,items,status){
-  if(!items.length)return'';
-  const colors={pending:'#fef3c7',approved:'#fef9c3',active:'#dbeafe',completed:'#dcfce7',rejected:'#fee2e2'};
-  const tc={pending:'#92400e',approved:'#713f12',active:'#1d4ed8',completed:'#15803d',rejected:'#dc2626'};
-  return '<div style="margin-bottom:18px">'+
-    '<div style="font-size:13px;font-weight:800;margin-bottom:10px;color:var(--g700)">'+title+' ('+items.length+')</div>'+
-    items.map(e=>'<div class="card" style="padding:14px;margin-bottom:8px">'+
-      '<div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:10px">'+
-      '<div style="flex:1;min-width:0">'+
-      '<div style="font-weight:800;font-size:13px">'+e.product+'</div>'+
-      '<div style="font-size:11px;color:var(--g400)">'+e.merchant+' · '+(e.userName||e.userEmail||e.userId)+'</div>'+
-      '</div><span style="background:'+colors[status]+';color:'+tc[status]+';padding:3px 9px;border-radius:50px;font-size:10px;font-weight:800;flex-shrink:0;margin-left:8px">'+status.toUpperCase()+'</span></div>'+
-      '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px">'+
-      '<div style="background:#f8fafc;border-radius:8px;padding:7px;text-align:center"><div style="font-size:9px;color:var(--g400)">Price</div><div style="font-size:11px;font-weight:700">NGN '+fmt(e.price)+'</div></div>'+
-      '<div style="background:#fff8f0;border-radius:8px;padding:7px;text-align:center"><div style="font-size:9px;color:var(--g400)">Deposit</div><div style="font-size:11px;font-weight:700">NGN '+fmt(e.deposit)+'</div></div>'+
-      '<div style="background:#fef3c7;border-radius:8px;padding:7px;text-align:center"><div style="font-size:9px;color:var(--g400)">Balance</div><div style="font-size:11px;font-weight:700;color:#b45309">NGN '+fmt(e.balance||0)+'</div></div>'+
-      '<div style="background:#f0fdf4;border-radius:8px;padding:7px;text-align:center"><div style="font-size:9px;color:var(--g400)">Daily</div><div style="font-size:11px;font-weight:700;color:#15803d">NGN '+fmt(e.daily)+'</div></div>'+
-      '</div>'+
-      (e.note?'<div style="font-size:11px;color:var(--g500);margin-bottom:8px;font-style:italic">Note: '+e.note+'</div>':'')+
-      (e.idType?'<div style="font-size:11px;color:var(--g500);margin-bottom:6px">ID: <strong>'+e.idType+'</strong></div>':'')+
-      (e.guarantor1&&e.guarantor1.name?'<div style="font-size:11px;color:var(--g500);margin-bottom:2px">G1: '+e.guarantor1.name+' · '+e.guarantor1.phone+'</div>':'')+
-      (e.guarantor2&&e.guarantor2.name?'<div style="font-size:11px;color:var(--g500);margin-bottom:8px">G2: '+e.guarantor2.name+' · '+e.guarantor2.phone+'</div>':'')+
-      (e.passportPhoto?'<div style="margin-bottom:8px;display:flex;gap:8px"><img src="'+e.passportPhoto+'" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:2px solid #e2e8f0" title="Passport"/>'+(e.productPhoto?'<img src="'+e.productPhoto+'" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:2px solid #fcd34d" title="Product"/>':'')+(e.idDocument&&!e.idDocument.includes('pdf')?'<img src="'+e.idDocument+'" style="width:60px;height:60px;object-fit:cover;border-radius:8px;border:2px solid #c4b5fd" title="ID"/>':'')+'</div>':'')+
-      '<div style="display:flex;gap:6px;flex-wrap:wrap">'+
-      (status==='pending'?
-        '<button onclick="adminEbAction(\''+e.id+'\',\'approved\')" style="flex:1;padding:7px;background:#dcfce7;border:1px solid #86efac;color:#15803d;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Approve</button>'+
-        '<button onclick="adminEbAction(\''+e.id+'\',\'rejected\')" style="flex:1;padding:7px;background:#fee2e2;border:1px solid #fca5a5;color:#dc2626;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Reject</button>':'')+
-      (status==='active'?
-        '<button onclick="adminEbCashRepay(\''+e.id+'\',\''+e.userId+'\',\''+e.product+'\')" style="flex:1;padding:7px;background:#fef3c7;border:1px solid #fde047;color:#92400e;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Cash Pay</button>'+
-        '<button onclick="adminEbMarkDone(\''+e.id+'\',\''+e.userId+'\',\''+e.product+'\')" style="flex:1;padding:7px;background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Mark Done</button>':'')+
-      '</div></div>'
-    ).join('')+'</div>';
-}
-
-async function adminEbAction(ebId,newStatus){
-  const snap=await db.collection('easyBuy').doc(ebId).get();
-  if(!snap.exists)return;
-  const eb=snap.data();
-  if(!confirm((newStatus==='approved'?'Approve':'Reject')+' EasyBuy for '+eb.product+'?'))return;
-  try{
-    await db.collection('easyBuy').doc(ebId).update({status:newStatus,reviewedAt:firebase.firestore.FieldValue.serverTimestamp()});
-    await db.collection('notifications').add({
-      userId:eb.userId,
-      title:'EasyBuy '+(newStatus==='approved'?'Approved!':'Rejected'),
-      body:newStatus==='approved'?
-        'Your EasyBuy application for '+eb.product+' has been approved! Open EasyBuy to pay your deposit of NGN '+fmt(eb.deposit)+' and activate your plan.':
-        'Your EasyBuy application for '+eb.product+' was not approved at this time. Contact support for more information.',
-      read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    toast(newStatus==='approved'?'Approved! User notified to pay deposit.':'Rejected. User notified.');
+    closeM('m-eb-cash-repay');
+    toast(allPaid
+      ? 'EasyBuy plan completed! All days paid.'
+      : paidDays + ' day(s) marked paid. Balance: NGN '+fmt(newBal)
+    );
     aTab('easybuy');
-  }catch(e){toast('Error: '+e.message);}
-}
-
-async function adminEbCashRepay(ebId,userId,product){
-  const amtStr=prompt('Enter cash amount received for EasyBuy: '+product);
-  if(!amtStr)return;
-  const amt=parseFloat(amtStr);if(!amt||amt<=0){toast('Invalid amount');return;}
-  try{
-    const snap=await db.collection('easyBuy').doc(ebId).get();
-    const eb=snap.data();
-    const sch=[...(eb.repaymentSchedule||[])];
-    let rem=amt;let paid=0;
-    for(let i=0;i<sch.length;i++){
-      if(sch[i].paid)continue;if(rem<=0)break;
-      if(rem>=sch[i].amount){sch[i].paid=true;sch[i].paidAt=ebLocalDate();sch[i].cashPayment=true;rem-=sch[i].amount;paid++;}
-      else{sch[i].paid=true;sch[i].paidAt=ebLocalDate();sch[i].cashPayment=true;sch[i].amount=rem;rem=0;paid++;}
-    }
-    const newBal=Math.max(0,(eb.balance||0)-amt);
-    const allPaid=sch.every(s=>s.paid)||newBal<=0;
-    await db.collection('easyBuy').doc(ebId).update({repaymentSchedule:sch,balance:newBal,status:allPaid?'completed':'active',lastCashPaymentDate:ebLocalDate()});
-    await db.collection('transactions').add({userId,type:'debit',amount:amt,description:'EasyBuy Cash Repayment — '+product+' ('+paid+' day(s))',status:'success',ebId,recordedBy:'admin',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    await db.collection('notifications').add({userId,title:'EasyBuy Cash Payment Recorded',body:'Admin recorded cash payment of NGN '+fmt(amt)+' for '+product+'. Balance remaining: NGN '+fmt(newBal)+'.',read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-    toast(allPaid?'Plan completed!':paid+' day(s) marked paid. Balance: NGN '+fmt(newBal));
-    aTab('easybuy');
-  }catch(e){toast('Error: '+e.message);}
+  }catch(e){ toast('Error: ' + e.message); }
 }
 
 async function adminEbMarkDone(ebId,userId,product){
