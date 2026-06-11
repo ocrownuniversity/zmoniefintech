@@ -1,4 +1,18 @@
-<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#16a34a"/><meta name="mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="apple-mobile-web-app-title" content="ZMONIE"/><meta name="application-name" content="ZMONIE"/><meta name="description" content="Nigeria's premium VTU platform. Airtime, data, bills, loans, EasyBuy &amp; investments instantly and securely, 24/7."/><link rel="manifest" href="manifest.json"/><link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/><link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/><title>ZMONIE - Save Smart Platform</title>
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="description" content="Zmonie — Nigeria's premium fintech platform. Buy airtime, data, pay bills, apply for loans, EasyBuy, invest and earn 10% monthly. Fast, secure, 24/7."/>
+<meta name="keywords" content="Zmonie, buy airtime Nigeria, cheap data plans, pay electricity bill online, loan app Nigeria, buy now pay later Nigeria, investment platform Nigeria, VTU platform, fintech Nigeria"/>
+<meta name="author" content="Zmonie Financial Technology"/>
+<meta name="robots" content="index, follow"/>
+<link rel="canonical" href="https://zmonie.com.ng/"/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://zmonie.com.ng/"/>
+<meta property="og:title" content="Zmonie - Save Smart, Starts Here"/>
+<meta property="og:description" content="Nigeria's premium fintech platform. Airtime, data, bills, loans, EasyBuy and investments - 24/7."/>
+<meta property="og:image" content="https://zmonie.com.ng/icons/icon-512.png"/>
+<meta property="og:site_name" content="Zmonie"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FinancialService","name":"Zmonie","url":"https://zmonie.com.ng","description":"Nigeria's premium fintech platform.","areaServed":"NG","telephone":"+2348068886569"}</script><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#16a34a"/><meta name="mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="apple-mobile-web-app-title" content="ZMONIE"/><meta name="application-name" content="ZMONIE"/><meta name="description" content="Nigeria's premium VTU platform. Airtime, data, bills, loans, EasyBuy &amp; investments instantly and securely, 24/7."/><link rel="manifest" href="manifest.json"/><link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/><link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/><title>ZMONIE - Save Smart Platform</title>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -453,7 +467,7 @@ return roles.includes(role);
 
 function closeUserDetails(){const m=document.getElementById('m-user-details');if(m)m.classList.remove('open');const b=document.getElementById('user-details-content');if(b)b.innerHTML='';}
 document.addEventListener('click',e=>{if(e.target.classList.contains('modal'))e.target.classList.remove('open');});
-function toast(msg,d=3200){let t=document.querySelector('.toast');if(t)t.remove();t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t?.remove(),d);}
+function toast(msg,d=3200){let t=document.querySelector('.toast');if(t)t.remove();t=document.createElement('div');t.className='toast';t.innerHTML=msg;document.body.appendChild(t);setTimeout(()=>t?.remove(),d);}
 function fmt(n){return parseFloat(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fdate(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 auth.onAuthStateChanged(async u=>{
