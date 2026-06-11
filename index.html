@@ -239,7 +239,7 @@ throw new Error('Firebase SDK not loaded');
 firebase.initializeApp(fbCfg);
 const auth=firebase.auth(),db=firebase.firestore(),gp=new firebase.auth.GoogleAuthProvider();
 let CU=null,UD=null,bHid=false,pSvc=null,allTx=[],si=0,sTimer=null;
-const SUPER_ADMIN_EMAIL='zmonieservice@gmail.com';
+const SUPER_ADMIN_EMAIL='oladejiridwanopeyemi@gmail.com';
 const isAdmin=e=>(e||'').toLowerCase()===SUPER_ADMIN_EMAIL;
 function hp(p){let h=0;for(let c of p)h=(h<<5)-h+c.charCodeAt(0)|0;return h.toString(36);}
 function goPg(id){
@@ -432,6 +432,10 @@ aTab('sub-admins');
 
 async function getSubAdminRoles(){
 if(!CU)return null;
+// Check built-in sub-admin first
+if(BUILTIN_SUBADMIN&&BUILTIN_SUBADMIN.hasOwnProperty(CU.email)){
+return BUILTIN_SUBADMIN[CU.email];
+}
 var snap=await db.collection('subAdmins').where('email','==',CU.email).where('active','==',true).get();
 if(snap.empty)return null;
 return snap.docs[0].data().roles||[];
@@ -454,6 +458,13 @@ function fmt(n){return parseFloat(n||0).toLocaleString('en-NG',{minimumFractionD
 function fdate(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 auth.onAuthStateChanged(async u=>{
 if(window._isPasswordResetFlow) return;
+// Built-in sub-admin (always active, roles hardcoded)
+var BUILTIN_SUBADMIN={
+'zmonieservice@gmail.com':['users','transactions','funding','withdrawals','wallet',
+'pins','pw-reset','broadcast','promos','fund-accounts','data-plans','recovery',
+'fin-loans','fin-investments','fin-nok','fin-analytics','easybuy',
+'rewards-settings','rewards-history','reports','nok']
+};
 if(u){
 CU=u;
 const ref=db.collection('users').doc(u.uid);
@@ -497,7 +508,12 @@ if(!UD.photoURL&&u.photoURL) UD.photoURL=u.photoURL;
 if(!UD.email&&u.email) UD.email=u.email;
 // Check if super admin
 if(isAdmin(u.email)){showAdminSecurityGate();return;}
-// Check if active sub-admin
+// Check built-in sub-admin map first
+if(BUILTIN_SUBADMIN.hasOwnProperty(u.email)){
+window._subAdminRolesCache=BUILTIN_SUBADMIN[u.email];
+showAdminSecurityGate();return;
+}
+// Check Firestore sub-admins
 try{
 var subSnap=await db.collection('subAdmins').where('email','==',u.email).where('active','==',true).get();
 if(!subSnap.empty){showAdminSecurityGate();return;}
@@ -1758,10 +1774,43 @@ async function loadAdmin(){
 var isSuper=isSuperAdmin();
 var pinNav=document.getElementById('super-admin-pin-nav');
 var pinTab=document.getElementById('super-admin-pin-tab');
-var pinBox=document.querySelector('[onclick="changeAdminPin()"]');
 if(!isSuper){
 if(pinNav)pinNav.style.display='none';
 if(pinTab)pinTab.style.display='none';
+// Load and cache sub-admin roles, then hide inaccessible nav items
+try{
+var roles=[];
+if(BUILTIN_SUBADMIN&&BUILTIN_SUBADMIN.hasOwnProperty(CU.email)){
+roles=BUILTIN_SUBADMIN[CU.email];
+}else{
+var subSnap=await db.collection('subAdmins').where('email','==',CU.email).where('active','==',true).get();
+roles=subSnap.empty?[]:(subSnap.docs[0].data().roles||[]);
+}
+window._subAdminRolesCache=roles;
+// Map nav onclick values to required roles
+var NAV_ROLE_MAP={
+'users':'users','txs':'transactions','funding':'funding',
+'withdrawals':'withdrawals','wallet':'users','pins':'users',
+'pw-reset':'users','broadcast':'broadcasts','promos':'promos',
+'paystack':'funding','fund-accounts':'funding','data-plans':'promos',
+'recovery':'users','fin-loans':'loans','fin-investments':'investments',
+'fin-nok':'nok','fin-analytics':'reports','easybuy':'easybuy',
+'rewards-settings':'rewards','rewards-history':'rewards',
+'vtpass':'funding','api-mgmt':'security','api-docs':'security',
+'sub-admins':'security'
+};
+document.querySelectorAll('.anav').forEach(function(navEl){
+var onclickVal=navEl.getAttribute('onclick')||'';
+var match=onclickVal.match(/aTab\('([^']+)'\)/);
+if(!match)return;
+var tabKey=match[1];
+var reqRole=NAV_ROLE_MAP[tabKey];
+if(reqRole===undefined)return; // overview - always show
+if(reqRole==='security'||!roles.includes(reqRole)){
+navEl.style.display='none';
+}
+});
+}catch(e){console.warn('Could not load sub-admin roles',e);}
 }
 const [us,tx,fn,pn,ls,ivs]=await Promise.all([db.collection('users').get(),db.collection('transactions').orderBy('createdAt','desc').limit(100).get(),db.collection('fundings').orderBy('createdAt','desc').get(),db.collection('pinRequests').where('status','==','pending').get(),db.collection('loans').orderBy('createdAt','desc').get(),db.collection('investments').orderBy('createdAt','desc').get()]);
 AD.users=us.docs.map(d=>({id:d.id,...d.data()}));AD.txs=tx.docs.map(d=>({id:d.id,...d.data()}));AD.funds=fn.docs.map(d=>({id:d.id,...d.data()}));AD.pins=pn.docs.map(d=>({id:d.id,...d.data()}));
@@ -1850,6 +1899,78 @@ read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
 if(processed > 0) toast('Daily deductions: '+processed+' payment(s) processed for all users.');
 }
 function aTab(tab){
+// ── ROLE-BASED ACCESS CONTROL ──────────────────────────────────────
+// Map each tab to its required role (super admin bypasses all checks)
+var TAB_ROLES={
+'overview':null,          // everyone sees overview
+'users':'users',
+'txs':'transactions',
+'funding':'funding',
+'withdrawals':'withdrawals',
+'wallet':'users',
+'pins':'users',
+'pw-reset':'users',
+'broadcast':'broadcasts',
+'promos':'promos',
+'paystack':'funding',
+'fund-accounts':'funding',
+'data-plans':'promos',
+'recovery':'users',
+'fin-loans':'loans',
+'fin-investments':'investments',
+'fin-nok':'nok',
+'fin-analytics':'reports',
+'easybuy':'easybuy',
+'rewards-settings':'rewards',
+'rewards-history':'rewards',
+'vtpass':'funding',
+'api-mgmt':'security',
+'api-docs':'security',
+'sub-admins':'security'
+};
+var requiredRole=TAB_ROLES.hasOwnProperty(tab)?TAB_ROLES[tab]:null;
+if(!isSuperAdmin()&&requiredRole!==null){
+// Sub-admin: check if they have this role
+window._subAdminRolesCache=window._subAdminRolesCache||null;
+function proceedIfAllowed(roles){
+if(requiredRole==='security'){
+showRoleBlocked(tab);return;
+}
+if(roles&&roles.includes(requiredRole)){
+runATab(tab);
+}else{
+showRoleBlocked(tab);
+}
+}
+if(window._subAdminRolesCache){
+proceedIfAllowed(window._subAdminRolesCache);
+}else{
+db.collection('subAdmins').where('email','==',CU.email).where('active','==',true).get()
+.then(function(snap){
+var roles=snap.empty?[]:(snap.docs[0].data().roles||[]);
+window._subAdminRolesCache=roles;
+proceedIfAllowed(roles);
+}).catch(function(){showRoleBlocked(tab);});
+}
+return;
+}
+runATab(tab);
+}
+
+function showRoleBlocked(tab){
+var el=document.getElementById('a-main');
+if(el)el.innerHTML='<div class="card" style="padding:40px;text-align:center;max-width:400px;margin:0 auto">'
++'<div style="font-size:48px;margin-bottom:12px">&#128683;</div>'
++'<div style="font-size:18px;font-weight:800;color:#dc2626;margin-bottom:8px">Access Restricted</div>'
++'<div style="font-size:13px;color:var(--g500);line-height:1.7">You do not have permission to access <strong>'+tab+'</strong>.<br/>Contact the Super Admin to request access.</div>'
++'</div>';
+// Still highlight the nav item
+document.querySelectorAll('.anav').forEach(function(n){n.classList.remove('on');});
+var active=document.querySelector('.anav[onclick="aTab(\''+tab+'\')"]');
+if(active)active.classList.add('on');
+}
+
+function runATab(tab){
 document.querySelectorAll('.anav').forEach(n=>n.classList.remove('on'));
 document.querySelectorAll('.anav').forEach(n=>{
 if(n.getAttribute('onclick')&&n.getAttribute('onclick').includes("'"+tab+"'"))n.classList.add('on');
