@@ -4907,13 +4907,22 @@ _psConfig=snap.exists?snap.data():null;
 }catch(e){_psConfig=null;}
 }
 async function initPaystackPayment(amount){
-if(!_psConfig||!_psConfig.enabled||!_psConfig.publicKey){toast('Paystack not available. Use bank transfer below.');return;}
 if(!amount||isNaN(amount)||amount<100){toast('Enter amount (minimum NGN 100)');return;}
+// Always fetch fresh config in case _psConfig is null or stale
+try{
+var cfgSnap=await db.collection('settings').doc('paystack').get();
+if(!cfgSnap.exists||!cfgSnap.data().enabled||!cfgSnap.data().publicKey){
+toast('Paystack card payment is not enabled. Please use bank transfer below.');return;
+}
+_psConfig=cfgSnap.data();
+}catch(e){toast('Could not load payment settings. Please use bank transfer.');return;}
 if(!window.PaystackPop){
+try{
 await new Promise(function(res,rej){
 var s=document.createElement('script');s.src='https://js.paystack.co/v1/inline.js';
 s.onload=res;s.onerror=function(){rej(new Error('Failed to load Paystack'));};document.head.appendChild(s);
 });
+}catch(e){toast('Could not load Paystack. Check your internet connection.');return;}
 }
 var ref='ZM_'+Date.now()+'_'+Math.random().toString(36).slice(2,8).toUpperCase();
 var handler=window.PaystackPop.setup({
