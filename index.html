@@ -2510,8 +2510,9 @@ let html=`<div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap">
 ${networks.map(n=>`<button onclick="filterDataPlanAdmin('${n}')" class="admin-net-filter chip" style="background:var(--g100);color:var(--g600);cursor:pointer;white-space:nowrap;padding:7px 14px;border:none">${n}</button>`).join('')}
 <button onclick="filterDataPlanAdmin('all')" class="admin-net-filter chip" style="background:var(--green);color:#fff;cursor:pointer;white-space:nowrap;padding:7px 14px;border:none">All</button>
 </div>
-<div style="display:flex;gap:8px;margin-bottom:12px">
+<div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
 <button onclick="importClubKonnectPlans()" style="padding:9px 16px;background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">&#128260; Import/Sync ClubKonnect Plans</button>
+<button onclick="enableCheapestPlans()" style="padding:9px 16px;background:#dcfce7;border:1px solid #86efac;color:#15803d;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">&#9889; Enable Cheapest Plan (All Networks)</button>
 </div>
 <div class="info-box" style="margin-bottom:12px"><p style="font-size:12px;color:var(--green-d)">Set custom selling prices and enable/disable individual plans. Disabled plans won't appear for users. ClubKonnect plan IDs and API logic are unchanged.</p></div>
 <div id="dp-admin-list">
@@ -2568,6 +2569,8 @@ try{
 for(const net of networks){
 const res=await apiFetch('dataPlans',{MobileNetwork:net});
 const plans=extractNBSPlans(res,net);
+const priced=plans.filter(p=>parseFloat(p.variation_amount||0)>0);
+const cheapestCode=priced.length?priced.reduce((a,b)=>parseFloat(a.variation_amount)<=parseFloat(b.variation_amount)?a:b).variation_code:'';
 for(const p of plans){
 const code=p.variation_code||'';
 const name=p.variation_name||'';
@@ -2578,16 +2581,43 @@ if(ex.empty){
 await db.collection('dataPlans').add({
 network:net,planCode:code,name,
 providerPrice:price,sellPrice:price,
-active:false, // disabled by default per spec
+active:code===cheapestCode, // cheapest plan per network enabled by default; rest stay disabled until reviewed
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 });
 total++;
 }
 }
 }
-toast('Imported '+total+' new plans (disabled by default). Enable them in the list.');
+toast('Imported '+total+' new plans. Cheapest plan per network enabled automatically.');
 aTab('data-plans');
 }catch(e){toast('Import error: '+e.message);}
+}
+async function enableCheapestPlans(){
+toast('Checking cheapest plan for each network...');
+try{
+const networks=Object.values(NET_MAP).map(v=>v.data).filter((v,i,a)=>a.indexOf(v)===i); // e.g. MTN, Airtel, Glo, Etisalat
+let enabled=0, missing=[];
+for(const net of networks){
+const s=await db.collection('dataPlans').where('network','==',net).get();
+if(s.empty){ missing.push(net); continue; }
+const docs=s.docs.map(d=>({id:d.id,...d.data()}));
+let cheapest=null;
+docs.forEach(d=>{
+const price=parseFloat(d.sellPrice||d.providerPrice||0);
+if(price<=0) return;
+const curMin=cheapest?parseFloat(cheapest.sellPrice||cheapest.providerPrice||0):Infinity;
+if(price<curMin) cheapest=d;
+});
+if(cheapest && cheapest.active===false){
+await db.collection('dataPlans').doc(cheapest.id).update({active:true});
+enabled++;
+}
+}
+let msg='Enabled cheapest plan for '+enabled+' network(s).';
+if(missing.length) msg+=' No plans found yet for: '+missing.join(', ')+' — use Import/Sync first.';
+toast(msg);
+aTab('data-plans');
+}catch(e){toast('Error: '+e.message);}
 }
 const _origRenderPlans=renderPlans;
 async function renderPlansWithAdminSettings(plans,sel,infoEl,networkId){
@@ -2626,6 +2656,11 @@ const m=mgByCode[code]||mgByName[name];
 if(m&&m.sellPrice>0) return{...p,variation_amount:String(m.sellPrice)};
 return p;
 });
+if(!filtered.length && plans.length){
+console.warn('[AdminPlans] All managed plans disabled for '+net+' — falling back to full provider list so the dropdown is never empty');
+_origRenderPlans(plans,sel,infoEl);
+return;
+}
 _origRenderPlans(filtered,sel,infoEl);
 }catch(e){
 console.warn('[AdminPlans] Error applying admin settings, using raw plans:',e.message);
