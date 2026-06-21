@@ -2948,14 +2948,15 @@ ${networks.map(n=>`<button onclick="filterDataPlanAdmin('${n}')" class="admin-ne
 <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
 <button onclick="importClubKonnectPlans()" style="padding:9px 16px;background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">&#128260; Import/Sync ClubKonnect Plans</button>
 <button onclick="enableCheapestPlans()" style="padding:9px 16px;background:#dcfce7;border:1px solid #86efac;color:#15803d;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">&#9889; Enable Cheapest Plan (All Networks)</button>
+<button onclick="checkLiveMatchStatus()" style="padding:9px 16px;background:#fef3c7;border:1px solid #fcd34d;color:#92400e;border-radius:10px;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">&#128269; Check Live Match</button>
 </div>
-<div class="info-box" style="margin-bottom:12px"><p style="font-size:12px;color:var(--green-d)">Set custom selling prices and enable/disable individual plans. Disabled plans won't appear for users. ClubKonnect plan IDs and API logic are unchanged.</p></div>
+<div class="info-box" style="margin-bottom:12px"><p style="font-size:12px;color:var(--green-d)">Set custom selling prices and enable/disable individual plans. Disabled plans won't appear for users. ClubKonnect plan IDs and API logic are unchanged.<br/><span style="display:block;margin-top:4px">Tap "Check Live Match" to see which enabled plans actually exist in the provider's current live data &mdash; a plan can be enabled here but still not appear on the site if the provider no longer offers it under that code.</span></p></div>
 <div id="dp-admin-list">
 ${plans.length?plans.map(p=>`
-<div class="card dp-row" data-network="${p.network||''}" style="padding:12px 14px;margin-bottom:8px">
+<div class="card dp-row" data-network="${p.network||''}" data-code="${String(p.planCode||'').trim().toLowerCase()}" data-name="${String(p.name||'').trim().toLowerCase()}" style="padding:12px 14px;margin-bottom:8px">
 <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
 <div style="flex:1;min-width:0">
-<div style="font-weight:700;font-size:13px">${p.name||'Unknown'}</div>
+<div style="font-weight:700;font-size:13px">${p.name||'Unknown'} <span class="dp-match-badge"></span></div>
 <div style="font-size:11px;color:var(--g400)">${p.network||''} &bull; Code: ${p.planCode||''}</div>
 </div>
 <div style="display:flex;align-items:center;gap:8px">
@@ -2980,6 +2981,43 @@ this.style.background='var(--green)';this.style.color='#fff';
 });
 });
 }catch(e){el.innerHTML='<div class="card" style="padding:16px;color:#dc2626">Error: '+e.message+'</div>';}
+}
+async function checkLiveMatchStatus(){
+toast('Checking live match status for all networks...');
+const networks=['MTN','Airtel','Glo','9mobile'];
+const liveCodesByNet={};
+for(const net of networks){
+try{
+const res=await apiFetch('dataPlans',{MobileNetwork:net});
+const plans=extractNBSPlans(res,net);
+liveCodesByNet[net]={
+codes:new Set(plans.map(p=>String(p.variation_code||'').trim().toLowerCase())),
+names:new Set(plans.map(p=>String(p.variation_name||'').trim().toLowerCase()))
+};
+}catch(e){
+liveCodesByNet[net]={codes:new Set(),names:new Set()};
+console.warn('[MatchCheck] Failed to fetch live plans for',net,':',e.message);
+}
+}
+let matched=0,unmatched=0;
+document.querySelectorAll('.dp-row').forEach(row=>{
+const net=row.dataset.network;
+const code=row.dataset.code;
+const name=row.dataset.name;
+const live=liveCodesByNet[net]||{codes:new Set(),names:new Set()};
+const isMatch=live.codes.has(code)||live.names.has(name);
+const badge=row.querySelector('.dp-match-badge');
+if(badge){
+if(isMatch){
+badge.innerHTML='<span style="background:#dcfce7;color:#15803d;font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:4px">&#9989; LIVE</span>';
+matched++;
+}else{
+badge.innerHTML='<span style="background:#fef2f2;color:#dc2626;font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;margin-left:4px">&#10060; NOT IN PROVIDER FEED</span>';
+unmatched++;
+}
+}
+});
+toast(matched+' plan(s) have a live match, '+unmatched+' do NOT (these will never show on the site, even if enabled).',5000);
 }
 function filterDataPlanAdmin(net){
 document.querySelectorAll('.dp-row').forEach(r=>{
@@ -3064,14 +3102,23 @@ if(!managed.length){_origRenderPlans(plans,sel,infoEl);return;}
 const mgByCode={};
 const mgByName={};
 managed.forEach(m=>{
-if(m.planCode) mgByCode[String(m.planCode).trim()]=m;
+if(m.planCode) mgByCode[String(m.planCode).trim().toLowerCase()]=m;
 if(m.name) mgByName[String(m.name).trim().toLowerCase()]=m;
 });
 const matchCount=plans.filter(p=>{
-const code=String(p.variation_code||'').trim();
+const code=String(p.variation_code||'').trim().toLowerCase();
 const name=String(p.variation_name||'').trim().toLowerCase();
 return mgByCode[code]||mgByName[name];
 }).length;
+console.log('[AdminPlans] Network:', net, '| Managed records:', managed.length, '| Live plans from provider:', plans.length, '| Matched:', matchCount);
+const unmatchedManaged = managed.filter(m=>{
+const mc=String(m.planCode||'').trim().toLowerCase();
+const mn=String(m.name||'').trim().toLowerCase();
+return !plans.some(p=>String(p.variation_code||'').trim().toLowerCase()===mc || String(p.variation_name||'').trim().toLowerCase()===mn);
+});
+if(unmatchedManaged.length){
+console.warn('[AdminPlans] These managed/enabled plans have NO matching live plan from the provider right now, so they will NEVER show on the site regardless of active status:', unmatchedManaged.map(m=>({name:m.name,planCode:m.planCode,active:m.active})));
+}
 const matchRatio=plans.length>0?matchCount/plans.length:0;
 if(matchRatio<0.2){
 console.warn('[AdminPlans] Low match ratio',matchRatio,'&mdash; showing all plans unfiltered');
@@ -3079,13 +3126,13 @@ _origRenderPlans(plans,sel,infoEl);
 return;
 }
 const filtered=plans.filter(p=>{
-const code=String(p.variation_code||'').trim();
+const code=String(p.variation_code||'').trim().toLowerCase();
 const name=String(p.variation_name||'').trim().toLowerCase();
 const m=mgByCode[code]||mgByName[name];
 if(!m) return true;
 return m.active!==false;
 }).map(p=>{
-const code=String(p.variation_code||'').trim();
+const code=String(p.variation_code||'').trim().toLowerCase();
 const name=String(p.variation_name||'').trim().toLowerCase();
 const m=mgByCode[code]||mgByName[name];
 if(m&&m.sellPrice>0) return{...p,variation_amount:String(m.sellPrice)};
