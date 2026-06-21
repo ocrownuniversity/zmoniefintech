@@ -5455,6 +5455,20 @@ const now=new Date();
 const el=document.getElementById('receipt-content');if(!el)return;
 el.innerHTML=`<div id="receipt-printable" style="background:#fff;padding:24px;font-family:'Inter',sans-serif"><div style="display:flex;align-items:center;gap:9px;margin-bottom:16px"><div style="width:38px;height:38px;background:linear-gradient(135deg,#15803d,#22c55e);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:900;color:#fff;flex-shrink:0">Z</div><div><div style="font-size:14px;font-weight:900;color:#15803d;letter-spacing:-.02em">ZMONIE</div><div style="font-size:10px;color:var(--g400)">Fintech &amp; Investment Platform</div></div></div><div style="text-align:center;margin-bottom:20px;padding-bottom:16px;border-bottom:2px dashed #e2e8f0"><div style="width:56px;height:56px;background:linear-gradient(135deg,#16a34a,#15803d);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;font-size:26px">&#9989;</div><div style="font-size:18px;font-weight:900">Transaction Successful</div><div style="font-size:12px;color:var(--g400);margin-top:4px">${now.toLocaleDateString('en-NG',{weekday:'long',year:'numeric',month:'long',day:'numeric'})}</div></div><div style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><span style="font-size:12px;color:var(--g500)">Amount Paid</span><span style="font-size:20px;font-weight:900;color:var(--err)">NGN ${fmt(amt)}</span></div>${[['Service',desc],['Reference',ref||'&mdash;'],['Status','&#9989; Successful'],['Time',now.toLocaleTimeString('en-NG')],['Account',UD?.name||'&mdash;'],['Phone/ID',(extra?.phone||extra?.smartcard||extra?.meter||'')]].filter(r=>r[1]&&r[1]!=='&mdash;').map(([k,v])=>`<div style="display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9"><span style="font-size:12px;color:var(--g500)">${k}</span><span style="font-size:12px;font-weight:600;max-width:60%;text-align:right">${v}</span></div>`).join('')}</div><div style="background:#f0fdf4;border-radius:12px;padding:12px;text-align:center"><div style="font-size:11px;color:var(--green-d);font-weight:600">Powered by ZMONIE</div><div style="font-size:10px;color:var(--g400);margin-top:2px">zmonieservice@gmail.com &middot; 08068886569</div></div></div>`;
 openM('m-receipt');
+pregenerateReceiptBlob();
+}
+let _receiptBlobPromise=null;
+async function pregenerateReceiptBlob(){
+_receiptBlobPromise=(async()=>{
+const printable=document.getElementById('receipt-printable');
+if(!printable) return null;
+const loaded=await loadHtml2Canvas();
+if(!loaded||!window.html2canvas) return null;
+const canvas=await html2canvas(printable,{scale:2,backgroundColor:'#ffffff'});
+const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
+return {canvas,blob};
+})();
+return _receiptBlobPromise;
 }
 async function loadHtml2Canvas(){
 if(window.html2canvas) return true;
@@ -5470,23 +5484,27 @@ async function shareReceipt(via){
 const printable=document.getElementById('receipt-printable');
 if(!printable){toast('Receipt not ready');return;}
 const txt='*ZMONIE Receipt*\nService: '+(lastTxData?.extra?.planName||lastTxData?.type||'VTU')+'\nAmount: NGN '+fmt(lastTxData?.amt||0)+'\nRef: '+(lastTxData?.ref||'&mdash;')+'\nStatus: Successful\nDate: '+new Date().toLocaleString('en-NG')+'\n\nPowered by ZMONIE | 08068886569';
-toast('[Loading] Preparing receipt...',2000);
 try{
-const loaded=await loadHtml2Canvas();
-if(!loaded || !window.html2canvas){
-console.error('[shareReceipt] html2canvas failed to load');
+// Use the image prepared in advance (when the receipt opened) so navigator.share()
+// fires as close to the tap as possible -- generating the image fresh on every tap
+// was the bug: by the time it finished, the browser no longer trusted the gesture.
+let ready=_receiptBlobPromise?await _receiptBlobPromise:null;
+if(!ready){
+toast('[Loading] Preparing receipt...',2000);
+ready=await pregenerateReceiptBlob();
+}
+if(!ready||!ready.blob){
+console.error('[shareReceipt] receipt image not available');
 if(via==='whatsapp'){toast('Could not generate image -- sending text instead');window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
 else if(via==='share'&&navigator.share){await navigator.share({title:'ZMONIE Receipt',text:txt}).catch(()=>{});}
 else{const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);a.download='receipt.txt';a.click();toast('Could not generate image -- saved as text instead');}
 return;
 }
-const canvas=await html2canvas(printable,{scale:2,backgroundColor:'#ffffff'});
+const {canvas,blob}=ready;
 if(via==='download'){
 const a=document.createElement('a');a.href=canvas.toDataURL('image/png');a.download='ZMONIE_Receipt_'+Date.now()+'.png';a.click();toast('Receipt saved!');
 return;
 }
-const blob=await new Promise(res=>canvas.toBlob(res,'image/png'));
-if(!blob){throw new Error('Could not generate receipt image');}
 const file=new File([blob],'ZMONIE_Receipt.png',{type:'image/png'});
 if(navigator.canShare&&navigator.canShare({files:[file]})){
 // Native share sheet with the actual receipt image -- works for WhatsApp,
