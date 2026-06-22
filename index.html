@@ -497,7 +497,6 @@ function fmt(n){return parseFloat(n||0).toLocaleString('en-NG',{minimumFractionD
 function fdate(ts){if(!ts)return'&mdash;';const d=ts.toDate?ts.toDate():new Date(ts);return d.toLocaleDateString('en-NG',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});}
 auth.onAuthStateChanged(async u=>{
 if(window._isPasswordResetFlow) return;
-// Built-in sub-admin (always active, roles hardcoded)
 var BUILTIN_SUBADMIN={
 'zmonieservice@gmail.com':['users','transactions','funding','withdrawals','wallet',
 'pins','pw-reset','broadcast','promos','fund-accounts','data-plans','recovery',
@@ -507,8 +506,17 @@ var BUILTIN_SUBADMIN={
 if(u){
 CU=u;
 const ref=db.collection('users').doc(u.uid);
-const snap=await ref.get();
+// Retry up to 5 times (3s total) waiting for doReg's Firestore write.
+// Without this, onAuthStateChanged fires before the write completes and
+// the blank-skeleton fallback overwrites name/phone/photo/PIN.
+let snap=null;
+for(let attempt=0;attempt<5;attempt++){
+snap=await ref.get();
+if(snap.exists&&snap.data().name&&snap.data().name!=='User'&&snap.data().name!=='null') break;
+if(attempt<4) await new Promise(r=>setTimeout(r,600));
+}
 if(!snap.exists){
+// Genuinely new user (Google sign-in or skeleton missing) -- create minimal doc
 await ref.set({
 name: u.displayName||'User',
 email: u.email||'',
@@ -523,28 +531,24 @@ referralEarned: 0,
 hasFundedFirst: false,
 createdAt: firebase.firestore.FieldValue.serverTimestamp()
 });
+snap=await ref.get();
 } else {
-const existing = snap.data();
-const updates = {};
-if((!existing.name || existing.name==='null' || existing.name==='User') && u.displayName){
-updates.name = u.displayName;
-}
-if(!existing.photoURL && u.photoURL){
-updates.photoURL = u.photoURL;
-}
-if(!existing.email && u.email){
-updates.email = u.email;
-}
-if(Object.keys(updates).length > 0){
+// Doc exists -- only patch genuinely missing fields, never overwrite
+const existing=snap.data();
+const updates={};
+if((!existing.name||existing.name==='null'||existing.name==='User')&&u.displayName) updates.name=u.displayName;
+if(!existing.photoURL&&u.photoURL) updates.photoURL=u.photoURL;
+if(!existing.email&&u.email) updates.email=u.email;
+if(Object.keys(updates).length>0){
 await ref.update(updates);
+snap=await ref.get();
 }
 }
-UD=(await ref.get()).data();
-if((!UD.name||UD.name==='null'||UD.name==='User')&&u.displayName){
-UD.name=u.displayName;
-}
+UD=snap.data()||{};
+if((!UD.name||UD.name==='null'||UD.name==='User')&&u.displayName) UD.name=u.displayName;
 if(!UD.photoURL&&u.photoURL) UD.photoURL=u.photoURL;
 if(!UD.email&&u.email) UD.email=u.email;
+console.log('[Auth] User loaded - name:',UD.name,'phone:',UD.phone,'hasPhoto:',!!UD.photoURL,'hasPin:',!!UD.pin);
 // Check if super admin
 if(isAdmin(u.email)){showAdminSecurityGate();return;}
 // Check built-in sub-admin map first
@@ -654,28 +658,66 @@ if(!pw||pw.length<6){toast('Password must be at least 6 characters');document.ge
 if(pin.length!==4){toast('Please set your 4-digit Transaction PIN');document.getElementById('rp1').focus();return;}
 const photoFile=document.getElementById('rg-photo')?.files[0];
 if(!photoFile){
-toast('&#128248; Please upload your profile photo to continue');
+toast('Please upload your profile photo to continue');
 document.getElementById('rg-photo-preview').style.border='2.5px dashed #dc2626';
 document.getElementById('rg-photo').click();
 return;
 }
 if(photoFile.size>3*1024*1024){toast('Photo too large. Max size is 3MB.');return;}
+// Prevent double-submission
+const btn=document.querySelector('#pg-reg .btn-g');
+if(btn){btn.disabled=true;btn.textContent='Creating account...';}
 try{
 let photoURL='';
 if(photoFile){
 photoURL=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(photoFile);});
 }
 const cr=await auth.createUserWithEmailAndPassword(em,pw);
+const uid=cr.user.uid;
 const urlRef=new URLSearchParams(window.location.search).get('ref')||sessionStorage.getItem('zmonie_ref')||'';
-const refCode='ZM'+cr.user.uid.slice(0,8).toUpperCase();
-await db.collection('users').doc(cr.user.uid).set({
-name:fn+' '+ln,email:em,phone:ph,balance:0,rewardsBalance:0,cashbackEarned:0,referralEarned:0,
-pin:hp(pin),role:'user',photoURL,referralCode:refCode,referredBy:urlRef,hasFundedFirst:false,
+const refCode='ZM'+uid.slice(0,8).toUpperCase();
+const userData={
+name:fn+' '+ln,
+email:em,
+phone:ph,
+balance:0,
+rewardsBalance:0,
+cashbackEarned:0,
+referralEarned:0,
+pin:hp(pin),
+role:'user',
+photoURL,
+referralCode:refCode,
+referredBy:urlRef,
+hasFundedFirst:false,
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
-});
-await addNotif(cr.user.uid,'Welcome to ZMONIE! &#127881;','Your account has been created. Share your referral link and earn NGN100 for every friend who joins and funds their wallet!');
+};
+// Write with retry -- ensures the document is confirmed saved before onAuthStateChanged
+// picks it up, preventing the blank-skeleton race condition
+let writeOk=false;
+for(let attempt=0;attempt<3;attempt++){
+try{
+await db.collection('users').doc(uid).set(userData);
+// Verify the write actually landed
+const verify=await db.collection('users').doc(uid).get();
+if(verify.exists&&verify.data().name){writeOk=true;break;}
+}catch(writeErr){
+console.error('[Reg] Write attempt '+(attempt+1)+' failed:',writeErr.message);
+if(attempt<2) await new Promise(r=>setTimeout(r,500));
+}
+}
+if(!writeOk){
+console.error('[Reg] All write attempts failed -- profile may be incomplete');
+toast('Account created but profile save had issues. Some details may be missing -- please update your profile.');
+}
+await addNotif(uid,'Welcome to ZMONIE!','Your account has been created. Share your referral link and earn NGN 100 for every friend who joins and funds their wallet!');
 sessionStorage.removeItem('zmonie_ref');
-}catch(er){toast('Registration failed: '+friendlyError(er));}
+console.log('[Reg] Registration complete for',em,'name:',fn+' '+ln,'phone:',ph,'hasPin:',!!pin,'hasPhoto:',!!photoURL);
+}catch(er){
+console.error('[Reg] Error:',er.code,er.message);
+if(btn){btn.disabled=false;btn.textContent='Create Account';}
+toast('Registration failed: '+friendlyError(er));
+}
 }
 function previewRegPhoto(event){
 const file=event.target.files[0];if(!file)return;
