@@ -648,6 +648,11 @@ auth=firebase.auth();db=firebase.firestore();
 try{ auth.setPersistence(firebase.auth.Auth.Persistence.NONE); }catch(persErr){ console.warn('setPersistence unavailable:',persErr.message); }
 try{ fns=firebase.functions(); }catch(fnErr){ console.warn('Firebase Functions unavailable:',fnErr.message); fns=null; }
 try{ gp=new firebase.auth.GoogleAuthProvider(); }catch(gErr){ console.warn('GoogleAuthProvider unavailable:',gErr.message); gp=null; }
+// Start loading reCAPTCHA as early as physically possible — don't
+// wait for the Auth SDK to finish booting (that can take a second
+// or more on slow connections, easily longer than it takes someone
+// to type an email+password and hit Sign In).
+if(typeof loadRecaptchaConfig==='function')loadRecaptchaConfig();
 }catch(initErr){
 console.error('[ZMONIE] Firebase init failed:',initErr.message);
 document.addEventListener('DOMContentLoaded',function(){
