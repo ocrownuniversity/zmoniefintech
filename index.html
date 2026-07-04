@@ -645,7 +645,7 @@ firebase.initializeApp(fbCfg);
 let auth, db, gp, fns;
 try{
 auth=firebase.auth();db=firebase.firestore();
-try{ auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL); }catch(persErr){ console.warn('setPersistence unavailable:',persErr.message); }
+try{ auth.setPersistence(firebase.auth.Auth.Persistence.NONE); }catch(persErr){ console.warn('setPersistence unavailable:',persErr.message); }
 try{ fns=firebase.functions(); }catch(fnErr){ console.warn('Firebase Functions unavailable:',fnErr.message); fns=null; }
 try{ gp=new firebase.auth.GoogleAuthProvider(); }catch(gErr){ console.warn('GoogleAuthProvider unavailable:',gErr.message); gp=null; }
 }catch(initErr){
@@ -658,6 +658,33 @@ if(b)b.insertAdjacentHTML('afterbegin','<div style="position:fixed;top:0;left:0;
 let CU=null,UD=null,bHid=false,pSvc=null,allTx=[],si=0,sTimer=null,_pinApprovalUnsub=null;
 const SUPER_ADMIN_EMAIL='oladejiridwanopeyemi@gmail.com';
 const isAdmin=e=>(e||'').toLowerCase()===SUPER_ADMIN_EMAIL;
+
+// ============================================================
+// AUTO-LOGOUT after 5 minutes of inactivity
+// ============================================================
+const IDLE_TIMEOUT_MS=5*60*1000;
+window._idleTimer=null;
+function _resetIdleTimer(){
+if(window._idleTimer)clearTimeout(window._idleTimer);
+if(!CU)return;
+window._idleTimer=setTimeout(async ()=>{
+if(!CU)return;
+try{await auth.signOut();}catch(e){}
+toast('You were logged out after 5 minutes of inactivity.');
+},IDLE_TIMEOUT_MS);
+}
+function startIdleTimer(){
+if(window._idleActivityBound)return;
+window._idleActivityBound=true;
+['mousemove','mousedown','keydown','touchstart','scroll','click'].forEach(evt=>{
+document.addEventListener(evt,_resetIdleTimer,{passive:true});
+});
+_resetIdleTimer();
+}
+function stopIdleTimer(){
+if(window._idleTimer)clearTimeout(window._idleTimer);
+window._idleTimer=null;
+}
 
 // ============================================================
 // RECAPTCHA (client-side only). This checks that the checkbox
@@ -1000,6 +1027,7 @@ var BUILTIN_SUBADMIN={
 };
 if(u){
 CU=u;
+startIdleTimer();
 const ref=db.collection('users').doc(u.uid);
 // Retry up to 5 times (3s total) waiting for doReg's Firestore write.
 // Without this, onAuthStateChanged fires before the write completes and
@@ -1058,7 +1086,7 @@ var subSnap=await db.collection('subAdmins').where('email','==',u.email).where('
 if(!subSnap.empty){showAdminSecurityGate();return;}
 }catch(e2){}
 goPg('pg-dash');loadDash();startPinApprovalListener(u.uid);
-}else{CU=null;UD=null;goPg('pg-land');}
+}else{CU=null;UD=null;stopIdleTimer();goPg('pg-land');}
 });
 
 function showAdminSecurityGate(){
