@@ -6235,6 +6235,29 @@ img.src = e.target.result;
 };
 reader.readAsDataURL(file);
 }
+function loadProfile(){
+if(!CU||!UD)return;
+const name=UD.name||'';
+const parts=name.trim().split(/\s+/);
+const firstName=parts[0]||'';
+const lastName=parts.slice(1).join(' ')||'';
+const initials=(firstName[0]||'U').toUpperCase()+(lastName[0]||'').toUpperCase();
+
+// Display header
+const prName=document.getElementById('pr-name');if(prName)prName.textContent=name||'—';
+const prEm=document.getElementById('pr-em');if(prEm)prEm.textContent=UD.email||CU.email||'—';
+const prAccnum=document.getElementById('pr-accnum');if(prAccnum)prAccnum.textContent=UD.phone||'—';
+const prLtr=document.getElementById('pr-av-letter');
+const prImg=document.getElementById('pr-av-img');
+if(UD.photoURL&&prImg){prImg.src=UD.photoURL;prImg.style.display='block';if(prLtr)prLtr.style.display='none';}
+else{if(prImg)prImg.style.display='none';if(prLtr){prLtr.style.display='block';prLtr.textContent=initials||'U';}}
+
+// Edit form — pre-fill with existing saved data
+const efn=document.getElementById('ep-firstname');if(efn)efn.value=firstName;
+const eln=document.getElementById('ep-lastname');if(eln)eln.value=lastName;
+const eph=document.getElementById('ep-phone');if(eph)eph.value=UD.phone||'';
+const eem=document.getElementById('ep-email');if(eem)eem.value=UD.email||CU.email||'';
+}
 async function saveProfileEdits(){
 if(!CU||!UD)return;
 const firstName=(document.getElementById('ep-firstname')?.value||'').trim();
