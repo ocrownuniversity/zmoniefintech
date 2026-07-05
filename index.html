@@ -1248,6 +1248,7 @@ createdAt:firebase.firestore.FieldValue.serverTimestamp()
 // backoff than before, since a slow network can still need a bit more
 // time for the refreshed token to fully propagate.
 let writeOk=false;
+let lastWriteErr=null;
 for(let attempt=0;attempt<5;attempt++){
 try{
 await db.collection('users').doc(uid).set(userData);
@@ -1258,7 +1259,8 @@ console.log('[Reg] Firestore write verified on attempt '+(attempt+1));
 break;
 }
 }catch(writeErr){
-console.error('[Reg] Write attempt '+(attempt+1)+' failed:',writeErr.message);
+lastWriteErr=writeErr;
+console.error('[Reg] Write attempt '+(attempt+1)+' failed:',writeErr.code,writeErr.message);
 if(attempt<4) await new Promise(r=>setTimeout(r,600*(attempt+1)));
 }
 }
@@ -1266,7 +1268,8 @@ if(attempt<4) await new Promise(r=>setTimeout(r,600*(attempt+1)));
 window._isRegistering=false;
 if(!writeOk){
 console.error('[Reg] All write attempts failed');
-toast('⚠️ Your account was created but we could not save your profile. Please contact support before logging out, or try Profile → Save to retry.',6000);
+const errDetail=lastWriteErr?(' ['+(lastWriteErr.code||'')+': '+lastWriteErr.message+']'):' [no error thrown, but read-back verification failed]';
+toast('⚠️ Your account was created but your profile could not be saved.'+errDetail+' Please screenshot this and contact support.',9000);
 }
 await addNotif(uid,'Welcome to ZMONIE!','Your account has been created. Share your referral link and earn NGN 100 for every friend who joins and funds their wallet!');
 sessionStorage.removeItem('zmonie_ref');
@@ -5271,11 +5274,34 @@ const n=row.dataset.name||'',e=row.dataset.email||'',p=row.dataset.phone||'';
 row.style.display=(n.includes(q)||e.includes(q)||p.includes(q))?'':'none';
 });
 }
-async function adminDeleteUser(uid,name,email){
+function adminDeleteUser(uid,name,email){
 if(!isSuperAdmin()){toast('Only the Super Admin can delete user accounts');return;}
 if(uid===CU?.uid){toast("You can't delete your own account from here");return;}
-const typed=prompt('This permanently deletes "'+name+'" ('+email+') — their wallet, transactions, and login access.\n\nThis CANNOT be undone.\n\nType DELETE to confirm:');
-if(typed!=='DELETE'){toast('Cancelled');return;}
+const overlay=document.createElement('div');
+overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+overlay.innerHTML=`<div style="background:#fff;border-radius:16px;padding:20px;max-width:360px;width:100%">
+<div style="font-size:16px;font-weight:800;color:#dc2626;margin-bottom:10px">⚠️ Delete User Permanently</div>
+<p style="font-size:13px;color:var(--g600);line-height:1.6;margin-bottom:14px">This permanently deletes <strong>${name}</strong> (${email}) — their wallet, transactions, and login access.<br/><br/><strong style="color:#dc2626">This cannot be undone.</strong></p>
+<label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:6px;display:block">Type <strong>DELETE</strong> to confirm</label>
+<input class="inp" id="admin-del-confirm-input" placeholder="DELETE" style="margin-bottom:14px;font-family:monospace;letter-spacing:1px" autocomplete="off" autocapitalize="characters"/>
+<div style="display:flex;gap:10px">
+<button id="admin-del-cancel-btn" style="flex:1;padding:12px;border-radius:10px;background:var(--g100);border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--g700)">Cancel</button>
+<button id="admin-del-confirm-btn" style="flex:1;padding:12px;border-radius:10px;background:#dc2626;border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:#fff">Delete</button>
+</div>
+</div>`;
+document.body.appendChild(overlay);
+const input=overlay.querySelector('#admin-del-confirm-input');
+input.focus();
+const cleanup=()=>overlay.remove();
+overlay.querySelector('#admin-del-cancel-btn').onclick=()=>{toast('Cancelled');cleanup();};
+overlay.addEventListener('click',e=>{if(e.target===overlay){toast('Cancelled');cleanup();}});
+overlay.querySelector('#admin-del-confirm-btn').onclick=async ()=>{
+if((input.value||'').trim().toUpperCase()!=='DELETE'){toast('Type DELETE exactly to confirm');return;}
+cleanup();
+await _executeAdminDeleteUser(uid,name);
+};
+}
+async function _executeAdminDeleteUser(uid,name){
 try{
 if(fns){
 // Preferred path: a real Cloud Function using the Admin SDK, which
