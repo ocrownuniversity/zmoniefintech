@@ -1188,6 +1188,16 @@ if(btn){btn.classList.remove('btn-loading');btn.disabled=false;btn.textContent='
 toast('Login failed: '+friendlyError(er));
 }
 }
+// Races any promise against a hard timeout. Without this, a slow/flaky
+// network can leave an await stuck forever with no error and no way for
+// the user to recover except closing the app — this guarantees every
+// step in registration eventually either succeeds or fails visibly.
+function withTimeout(promise,ms,message){
+return Promise.race([
+promise,
+new Promise((_,rej)=>setTimeout(()=>rej(new Error(message||'Request timed out. Please check your connection and try again.')),ms))
+]);
+}
 async function doReg(){
 const fn=document.getElementById('rg-fn').value.trim(),ln=document.getElementById('rg-ln').value.trim();
 const em=document.getElementById('rg-em').value.trim(),ph=document.getElementById('rg-ph').value.trim(),pw=document.getElementById('rg-pw').value;
@@ -1231,14 +1241,14 @@ r.readAsDataURL(photoFile);
 // the flag first guarantees onAuthStateChanged bails out immediately,
 // every time, with zero race window.
 window._isRegistering=true;
-const cr=await auth.createUserWithEmailAndPassword(em,pw);
+const cr=await withTimeout(auth.createUserWithEmailAndPassword(em,pw),20000,'Account creation timed out. Please check your connection and try again.');
 const uid=cr.user.uid;
 // Force the ID token to refresh before writing to Firestore. Right after
 // createUserWithEmailAndPassword(), the Firestore SDK can still be holding
 // a stale/unpropagated token for a brief moment — without this, the very
 // first write can get silently rejected by security rules as unauthenticated,
 // even though the account was created successfully.
-try{ await cr.user.getIdToken(true); }catch(tokErr){ console.warn('[Reg] token refresh failed:',tokErr.message); }
+try{ await withTimeout(cr.user.getIdToken(true),8000,'Token refresh timed out'); }catch(tokErr){ console.warn('[Reg] token refresh failed:',tokErr.message); }
 const urlRef=new URLSearchParams(window.location.search).get('ref')||sessionStorage.getItem('zmonie_ref')||'';
 const refCode='ZM'+uid.slice(0,8).toUpperCase();
 const userData={
@@ -1257,15 +1267,15 @@ referredBy:urlRef,
 hasFundedFirst:false,
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 };
-// Write with retry and read-back verification. More attempts + longer
-// backoff than before, since a slow network can still need a bit more
-// time for the refreshed token to fully propagate.
+// Write with retry and read-back verification. Each attempt is capped
+// with its own timeout, so a flaky connection can never hang here
+// forever — worst case, it fails visibly after a bounded wait instead.
 let writeOk=false;
 let lastWriteErr=null;
-for(let attempt=0;attempt<5;attempt++){
+for(let attempt=0;attempt<3;attempt++){
 try{
-await db.collection('users').doc(uid).set(userData);
-const verify=await db.collection('users').doc(uid).get();
+await withTimeout(db.collection('users').doc(uid).set(userData),8000,'Saving your profile timed out.');
+const verify=await withTimeout(db.collection('users').doc(uid).get(),8000,'Verifying your profile timed out.');
 if(verify.exists&&verify.data().name){
 writeOk=true;
 console.log('[Reg] Firestore write verified on attempt '+(attempt+1));
@@ -1274,7 +1284,7 @@ break;
 }catch(writeErr){
 lastWriteErr=writeErr;
 console.error('[Reg] Write attempt '+(attempt+1)+' failed:',writeErr.code,writeErr.message);
-if(attempt<4) await new Promise(r=>setTimeout(r,600*(attempt+1)));
+if(attempt<2) await new Promise(r=>setTimeout(r,800*(attempt+1)));
 }
 }
 // Clear the flag AFTER the write is confirmed, THEN let onAuthStateChanged proceed
@@ -1291,7 +1301,7 @@ toast('⚠️ Your account was created but your profile could not be saved.'+err
 // throwing back to the outer catch, which would falsely show
 // "Registration failed" for an account that was actually created fine.
 try{
-await addNotif(uid,'Welcome to ZMONIE!','Your account has been created. Share your referral link and earn NGN 100 for every friend who joins and funds their wallet!');
+await withTimeout(addNotif(uid,'Welcome to ZMONIE!','Your account has been created. Share your referral link and earn NGN 100 for every friend who joins and funds their wallet!'),8000,'Notification timed out');
 }catch(notifErr){console.warn('[Reg] Welcome notification failed (non-fatal):',notifErr.message);}
 sessionStorage.removeItem('zmonie_ref');
 console.log('[Reg] Complete - name:',fn+' '+ln,'phone:',ph,'hasPin:',!!pin,'hasPhoto:',!!photoURL);
@@ -1299,7 +1309,7 @@ console.log('[Reg] Complete - name:',fn+' '+ln,'phone:',ph,'hasPin:',!!pin,'hasP
 auth.currentUser&&auth.currentUser.reload().catch(()=>{});
 // Force a clean load of the dashboard with the real data
 try{
-const finalSnap=await db.collection('users').doc(uid).get();
+const finalSnap=await withTimeout(db.collection('users').doc(uid).get(),8000,'Final profile read timed out');
 UD=finalSnap.data()||userData;
 }catch(readErr){console.warn('[Reg] Final profile re-read failed (non-fatal, using local data):',readErr.message);UD=userData;}
 CU=cr.user;
