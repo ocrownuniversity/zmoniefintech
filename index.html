@@ -7526,27 +7526,59 @@ script.onerror=()=>resolve(false);
 document.head.appendChild(script);
 });
 }
+async function loadJsPDF(){
+if(window.jspdf&&window.jspdf.jsPDF) return true;
+return new Promise(resolve=>{
+const script=document.createElement('script');
+script.src='https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+script.onload=()=>resolve(true);
+script.onerror=()=>resolve(false);
+document.head.appendChild(script);
+});
+}
+// Receipt sharing is image or PDF only — never plain text. If the
+// image can't be generated, we retry rather than silently degrading
+// to a text message (which strips all the styling and looks broken).
 async function shareReceipt(via){
 const printable=document.getElementById('receipt-printable');
 if(!printable){toast('Receipt not ready');return;}
-const txt='*ZMONIE Receipt*\nService: '+(lastTxData?.extra?.planName||lastTxData?.type||'VTU')+'\nAmount: NGN '+fmt(lastTxData?.amt||0)+'\nRef: '+(lastTxData?.ref||'&mdash;')+'\nStatus: Successful\nDate: '+new Date().toLocaleString('en-NG')+'\n\nPowered by ZMONIE | 08068886569';
 try{
-// Use the image prepared in advance (when the receipt opened) so navigator.share()
-// fires as close to the tap as possible -- generating the image fresh on every tap
-// was the bug: by the time it finished, the browser no longer trusted the gesture.
 let ready=_receiptBlobPromise?await _receiptBlobPromise:null;
-if(!ready){
-toast('[Loading] Preparing receipt...',2000);
+if(!ready||!ready.blob){
+toast('Preparing receipt...',2000);
 ready=await pregenerateReceiptBlob();
 }
 if(!ready||!ready.blob){
-console.error('[shareReceipt] receipt image not available');
-if(via==='whatsapp'){toast('Could not generate image -- sending text instead');window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
-else if(via==='share'&&navigator.share){await navigator.share({title:'ZMONIE Receipt',text:txt}).catch(()=>{});}
-else{const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);a.download='receipt.txt';a.click();toast('Could not generate image -- saved as text instead');}
+toast('Could not generate the receipt image. Please try again.');
 return;
 }
 const {canvas,blob}=ready;
+
+if(via==='pdf'||via==='pdf-share'){
+const pdfLoaded=await loadJsPDF();
+if(!pdfLoaded||!window.jspdf){toast('Could not load PDF generator. Check your connection and try again.');return;}
+const {jsPDF}=window.jspdf;
+const imgW=canvas.width,imgH=canvas.height;
+const pdfW=210; // A4 width in mm
+const pdfH=(imgH*pdfW)/imgW;
+const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:[pdfW,pdfH]});
+pdf.addImage(canvas.toDataURL('image/png'),'PNG',0,0,pdfW,pdfH);
+if(via==='pdf-share'){
+const pdfBlob=pdf.output('blob');
+const pdfFile=new File([pdfBlob],'ZMONIE_Receipt.pdf',{type:'application/pdf'});
+if(navigator.canShare&&navigator.canShare({files:[pdfFile]})){
+await navigator.share({files:[pdfFile],title:'ZMONIE Receipt'});
+}else{
+pdf.save('ZMONIE_Receipt_'+Date.now()+'.pdf');
+toast('PDF saved!');
+}
+}else{
+pdf.save('ZMONIE_Receipt_'+Date.now()+'.pdf');
+toast('PDF saved!');
+}
+return;
+}
+
 if(via==='download'){
 const a=document.createElement('a');a.href=canvas.toDataURL('image/png');a.download='ZMONIE_Receipt_'+Date.now()+'.png';a.click();toast('Receipt saved!');
 return;
@@ -7556,21 +7588,17 @@ if(navigator.canShare&&navigator.canShare({files:[file]})){
 // Native share sheet with the actual receipt image -- works for WhatsApp,
 // other apps, or "Share to Other Apps" alike, since the user picks the
 // destination themselves from the system sheet.
-await navigator.share({files:[file],title:'ZMONIE Receipt',text:via==='whatsapp'?txt:undefined});
+await navigator.share({files:[file],title:'ZMONIE Receipt'});
 }else{
-// Fallback when the browser can't share image files directly: download
-// the receipt image so it can be attached manually, plus open the chat
-// with the text pre-filled (for WhatsApp specifically).
+// Browser can't share image files directly — save the image so it
+// can be attached manually instead of falling back to plain text.
 const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='ZMONIE_Receipt.png';a.click();
-if(via==='whatsapp'){toast('Receipt image saved -- attach it in WhatsApp',4000);window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
-else{toast('Receipt image saved to your device',3000);}
+toast('Receipt image saved to your device — attach it in your chat app',4000);
 }
 }catch(e){
 console.error('[shareReceipt] error:',e);
 if(e?.name==='AbortError'){return;} // user cancelled the native share sheet -- not an error
-toast('Could not share image ('+(e?.message||'unknown error')+') -- sending text instead');
-if(via==='whatsapp'){window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
-else{const a=document.createElement('a');a.href='data:text/plain;charset=utf-8,'+encodeURIComponent(txt);a.download='receipt.txt';a.click();}
+toast('Could not share the receipt ('+(e?.message||'unknown error')+'). Please try again.');
 }
 }
 function openTxReceipt(b64){
@@ -9941,13 +9969,15 @@ Welcome! How can we help you today? Describe your issue and we will get back to 
 ====================================== --><div class="modal" id="m-fund-verify"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">&#128269; Verify Payment</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Check the receipt carefully before approving</p></div><button onclick="closeM('m-fund-verify')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div>
 <div id="fv-body"><div style="text-align:center;padding:30px;color:var(--g400)">Loading request...</div></div>
 </div></div>====================================== --><div class="modal" id="m-sv-new"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">&#128184; New Savings Plan</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Choose a savings type to get started</p></div><button onclick="closeM('m-sv-new')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px"><button class="sv-type-btn" onclick="openSavingsType('fixed')"><div style="font-size:26px">&#128274;</div><div style="font-size:12px;font-weight:700;color:var(--g700)">Fixed Savings</div><div style="font-size:10px;color:var(--g400);line-height:1.4">Lock money &amp; earn interest</div></button><button class="sv-type-btn" onclick="openSavingsType('target')"><div style="font-size:26px">&#127919;</div><div style="font-size:12px;font-weight:700;color:var(--g700)">Target Savings</div><div style="font-size:10px;color:var(--g400);line-height:1.4">Save towards a goal</div></button><button class="sv-type-btn" onclick="openSavingsType('flexible')"><div style="font-size:26px">&#128260;</div><div style="font-size:12px;font-weight:700;color:var(--g700)">Flexible Savings</div><div style="font-size:10px;color:var(--g400);line-height:1.4">Deposit anytime, withdraw anytime</div></button><button class="sv-type-btn" onclick="openSavingsType('spend-save')"><div style="font-size:26px">&#128176;</div><div style="font-size:12px;font-weight:700;color:var(--g700)">Spend &amp; Save</div><div style="font-size:10px;color:var(--g400);line-height:1.4">Auto-save from transactions</div></button></div><div id="sv-type-form"></div></div></div><!-- SAVINGS WITHDRAW MODAL --><div class="modal" id="m-sv-withdraw"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">&#8659; Savings Withdrawal</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Transfer from savings to wallet</p></div><button onclick="closeM('m-sv-withdraw')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><div style="background:linear-gradient(135deg,#064e3b,#065f46);border-radius:13px;padding:14px 16px;margin-bottom:16px"><div style="font-size:10px;color:rgba(167,243,208,.7);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Savings Balance</div><div style="font-size:26px;font-weight:800;color:#fff" id="sv-wd-bal-display">NGN 0.00</div></div><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Select Plan to Withdraw From</label><select class="inp" id="sv-wd-plan-sel"><option value="">-- Select plan --</option></select></div><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Amount (NGN)</label><input class="inp" type="number" id="sv-wd-amount" placeholder="Enter amount"/></div><div style="margin-bottom:8px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:7px;display:block">Transaction PIN *</label><div style="display:flex;gap:10px;justify-content:center"><input class="pbox" type="password" maxlength="1" id="sv-wd-p1" oninput="pn('sv-wd-p1','sv-wd-p2')"/><input class="pbox" type="password" maxlength="1" id="sv-wd-p2" oninput="pn('sv-wd-p2','sv-wd-p3')"/><input class="pbox" type="password" maxlength="1" id="sv-wd-p3" oninput="pn('sv-wd-p3','sv-wd-p4')"/><input class="pbox" type="password" maxlength="1" id="sv-wd-p4"/></div></div><button onclick="submitSvWithdrawal()" class="btn-g" style="width:100%;padding:14px;border-radius:11px;font-size:15px;font-weight:700;margin-top:12px;background:linear-gradient(135deg,#059669,#047857)">Transfer to Wallet</button></div></div><!-- SAVINGS DEPOSIT MODAL --><div class="modal" id="m-sv-deposit"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">&#128176; Top-Up Savings</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Add money from wallet to savings</p></div><button onclick="closeM('m-sv-deposit')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><div id="sv-dep-plan-info" style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:11px;padding:12px;margin-bottom:14px;font-size:13px;color:var(--green-d)">Loading plan...</div><div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:13px;padding:14px 16px;margin-bottom:14px"><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Wallet Balance</div><div style="font-size:22px;font-weight:800;color:#fff" id="sv-dep-wallet-bal">NGN 0.00</div></div><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Amount to Add (NGN)</label><input class="inp" type="number" id="sv-dep-amount" placeholder="Enter amount"/></div><div style="margin-bottom:8px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:7px;display:block">Transaction PIN *</label><div style="display:flex;gap:10px;justify-content:center"><input class="pbox" type="password" maxlength="1" id="sv-dep-p1" oninput="pn('sv-dep-p1','sv-dep-p2')"/><input class="pbox" type="password" maxlength="1" id="sv-dep-p2" oninput="pn('sv-dep-p2','sv-dep-p3')"/><input class="pbox" type="password" maxlength="1" id="sv-dep-p3" oninput="pn('sv-dep-p3','sv-dep-p4')"/><input class="pbox" type="password" maxlength="1" id="sv-dep-p4"/></div></div><input type="hidden" id="sv-dep-plan-id"/><button onclick="submitSvDeposit()" class="btn-g" style="width:100%;padding:14px;border-radius:11px;font-size:15px;font-weight:700;margin-top:12px;background:linear-gradient(135deg,#059669,#047857)">Add to Savings</button></div></div>
-<!-- RECEIPT MODAL --><div class="modal" id="m-receipt"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:16px;font-weight:800">Transaction Receipt</div><button onclick="closeM('m-receipt')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600)">&#10005;</button></div><div id="receipt-content" style="background:#fff;border-radius:16px;overflow:hidden"><!-- Filled by JS --></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px"><button onclick="shareReceipt('whatsapp')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:#dcfce7;border:1px solid #86efac;border-radius:11px;color:#15803d;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif"><svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a5.051 5.051 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-  WhatsApp
-  </button><button onclick="shareReceipt('download')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:#dbeafe;border:1px solid #93c5fd;border-radius:11px;color:#1d4ed8;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+<!-- RECEIPT MODAL --><div class="modal" id="m-receipt"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px"><div style="font-size:16px;font-weight:800">Transaction Receipt</div><button onclick="closeM('m-receipt')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600)">&#10005;</button></div><div id="receipt-content" style="background:#fff;border-radius:16px;overflow:hidden"><!-- Filled by JS --></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px"><button onclick="shareReceipt('share')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:#dcfce7;border:1px solid #86efac;border-radius:11px;color:#15803d;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+  Share as Image
+  </button><button onclick="shareReceipt('pdf-share')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:#dbeafe;border:1px solid #93c5fd;border-radius:11px;color:#1d4ed8;font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+  Share as PDF
+  </button></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px"><button onclick="shareReceipt('download')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:var(--g100);border:1px solid var(--g200);border-radius:11px;color:var(--g700);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
   Save Image
-  </button></div><button onclick="shareReceipt('share')" style="width:100%;margin-top:8px;padding:13px;background:var(--g100);border:1px solid var(--g200);border-radius:11px;color:var(--g700);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:7px"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-  Share to Other Apps
-  </button></div></div><!-- ======================================
+  </button><button onclick="shareReceipt('pdf')" style="display:flex;align-items:center;justify-content:center;gap:7px;padding:13px;background:var(--g100);border:1px solid var(--g200);border-radius:11px;color:var(--g700);font-size:13px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  Save PDF
+  </button></div></div></div><!-- ======================================
   WITHDRAWAL REQUEST MODAL
 ====================================== --><div class="modal" id="m-withdraw"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">Request Withdrawal</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Processed immediately upon approval</p></div><button onclick="closeM('m-withdraw')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><!-- Balance display --><div style="background:linear-gradient(135deg,#0f172a,#1e3a5f);border-radius:13px;padding:14px 16px;margin:14px 0"><div style="font-size:10px;color:rgba(255,255,255,.5);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px">Available Balance</div><div style="font-size:26px;font-weight:800;color:#fff" id="wd-bal-display">NGN 0.00</div></div><!-- Amount --><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Amount to Withdraw (NGN) *</label><input class="inp" type="number" id="wd-amount" placeholder="Min NGN 1,000" min="1000" oninput="updateWdFee()"/></div><div id="wd-fee-display" style="display:none;background:#fef3c7;border:1px solid #fde047;border-radius:9px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#92400e"></div><!-- Method --><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Withdrawal Method *</label><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><label id="wd-method-bank-lbl" onclick="selectWdMethod('bank')" style="display:flex;align-items:center;gap:8px;padding:11px 13px;border:1.5px solid var(--green);border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;background:#f0fdf4;transition:all .15s"><input type="radio" name="wd-method" value="bank" id="wd-method-bank" checked style="accent-color:var(--green)"/> &#127974; Bank Transfer
   </label><label id="wd-method-cash-lbl" onclick="selectWdMethod('cash')" style="display:flex;align-items:center;gap:8px;padding:11px 13px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s"><input type="radio" name="wd-method" value="cash" id="wd-method-cash" style="accent-color:var(--green)"/> &#9995; Cash Pickup
@@ -11045,17 +11075,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 <button onclick="closeM('m-virtual-card')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600)">✕</button>
 </div><div id="vc-body"></div></div></div>
 
-<!-- ======== MODAL: RECEIPT ======== -->
-<div class="modal" id="m-receipt"><div class="mbox" style="max-height:90vh;overflow-y:auto">
-<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-<div style="font-size:17px;font-weight:700">🧾 Transaction Receipt</div>
-<button onclick="closeM('m-receipt')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600)">✕</button>
-</div><div id="receipt-body"></div>
-<div style="display:flex;gap:8px;margin-top:14px">
-<button onclick="shareReceipt()" class="btn-g" style="flex:1;padding:12px;border-radius:10px;font-size:13px">📤 Share</button>
-<button onclick="closeM('m-receipt')" style="flex:1;padding:12px;border-radius:10px;background:var(--g100);border:none;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;color:var(--g600)">Close</button>
-</div></div></div>
-
 <!-- ======== MODAL: BILL REMINDERS ======== -->
 <div class="modal" id="m-bill-reminders"><div class="mbox" style="max-height:90vh;overflow-y:auto">
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
@@ -11255,7 +11274,7 @@ document.getElementById('receipt-body').innerHTML=`<div id="receipt-printable" s
 ${[['Description',txData.description||'Transaction'],['Reference',txData.ref||txData.paystackRef||'N/A'],['Date',date.toLocaleDateString('en-NG',{day:'numeric',month:'long',year:'numeric'})],['Time',date.toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'})],['Type',(txData.type||'').replace(/_/g,' ').toUpperCase()],txData.fee?['Fee','NGN '+fmt(txData.fee)]:null].filter(Boolean).map((r,i)=>`<div style="display:flex;justify-content:space-between;padding:9px 13px;${i%2?'background:#f8fafc':''}"><span style="font-size:12px;color:var(--g500)">${r[0]}</span><span style="font-size:12px;font-weight:700;text-align:right;max-width:55%">${r[1]}</span></div>`).join('')}
 </div><div style="text-align:center;font-size:10px;color:var(--g400)">Official ZMONIE receipt · Thank you for banking with us.</div></div>`;
 openM('m-receipt');}
-function shareReceipt(){const el=document.getElementById('receipt-printable');if(!el)return;if(navigator.share){navigator.share({title:'ZMONIE Receipt',text:el.innerText});}else{const w=window.open('','_blank');if(w){w.document.write('<html><body style="font-family:sans-serif;padding:20px">'+el.innerHTML+'</body></html>');w.document.close();w.print();}}}
+
 
 // FEATURE 4: BILL REMINDERS
 function openBillReminders(){if(!CU){goPg('pg-login');return;}openM('m-bill-reminders');loadBillReminders();}
