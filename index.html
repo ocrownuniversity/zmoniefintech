@@ -252,7 +252,7 @@ localStorage.removeItem('zmonie_installed');
 localStorage.removeItem('zmonie_banner_dismissed');
 });</script>
 <div id="pwa-banner" role="banner" aria-label="Install ZMONIE App"><div class="pwa-icon"><span style="font-weight:800;font-size:18px;color:#fff">Z</span></div><div class="pwa-info"><strong>Install ZMONIE App</strong><span>Fast, secure &amp; works offline</span></div><button class="pwa-install-btn" id="pwa-install-btn" onclick="triggerPwaInstall()">Install</button><button class="pwa-dismiss" onclick="dismissPwaBanner()" aria-label="Dismiss">&times;</button></div><!-- ======== WELCOME SCREEN (App-First) ======== -->
-<div id="pg-land" class="page active" style="position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;background:#060d06">
+<div id="pg-land" class="page" style="position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;background:#060d06">
 <div style="max-width:480px;margin:0 auto;min-height:100%;display:flex;flex-direction:column;position:relative">
 <!-- BG blobs -->
 <div style="position:fixed;top:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:100%;z-index:0;pointer-events:none;overflow:hidden">
@@ -355,7 +355,7 @@ Support
 </div>
 </div>
 <!-- ======== LOGIN (App-First) ======== -->
-<div id="pg-login" class="page" style="position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;background:#0a0f0a">
+<div id="pg-login" class="page active" style="position:fixed;inset:0;overflow-y:auto;overflow-x:hidden;background:#0a0f0a">
 <!-- Background -->
 <div style="position:fixed;inset:0;background:linear-gradient(160deg,#051a08 0%,#0d3318 45%,#061208 100%);z-index:0"></div>
 <div style="position:fixed;top:-15%;right:-15%;width:60vw;height:60vw;background:radial-gradient(circle,rgba(22,163,74,.15) 0%,transparent 70%);border-radius:50%;z-index:0"></div>
@@ -1096,7 +1096,7 @@ var subSnap=await db.collection('subAdmins').where('email','==',u.email).where('
 if(!subSnap.empty){showAdminSecurityGate();return;}
 }catch(e2){}
 goPg('pg-dash');loadDash();startPinApprovalListener(u.uid);
-}else{CU=null;UD=null;stopIdleTimer();goPg('pg-land');}
+}else{CU=null;UD=null;stopIdleTimer();goPg('pg-login');}
 });
 
 function showAdminSecurityGate(){
