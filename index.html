@@ -5661,7 +5661,13 @@ if(!nokPhotoFile){toast('Please upload Next of Kin photo');return;}
 const btn=document.getElementById('inv-submit-btn');
 if(btn){btn.textContent='Uploading photos...';btn.disabled=true;}
 try{
-const compressImg=file=>new Promise((res,rej)=>{
+const compressImg=file=>new Promise((res)=>{
+const rawFallback=()=>{
+const r=new FileReader();
+r.onload=e=>res(e.target.result);
+r.onerror=()=>res('');
+r.readAsDataURL(file);
+};
 const img=new Image();
 const url=URL.createObjectURL(file);
 img.onload=()=>{
@@ -5673,7 +5679,11 @@ const ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);
 URL.revokeObjectURL(url);
 res(c.toDataURL('image/jpeg',0.7));
 };
-img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Could not read image file'));};
+img.onerror=()=>{
+URL.revokeObjectURL(url);
+console.warn('[Invest] Could not decode image for compression, using original file:',file.name);
+rawFallback();
+};
 img.src=url;
 });
 if(btn)btn.textContent='Compressing photos...';
@@ -6499,10 +6509,14 @@ const existing = await db.collection('loans').where('userId','==',CU.uid).where(
 if(!existing.empty){toast('You already have an active/pending loan. Complete it before applying for another.');return;}
 const btn = document.getElementById('ln-submit-btn');
 try{
-const compressImg=file=>new Promise((res,rej)=>{
-if(!file.type.startsWith('image/')){
-const r=new FileReader();r.onload=e=>res(e.target.result);r.onerror=()=>rej(new Error('File read failed'));r.readAsDataURL(file);return;
-}
+const compressImg=file=>new Promise((res)=>{
+const rawFallback=()=>{
+const r=new FileReader();
+r.onload=e=>res(e.target.result);
+r.onerror=()=>res(''); // last resort — never block submission over one photo
+r.readAsDataURL(file);
+};
+if(!file.type.startsWith('image/')){rawFallback();return;}
 const img=new Image();const url=URL.createObjectURL(file);
 img.onload=()=>{
 const MAX=600;let w=img.width,h=img.height;
@@ -6511,7 +6525,14 @@ const c=document.createElement('canvas');c.width=w;c.height=h;
 const ctx=c.getContext('2d');ctx.drawImage(img,0,0,w,h);
 URL.revokeObjectURL(url);res(c.toDataURL('image/jpeg',0.72));
 };
-img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('Could not read image file. Please re-select the photo.'));};
+img.onerror=()=>{
+// Image element couldn't decode this file (common with HEIC/HEIF photos
+// from some phone galleries) — fall back to the original file as-is
+// rather than blocking the whole loan application over one photo.
+URL.revokeObjectURL(url);
+console.warn('[Loan] Could not decode image for compression, using original file:',file.name);
+rawFallback();
+};
 img.src=url;
 });
 if(btn){btn.disabled=true;btn.textContent='Compressing photos...';}
@@ -8341,8 +8362,17 @@ const reader=new FileReader();
 const timer=setTimeout(()=>rej(new Error('Image took too long to load — please try again.')),15000);
 reader.onerror=()=>{clearTimeout(timer);rej(new Error('Could not read one of the uploaded images. Please try a different file.'));};
 reader.onload=e=>{
+const rawResult=e.target.result;
 const img=new Image();
-img.onerror=()=>{clearTimeout(timer);rej(new Error('One of the uploaded files is not a valid image.'));};
+img.onerror=()=>{
+// Some phone galleries save photos as HEIC/HEIF, which reports as a
+// normal image/* file but which the <img> element can't always decode
+// in every WebView. Fall back to the original file rather than
+// blocking the whole purchase over one photo.
+clearTimeout(timer);
+console.warn('[EasyBuy] Could not decode image for compression, using original file:',file.name);
+res(rawResult);
+};
 img.onload=()=>{
 clearTimeout(timer);
 const canvas=document.createElement('canvas');
@@ -8352,7 +8382,7 @@ canvas.width=w;canvas.height=h;
 canvas.getContext('2d').drawImage(img,0,0,w,h);
 res(canvas.toDataURL('image/jpeg',quality));
 };
-img.src=e.target.result;
+img.src=rawResult;
 };
 reader.readAsDataURL(file);
 });
