@@ -1593,16 +1593,20 @@ if(!meter){toast('Enter your meter number');return;}
 if(meter.length<6){toast('Meter number seems too short. Please check.');return;}
 const disco=document.getElementById('s-phone')?.value||'01';
 if(!disco){toast('Select your electricity company');return;}
-// Warn if meter not verified, but allow user to proceed
-if(!_elecVerified){
-  const goAhead=confirm('Meter not verified. Are you sure the meter number is correct?\n\nTap OK to proceed anyway, or Cancel to verify first.');
-  if(!goAhead)return;
-}
 const meterType=document.getElementById('s-meter-type')?.value||'01';
 const custPhone=UD?.phone||CU?.phoneNumber||'08011111111';
 const discoNames={'01':'Eko Electric (EKEDC)','02':'Ikeja Electric (IKEDC)','03':'Abuja Electric (AEDC)','04':'Kano Electric (KEDC)','05':'PH Electric (PHEDC)','06':'Jos Electric (JEDC)','07':'Ibadan Electric (IBEDC)','08':'Kaduna Electric (KAEDC)','09':'Enugu Electric (EEDC)','10':'Benin Electric (BEDC)','11':'Yola Electric (YEDC)','12':'ABA Electric (APLE)'};
 const discoLabel=discoNames[disco]||('DISCO '+disco);
 extra={meter,serviceId:disco,meterType,planName:discoLabel+' - NGN '+fmt(amt),custPhone,customerName:_elecCustomerName||''};
+// Warn if meter not verified, but allow user to proceed. Uses a custom
+// modal instead of window.confirm() — many Android WebView wrappers
+// silently break confirm()/prompt(), always returning as if "Cancel"
+// was pressed even when the user taps OK. That would silently block
+// every unverified electricity payment right here with no error shown.
+if(!_elecVerified){
+showUnverifiedMeterModal(type,amt,extra);
+return;
+}
 }else if(type==='result'){
 const examType=document.getElementById('s-phone')?.value||'WAEC';
 const custPhone=CU?.phoneNumber||UD?.phone||'08000000000';
@@ -1614,6 +1618,29 @@ extra={serviceId:'jamb',jambType,profileId,custPhone,planName:'JAMB '+jambType+'
 extra={serviceId:examType.toLowerCase(),custPhone,planName:examType+' Result Checker PIN'};
 }
 }
+finishSvcSetup(type,amt,extra);
+}
+function showUnverifiedMeterModal(type,amt,extra){
+const overlay=document.createElement('div');
+overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+overlay.innerHTML=`<div style="background:#fff;border-radius:16px;padding:20px;max-width:340px;width:100%">
+<div style="font-size:16px;font-weight:800;color:#92400e;margin-bottom:10px">⚠️ Meter Not Verified</div>
+<p style="font-size:13px;color:var(--g600);line-height:1.6;margin-bottom:16px">You haven't verified this meter number. If it's incorrect, your payment may go to the wrong account.<br/><br/>Are you sure you want to proceed?</p>
+<div style="display:flex;gap:10px">
+<button id="elec-unverif-cancel" style="flex:1;padding:12px;border-radius:10px;background:var(--g100);border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--g700)">Verify First</button>
+<button id="elec-unverif-proceed" style="flex:1;padding:12px;border-radius:10px;background:#d97706;border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:#fff">Proceed Anyway</button>
+</div>
+</div>`;
+document.body.appendChild(overlay);
+const cleanup=()=>overlay.remove();
+overlay.querySelector('#elec-unverif-cancel').onclick=cleanup;
+overlay.addEventListener('click',e=>{if(e.target===overlay)cleanup();});
+overlay.querySelector('#elec-unverif-proceed').onclick=()=>{
+cleanup();
+finishSvcSetup(type,amt,extra);
+};
+}
+function finishSvcSetup(type,amt,extra){
 pSvc={type,amt,extra};
 closeM('m-svc');
 ['vp1','vp2','vp3','vp4'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -8147,53 +8174,6 @@ closeM('m-fund');
 toast('&#9989; Payment proof submitted! Ref: '+ref+' — Admin will credit your wallet within 30 mins.');
 }catch(e){toast('Error: '+e.message);console.error('submitManualFundProof:',e);}
 finally{if(btn){btn.disabled=false;btn.textContent='&#128203; Submit Payment Proof';}}
-}
-
-// ================================================================
-// ELECTRICITY HELPERS
-// ================================================================
-var _elecVerified = false;
-var _elecCustomerName = '';
-
-function onElecDiscoChange(){
-  clearElecVerify();
-}
-
-function clearElecVerify(){
-  _elecVerified = false;
-  _elecCustomerName = '';
-  const res = document.getElementById('elec-verify-result');
-  if(res){ res.style.display='none'; res.textContent=''; }
-}
-
-async function verifyElecMeter(){
-  const meter = (document.getElementById('s-meter')?.value||'').trim();
-  const disco = document.getElementById('s-phone')?.value||'01';
-  const meterType = document.getElementById('s-meter-type')?.value||'01';
-  const res = document.getElementById('elec-verify-result');
-  const btn = document.getElementById('elec-verify-btn');
-  if(!meter){ toast('Enter your meter number first'); return; }
-  if(meter.length < 6){ toast('Meter number seems too short. Please check.'); return; }
-  if(btn){ btn.disabled=true; btn.textContent='Verifying...'; }
-  if(res){ res.style.display='block'; res.style.background='#fef3c7'; res.style.borderColor='#fcd34d'; res.style.color='#92400e'; res.textContent='⏳ Verifying meter number...'; }
-  try{
-    const data = await apiVerifyElecMeter(meter, disco, meterType);
-    const custName = data?.customer_name || data?.CustomerName || data?.customername || data?.name || '';
-    if(custName && custName.toUpperCase() !== 'INVALID_METERNO' && custName !== ''){
-      _elecVerified = true;
-      _elecCustomerName = custName;
-      if(res){ res.style.display='block'; res.style.background='#d1fae5'; res.style.borderColor='#86efac'; res.style.color='#065f46'; res.innerHTML='✅ Meter Verified &mdash; <strong>'+custName+'</strong>'; }
-    } else {
-      _elecVerified = false;
-      _elecCustomerName = '';
-      const errMsg = custName==='INVALID_METERNO' ? 'Invalid meter number. Please check and try again.' : (data?.message||data?.Message||'Could not verify meter. Check number and try again.');
-      if(res){ res.style.display='block'; res.style.background='#fef2f2'; res.style.borderColor='#fecaca'; res.style.color='#dc2626'; res.textContent='❌ '+errMsg; }
-    }
-  } catch(e){
-    if(res){ res.style.display='block'; res.style.background='#fef2f2'; res.style.borderColor='#fecaca'; res.style.color='#dc2626'; res.textContent='❌ Verification failed: '+e.message; }
-  } finally {
-    if(btn){ btn.disabled=false; btn.textContent='Verify'; }
-  }
 }
 
 // ================================================================
