@@ -5797,7 +5797,7 @@ ${tab==='active'&&ln.repaymentSchedule?`<div style="background:#f1f5f9;border-ra
 <button onclick="adminViewLoanDetail('${ln.id}')" style="flex:2;padding:9px;background:#f1f5f9;border:1.5px solid #cbd5e1;color:#334155;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#128065; View Full Details</button>
 ${tab==='pending'?`
 <button onclick="adminQuickApproveLoan('${ln.id}','${ln.userId}')" style="flex:1;padding:9px;background:#dcfce7;border:1.5px solid #86efac;color:#15803d;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#10003; Approve</button>
-<button onclick="rejectLoan('${ln.id}','${ln.userId}')" style="flex:1;padding:9px;background:#fee2e2;border:1.5px solid #fca5a5;color:#dc2626;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#10007; Reject</button>`:''}
+<button onclick="promptRejectLoan('${ln.id}','${ln.userId}')" style="flex:1;padding:9px;background:#fee2e2;border:1.5px solid #fca5a5;color:#dc2626;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#10007; Reject</button>`:''}
 ${tab==='active'?`
 ${ln.status==='approved'?`<button onclick="activateLoan('${ln.id}','${ln.userId}',${amt})" style="flex:1;padding:9px;background:#dcfce7;border:1px solid #86efac;color:#15803d;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Disburse</button>`:''}
 <button onclick="markLoanRepaid('${ln.id}','${ln.userId}',${amt})" style="flex:1;padding:9px;background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Repaid</button>
@@ -5954,9 +5954,34 @@ const dummy2=document.createElement('input');dummy2.id='la-note-'+loanId;dummy2.
 await approveLoan(loanId,userId);
 dummy1.remove();dummy2.remove();
 }
-async function rejectLoanFromDetail(loanId,userId){
+function promptRejectLoan(loanId,userId){
+const overlay=document.createElement('div');
+overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+overlay.innerHTML=`<div style="background:#fff;border-radius:16px;padding:20px;max-width:360px;width:100%">
+<div style="font-size:16px;font-weight:800;color:#dc2626;margin-bottom:10px">Reject Loan Application</div>
+<p style="font-size:13px;color:var(--g600);line-height:1.6;margin-bottom:14px">Write the reason this application is being rejected. The applicant will see this message on their loan history and in a notification.</p>
+<textarea id="reject-reason-input" class="inp" placeholder="e.g. Guarantor details could not be verified, insufficient income documentation, meter/NIN mismatch..." style="min-height:90px;margin-bottom:14px"></textarea>
+<div style="display:flex;gap:10px">
+<button id="reject-cancel-btn" style="flex:1;padding:12px;border-radius:10px;background:var(--g100);border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--g700)">Cancel</button>
+<button id="reject-confirm-btn" style="flex:1;padding:12px;border-radius:10px;background:#dc2626;border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:#fff">Reject Application</button>
+</div>
+</div>`;
+document.body.appendChild(overlay);
+const textarea=overlay.querySelector('#reject-reason-input');
+textarea.focus();
+const cleanup=()=>overlay.remove();
+overlay.querySelector('#reject-cancel-btn').onclick=cleanup;
+overlay.addEventListener('click',e=>{if(e.target===overlay)cleanup();});
+overlay.querySelector('#reject-confirm-btn').onclick=async ()=>{
+const reason=(textarea.value||'').trim();
+if(!reason){toast('Please write a reason for the applicant');return;}
+cleanup();
 closeM('m-admin-loan-detail');
-await rejectLoan(loanId,userId);
+await rejectLoan(loanId,userId,reason);
+};
+}
+async function rejectLoanFromDetail(loanId,userId){
+promptRejectLoan(loanId,userId);
 }
 async function adminQuickApproveLoan(loanId,userId){
 const ln=(await db.collection('loans').doc(loanId).get()).data();
@@ -5966,9 +5991,8 @@ const dummy2=document.createElement('input');dummy2.id='la-note-'+loanId;dummy2.
 await approveLoan(loanId,userId);
 dummy1.remove();dummy2.remove();
 }
-async function rejectLoan(loanId,userId){
-const note=document.getElementById('ln-note-'+loanId)?.value.trim()||'Application did not meet requirements.';
-if(!confirm('Reject this loan application?'))return;
+async function rejectLoan(loanId,userId,reason){
+const note=(reason||'').trim()||'Application did not meet requirements.';
 await db.collection('loans').doc(loanId).update({status:'rejected',adminNote:note,rejectedAt:firebase.firestore.FieldValue.serverTimestamp()});
 await addFinanceNotif(userId,'Loan Application Rejected','Your loan application was not approved. Reason: '+note);
 toast('Loan rejected.');loadAdmin();
