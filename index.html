@@ -10294,7 +10294,7 @@ async function openSvDetail(planId){
     <div style="font-size:11px;color:rgba(167,243,208,.7);margin-bottom:4px">BALANCE</div>
     <div style="font-size:28px;font-weight:800;margin-bottom:8px">NGN ${fmt(bal)}</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
-      ${p.interestRate?`<div><div style="font-size:9px;opacity:.6">Interest Rate</div><div style="font-weight:700;font-size:13px">${p.interestRate}%/mo</div></div>`:''}
+      ${p.interestRate?`<div><div style="font-size:9px;opacity:.6">Interest Rate</div><div style="font-weight:700;font-size:13px">${p.interestRate}% total</div></div>`:''}
       ${p.interestEarned?`<div><div style="font-size:9px;opacity:.6">Interest Earned</div><div style="font-weight:700;font-size:13px">NGN ${fmt(p.interestEarned)}</div></div>`:''}
       ${maturity?`<div><div style="font-size:9px;opacity:.6">${daysLeft>0?'Days Left':'Matured'}</div><div style="font-weight:700;font-size:13px">${daysLeft>0?daysLeft+' days':'✓ Done'}</div></div>`:''}
     </div>
@@ -10373,18 +10373,19 @@ async function submitSvDeposit(){
 function openSvWithdraw(){
   const balEl=document.getElementById('sv-wd-bal-display');
   if(balEl&&UD)balEl.innerHTML='NGN '+fmt(UD.savingsBalance||0);
-  // Load withdrawable plans
+  // Load withdrawable plans — every plan type can withdraw now; Fixed
+  // plans withdrawn before maturity just carry an early-withdrawal charge
+  // (applied and clearly warned about at submit time, not filtered out here).
   const sel=document.getElementById('sv-wd-plan-sel');
   sel.innerHTML='<option value="">-- Select plan --</option>';
-  db.collection('savings').where('userId','==',CU.uid).where('status','==','active').get().then(snap=>{
+  db.collection('savings').where('userId','==',CU.uid).where('status','in',['active','matured']).get().then(snap=>{
     snap.docs.forEach(d=>{
       const p=d.data();
-      if(p.type==='flexible'||p.status==='matured'){
-        const opt=document.createElement('option');
-        opt.value=d.id;
-        opt.textContent=(p.name||p.type)+' (NGN '+fmt(p.balance||0)+')';
-        sel.appendChild(opt);
-      }
+      const opt=document.createElement('option');
+      opt.value=d.id;
+      const isEarlyFixed=p.type==='fixed'&&p.status!=='matured';
+      opt.textContent=(p.name||p.type)+' (NGN '+fmt(p.balance||0)+')'+(isEarlyFixed?' — 5% early charge':'');
+      sel.appendChild(opt);
     });
   });
   ['sv-wd-p1','sv-wd-p2','sv-wd-p3','sv-wd-p4'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -10410,11 +10411,31 @@ async function submitSvWithdrawal(){
   if(!planSnap.exists){toast('Plan not found');return;}
   const pData=planSnap.data();
   if((pData.balance||0)<amt){toast('Insufficient savings balance in this plan');return;}
+
+  // Fixed plans withdrawn before maturity carry a 5% early-withdrawal charge.
+  const maturityDate=pData.maturityDate?.toDate?pData.maturityDate.toDate():(pData.maturityDate?new Date(pData.maturityDate):null);
+  const hasMatured=pData.status==='matured'||(maturityDate&&maturityDate<=new Date());
+  const isEarlyFixed=pData.type==='fixed'&&!hasMatured;
+
+  if(isEarlyFixed){
+    const charge=amt*0.05;
+    const net=amt-charge;
+    customConfirm(
+      'This Fixed Savings plan has not matured yet. Withdrawing early carries a <strong>5% charge</strong> on the amount withdrawn.<br/><br/>You are withdrawing NGN '+fmt(amt)+' — a charge of NGN '+fmt(charge)+' applies, so you will receive <strong>NGN '+fmt(net)+'</strong> in your wallet.<br/><br/>Continue anyway?',
+      ()=>doSvWithdrawal(planId,amt,charge),
+      {title:'⚠️ Early Withdrawal Charge',danger:true,confirmLabel:'Withdraw Anyway'}
+    );
+    return;
+  }
+  await doSvWithdrawal(planId,amt,0);
+}
+async function doSvWithdrawal(planId,amt,charge){
+  const net=amt-charge;
   const btn=document.querySelector('#m-sv-withdraw .btn-g');
   if(btn){btn.disabled=true;btn.textContent='Processing...';}
   try{
     await db.collection('users').doc(CU.uid).update({
-      balance:firebase.firestore.FieldValue.increment(amt),
+      balance:firebase.firestore.FieldValue.increment(net),
       savingsBalance:firebase.firestore.FieldValue.increment(-amt)
     });
     await db.collection('savings').doc(planId).update({
@@ -10422,13 +10443,21 @@ async function submitSvWithdrawal(){
       lastWithdrawAt:firebase.firestore.FieldValue.serverTimestamp()
     });
     await db.collection('savingsTransactions').add({
-      userId:CU.uid,planId,txType:'withdrawal',amount:amt,
-      description:'Withdrawal from savings to wallet',
+      userId:CU.uid,planId,txType:'withdrawal',amount:net,
+      description:charge>0?'Early withdrawal from Fixed Savings (5% charge of NGN '+fmt(charge)+' deducted from NGN '+fmt(amt)+')':'Withdrawal from savings to wallet',
+      grossAmount:amt,charge,
       status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()
     });
-    UD.balance=(UD.balance||0)+amt;
+    if(charge>0){
+      await db.collection('savingsTransactions').add({
+        userId:CU.uid,planId,txType:'early_withdrawal_charge',amount:charge,
+        description:'5% early withdrawal charge',
+        status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    UD.balance=(UD.balance||0)+net;
     UD.savingsBalance=(UD.savingsBalance||0)-amt;
-    toast('✅ NGN '+fmt(amt)+' transferred to wallet!');
+    toast(charge>0?'✅ NGN '+fmt(net)+' transferred to wallet (NGN '+fmt(charge)+' early withdrawal charge deducted)':'✅ NGN '+fmt(amt)+' transferred to wallet!');
     closeM('m-sv-withdraw');
     loadSavingsDash();
     loadDashBalance();
@@ -10515,13 +10544,13 @@ async function loadFixedPlansForUser(){
   if(!el)return;
   try{
     const snap=await db.collection('settings').doc('savingsPlans').get();
-    const plans=(snap.exists&&snap.data().plans)||[{label:'3 Months',months:3,rate:5},{label:'6 Months',months:6,rate:8},{label:'12 Months',months:12,rate:12}];
+    const plans=(snap.exists&&snap.data().plans)||[{label:'3 Months',months:3,rate:5},{label:'6 Months',months:6,rate:10},{label:'12 Months',months:12,rate:12}];
     el.innerHTML=`<div style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px">Select Duration & Interest Rate</div>
     <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
     ${plans.map((p,i)=>`<label style="display:flex;flex-direction:column;align-items:center;padding:12px 8px;border:1.5px solid var(--g200);border-radius:11px;cursor:pointer;text-align:center" onclick="selectFixedPlan(${p.months},${p.rate},this)">
       <input type="radio" name="sv-fixed-plan" value="${p.months}" style="display:none"/>
       <div style="font-size:14px;font-weight:800;color:var(--black)">${p.label}</div>
-      <div style="font-size:11px;color:#059669;font-weight:700;margin-top:2px">${p.rate}%/mo</div>
+      <div style="font-size:11px;color:#059669;font-weight:700;margin-top:2px">${p.rate}% total</div>
       <div style="font-size:10px;color:var(--g400);margin-top:2px">interest</div>
     </label>`).join('')}
     </div>`;
@@ -10542,15 +10571,14 @@ function selectFixedPlan(months,rate,lbl){
 
 function calcFixedReturn(){
   const amt=parseFloat(document.getElementById('svn-amount')?.value)||0;
-  const months=window._svFixedSelectedMonths||3;
   const rate=window._svFixedSelectedRate||5;
   const prev=document.getElementById('svn-fixed-preview');
   if(!prev)return;
   if(!amt){prev.style.display='none';return;}
-  const interest=amt*rate/100*months;
+  const interest=amt*rate/100;
   const total=amt+interest;
   prev.style.display='block';
-  prev.innerHTML=`📈 Principal: NGN ${fmt(amt)} · Interest: NGN ${fmt(interest)} · Total at maturity: <strong>NGN ${fmt(total)}</strong>`;
+  prev.innerHTML=`📈 Principal: NGN ${fmt(amt)} · Interest (${rate}% for full term): NGN ${fmt(interest)} · Total at maturity: <strong>NGN ${fmt(total)}</strong>`;
 }
 
 async function getSvPin(){
@@ -10816,7 +10844,7 @@ async function renderSvAdmin(tab,btn,plansArg,cfgArg){
         <div style="text-align:right"><div style="font-size:16px;font-weight:800">NGN ${fmt(p.balance||0)}</div><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:50px;background:${sbg};color:${sco}">${(p.status||'active').toUpperCase()}</span></div>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:11px">
-        ${p.interestRate?`<div><span style="color:var(--g400)">Interest: </span><strong>${p.interestRate}%/mo</strong></div>`:''}
+        ${p.interestRate?`<div><span style="color:var(--g400)">Interest: </span><strong>${p.interestRate}% total</strong></div>`:''}
         ${p.interestEarned?`<div><span style="color:var(--g400)">Earned: </span><strong>NGN ${fmt(p.interestEarned)}</strong></div>`:''}
         ${p.maturityDate?`<div><span style="color:var(--g400)">Matures: </span><strong>${svDate(p.maturityDate)}</strong></div>`:''}
         ${p.targetAmount?`<div><span style="color:var(--g400)">Target: </span><strong>NGN ${fmt(p.targetAmount)}</strong></div>`:''}
@@ -10844,7 +10872,7 @@ async function renderSvAdmin(tab,btn,plansArg,cfgArg){
       <div style="margin-bottom:11px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Max Savings Amount (NGN)</label><input class="inp" id="svc-max" type="number" value="${cfg.maxAmount||5000000}"/></div>
       <div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Fixed Savings Plan Options</label>
       <div id="svc-fixed-plans-edit">
-        ${(cfg.plans||[{label:'3 Months',months:3,rate:5},{label:'6 Months',months:6,rate:8},{label:'12 Months',months:12,rate:12}]).map((p,i)=>`
+        ${(cfg.plans||[{label:'3 Months',months:3,rate:5},{label:'6 Months',months:6,rate:10},{label:'12 Months',months:12,rate:12}]).map((p,i)=>`
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;margin-bottom:8px;align-items:center">
           <input class="inp" style="font-size:12px;padding:8px" id="sp-label-${i}" value="${p.label||''}"/>
           <input class="inp" type="number" style="font-size:12px;padding:8px" id="sp-months-${i}" value="${p.months}"/>
@@ -10904,54 +10932,87 @@ async function saveSvConfig(){
   toast('✅ Savings configuration saved!');
 }
 
+// Reusable custom confirm modal — replaces window.confirm(), which many
+// Android WebView wrappers silently break (always acts like "Cancel" was
+// pressed even when the user taps OK).
+function customConfirm(message,onConfirm,opts={}){
+const overlay=document.createElement('div');
+overlay.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:99998;display:flex;align-items:center;justify-content:center;padding:20px';
+overlay.innerHTML=`<div style="background:#fff;border-radius:16px;padding:20px;max-width:340px;width:100%">
+<div style="font-size:15px;font-weight:700;color:${opts.danger?'#dc2626':'var(--black)'};margin-bottom:12px">${opts.title||'Please Confirm'}</div>
+<p style="font-size:13px;color:var(--g600);line-height:1.6;margin-bottom:16px">${message}</p>
+<div style="display:flex;gap:10px">
+<button id="cc-cancel-btn" style="flex:1;padding:12px;border-radius:10px;background:var(--g100);border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:var(--g700)">${opts.cancelLabel||'Cancel'}</button>
+<button id="cc-confirm-btn" style="flex:1;padding:12px;border-radius:10px;background:${opts.danger?'#dc2626':'#059669'};border:none;font-weight:700;font-size:13px;cursor:pointer;font-family:'Inter',sans-serif;color:#fff">${opts.confirmLabel||'Confirm'}</button>
+</div>
+</div>`;
+document.body.appendChild(overlay);
+const cleanup=()=>overlay.remove();
+overlay.querySelector('#cc-cancel-btn').onclick=cleanup;
+overlay.addEventListener('click',e=>{if(e.target===overlay)cleanup();});
+overlay.querySelector('#cc-confirm-btn').onclick=()=>{cleanup();onConfirm();};
+}
 async function adminSvCreditInterest(planId,userId){
   const snap=await db.collection('savings').doc(planId).get();
   if(!snap.exists)return;
   const p=snap.data();
   const interest=((p.balance||0)*(p.interestRate||0)/100);
-  if(!confirm('Credit NGN '+fmt(interest)+' interest to this savings plan?'))return;
-  await db.collection('savings').doc(planId).update({interestEarned:firebase.firestore.FieldValue.increment(interest)});
-  await db.collection('savingsTransactions').add({
-    userId:userId||p.userId,planId,txType:'interest',amount:interest,
-    description:'Monthly interest credited by admin',
-    status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()
-  });
-  toast('✅ Interest credited!');
-  aTab('savings');
+  const alreadyCredited=(p.interestEarned||0)>0;
+  customConfirm(
+    'Credit NGN '+fmt(interest)+' interest to this savings plan?'+(alreadyCredited?'<br/><br/>⚠️ This plan already has NGN '+fmt(p.interestEarned)+' interest credited. Since interest is now a flat rate for the full term, this should normally only be credited once at maturity — crediting again may overpay this user.':''),
+    async()=>{
+      await db.collection('savings').doc(planId).update({interestEarned:firebase.firestore.FieldValue.increment(interest)});
+      await db.collection('savingsTransactions').add({
+        userId:userId||p.userId,planId,txType:'interest',amount:interest,
+        description:'Interest credited by admin (full-term rate)',
+        status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+      toast('✅ Interest credited!');
+      aTab('savings');
+    },
+    {title:alreadyCredited?'⚠️ Interest Already Credited':'Credit Interest',danger:alreadyCredited}
+  );
 }
 
 async function adminCreditAllInterest(){
-  if(!confirm('Credit monthly interest to ALL active fixed savings plans?'))return;
-  const snap=await db.collection('savings').where('type','==','fixed').where('status','==','active').get();
-  let count=0,total=0;
-  for(const doc of snap.docs){
-    const p=doc.data();
-    const interest=((p.balance||0)*(p.interestRate||0)/100);
-    if(interest<=0)continue;
-    await doc.ref.update({interestEarned:firebase.firestore.FieldValue.increment(interest)});
-    await db.collection('savingsTransactions').add({
-      userId:p.userId,planId:doc.id,txType:'interest',amount:interest,
-      description:'Monthly interest (admin bulk credit)',
-      status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-    count++;total+=interest;
-  }
-  toast('✅ Credited interest to '+count+' plans. Total: NGN '+fmt(total));
-  aTab('savings');
+  customConfirm(
+    `Credit full-term interest to ALL active fixed savings plans that haven't been credited yet? Plans already credited will be skipped automatically.`,
+    async()=>{
+      const snap=await db.collection('savings').where('type','==','fixed').where('status','==','active').get();
+      let count=0,total=0,skipped=0;
+      for(const doc of snap.docs){
+        const p=doc.data();
+        if((p.interestEarned||0)>0){skipped++;continue;}
+        const interest=((p.balance||0)*(p.interestRate||0)/100);
+        if(interest<=0)continue;
+        await doc.ref.update({interestEarned:firebase.firestore.FieldValue.increment(interest)});
+        await db.collection('savingsTransactions').add({
+          userId:p.userId,planId:doc.id,txType:'interest',amount:interest,
+          description:'Interest credited by admin (full-term rate, bulk)',
+          status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()
+        });
+        count++;total+=interest;
+      }
+      toast('✅ Credited interest to '+count+' plans (NGN '+fmt(total)+'). Skipped '+skipped+' already-credited plans.');
+      aTab('savings');
+    },
+    {title:'Credit Interest to All Plans'}
+  );
 }
 
 async function adminSvMarkMatured(planId,userId){
-  if(!confirm('Mark this Fixed Savings plan as matured?'))return;
-  await db.collection('savings').doc(planId).update({status:'matured',maturedAt:firebase.firestore.FieldValue.serverTimestamp()});
-  if(userId){
-    await db.collection('notifications').add({
-      userId,title:'🎉 Savings Plan Matured!',
-      body:'Your Fixed Savings plan has matured. Open Savings to claim your payout.',
-      read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
-  toast('Plan marked as matured.');
-  aTab('savings');
+  customConfirm('Mark this Fixed Savings plan as matured? The user will be able to withdraw without the early-withdrawal charge afterward.',async()=>{
+    await db.collection('savings').doc(planId).update({status:'matured',maturedAt:firebase.firestore.FieldValue.serverTimestamp()});
+    if(userId){
+      await db.collection('notifications').add({
+        userId,title:'🎉 Savings Plan Matured!',
+        body:'Your Fixed Savings plan has matured. Open Savings to claim your payout.',
+        read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+      });
+    }
+    toast('Plan marked as matured.');
+    aTab('savings');
+  },{title:'Mark Plan as Matured'});
 }
 // ============================================================
 // BIOMETRIC AUTHENTICATION SYSTEM
