@@ -3965,14 +3965,16 @@ if(list){list.innerHTML=refs.length?refs.map(r=>`<div style="display:flex;align-
 function copyRefLink(){
 const code=UD?.referralCode||('ZM'+CU.uid.slice(0,8).toUpperCase());
 const link=window.location.origin+window.location.pathname+'?ref='+code;
-navigator.clipboard&&navigator.clipboard.writeText(link).then(()=>toast('Referral link copied!'));
+if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>toast('Referral link copied!'));
+else{const ta=document.createElement('textarea');ta.value=link;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Link copied!');}
 }
-function shareRefLink(){
+function shareRefLink(via){
 const code=UD?.referralCode||('ZM'+CU.uid.slice(0,8).toUpperCase());
 const link=window.location.origin+window.location.pathname+'?ref='+code;
-const txt='Join me on ZMONIE - Fast & secure fintech app! Use my link to sign up and get started: '+link;
-if(navigator.share){navigator.share({title:'Join ZMONIE',text:txt,url:link}).catch(()=>{});}
-else window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
+const txt='Join ZMONIE and get bonus rewards! Use my link: '+link;
+if(via==='whatsapp'){window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');}
+else if(navigator.share){navigator.share({title:'Join ZMONIE',text:txt,url:link}).catch(()=>{});}
+else{copyRefLink();}
 }
 
 // ==========================================================
@@ -7696,18 +7698,6 @@ if(s.empty){el.innerHTML='<div style="padding:28px;text-align:center;color:var(-
 const docs=s.docs.map(d=>({id:d.id,...d.data()})).sort((a,b)=>{const ta=a.createdAt?.toDate?a.createdAt.toDate():new Date(a.createdAt||0);const tb=b.createdAt?.toDate?b.createdAt.toDate():new Date(b.createdAt||0);return tb-ta;});
 el.innerHTML=docs.map(r=>{const cb=r.type==='cashback';return`<div class="txr"><div style="width:36px;height:36px;background:${cb?'#dcfce7':'#dbeafe'};border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${cb?'&#127894;':'&#127919;'}</div><div style="flex:1;min-width:0;margin-left:10px"><div style="font-weight:600;font-size:13px">${r.description||r.type}</div><div style="font-size:11px;color:var(--g400);margin-top:2px">${fdate(r.createdAt)}</div></div><div style="text-align:right;flex-shrink:0"><div style="font-weight:700;font-size:13px;color:var(--ok)">+NGN ${fmt(r.amount)}</div><div class="chip c-ok" style="margin-top:2px">${r.type}</div></div></div>`;}).join('');
 }catch(e){el.innerHTML='<div style="padding:28px;text-align:center;color:var(--g400)"><p>Could not load rewards</p></div>';}
-}
-function copyRefLink(){
-const link=document.getElementById('rw-ref-link')?.textContent||'';
-if(navigator.clipboard)navigator.clipboard.writeText(link).then(()=>toast('Referral link copied!'));
-else{const ta=document.createElement('textarea');ta.value=link;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();toast('Link copied!');}
-}
-function shareRefLink(via){
-const link=document.getElementById('rw-ref-link')?.textContent||window.location.href;
-const msg='Join ZMONIE and get bonus rewards! Use my link: '+link;
-if(via==='whatsapp')window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
-else if(navigator.share)navigator.share({title:'Join ZMONIE',text:msg,url:link}).catch(()=>copyRefLink());
-else copyRefLink();
 }
 (function captureRef(){
 const urlRef=new URLSearchParams(window.location.search).get('ref');
