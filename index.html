@@ -10178,8 +10178,30 @@ function svDate(ts){if(!ts)return'—';const d=ts.toDate?ts.toDate():new Date(ts
 function addDays(n){const d=new Date();d.setDate(d.getDate()+n);return d;}
 
 // ---- Load savings dashboard ----
+// Safety net: if a user somehow ends up with more than one active
+// Spend & Save plan (e.g. from a past version's race condition), merge
+// them into one instead of leaving duplicates sitting in the withdrawal
+// list. Keeps whichever plan has the higher balance so no money is lost,
+// folds the other's balance into it, and marks the rest as merged.
+async function dedupeSpendSavePlans(){
+  if(!CU)return;
+  try{
+    const snap=await db.collection('savings').where('userId','==',CU.uid).where('type','==','spend-save').where('status','==','active').get();
+    if(snap.size<=1)return;
+    const docs=snap.docs.map(d=>({id:d.id,ref:d.ref,...d.data()})).sort((a,b)=>(b.balance||0)-(a.balance||0));
+    const primary=docs[0];
+    const extras=docs.slice(1);
+    const extraTotal=extras.reduce((s,p)=>s+(p.balance||0),0);
+    const batch=db.batch();
+    if(extraTotal>0)batch.update(primary.ref,{balance:firebase.firestore.FieldValue.increment(extraTotal)});
+    extras.forEach(p=>batch.update(p.ref,{status:'merged',balance:0,mergedInto:primary.id}));
+    await batch.commit();
+    console.log('[Savings] Merged '+extras.length+' duplicate Spend & Save plan(s) into '+primary.id);
+  }catch(e){console.warn('[Savings] dedupe failed (non-fatal):',e.message);}
+}
 async function loadSavingsDash(){
   if(!CU)return;
+  await dedupeSpendSavePlans();
   try{
     const [uSnap,plansSnap]=await Promise.all([
       db.collection('users').doc(CU.uid).get(),
@@ -10378,15 +10400,21 @@ function openSvWithdraw(){
   // (applied and clearly warned about at submit time, not filtered out here).
   const sel=document.getElementById('sv-wd-plan-sel');
   sel.innerHTML='<option value="">-- Select plan --</option>';
+  Promise.all([
+    dedupeSpendSavePlans(),
+    db.collection('settings').doc('savingsConfig').get().catch(()=>null)
+  ]).then(([_,cfgSnap])=>{
+  const chargePct=(cfgSnap&&cfgSnap.exists&&cfgSnap.data().earlyWithdrawalChargePct!=null)?cfgSnap.data().earlyWithdrawalChargePct:5;
   db.collection('savings').where('userId','==',CU.uid).where('status','in',['active','matured']).get().then(snap=>{
     snap.docs.forEach(d=>{
       const p=d.data();
       const opt=document.createElement('option');
       opt.value=d.id;
       const isEarlyFixed=p.type==='fixed'&&p.status!=='matured';
-      opt.textContent=(p.name||p.type)+' (NGN '+fmt(p.balance||0)+')'+(isEarlyFixed?' — 5% early charge':'');
+      opt.textContent=(p.name||p.type)+' (NGN '+fmt(p.balance||0)+')'+(isEarlyFixed?(chargePct>0?' — '+chargePct+'% early charge':' — no early charge'):'');
       sel.appendChild(opt);
     });
+  });
   });
   ['sv-wd-p1','sv-wd-p2','sv-wd-p3','sv-wd-p4'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   openM('m-sv-withdraw');
@@ -10418,10 +10446,23 @@ async function submitSvWithdrawal(){
   const isEarlyFixed=pData.type==='fixed'&&!hasMatured;
 
   if(isEarlyFixed){
-    const charge=amt*0.05;
+    let chargePct=5;
+    try{
+      const cfgSnap=await db.collection('settings').doc('savingsConfig').get();
+      if(cfgSnap.exists&&cfgSnap.data().earlyWithdrawalChargePct!=null)chargePct=cfgSnap.data().earlyWithdrawalChargePct;
+    }catch(e){console.warn('[Savings] Could not load early withdrawal charge config, using default 5%:',e.message);}
+    const charge=amt*(chargePct/100);
     const net=amt-charge;
+    if(chargePct<=0){
+      customConfirm(
+        'This Fixed Savings plan has not matured yet, but early withdrawal is currently free (0% charge).<br/><br/>You will receive the full <strong>NGN '+fmt(amt)+'</strong> in your wallet.<br/><br/>Continue?',
+        ()=>doSvWithdrawal(planId,amt,0),
+        {title:'Early Withdrawal (No Charge)',confirmLabel:'Withdraw'}
+      );
+      return;
+    }
     customConfirm(
-      'This Fixed Savings plan has not matured yet. Withdrawing early carries a <strong>5% charge</strong> on the amount withdrawn.<br/><br/>You are withdrawing NGN '+fmt(amt)+' — a charge of NGN '+fmt(charge)+' applies, so you will receive <strong>NGN '+fmt(net)+'</strong> in your wallet.<br/><br/>Continue anyway?',
+      'This Fixed Savings plan has not matured yet. Withdrawing early carries a <strong>'+chargePct+'% charge</strong> on the amount withdrawn.<br/><br/>You are withdrawing NGN '+fmt(amt)+' — a charge of NGN '+fmt(charge)+' applies, so you will receive <strong>NGN '+fmt(net)+'</strong> in your wallet.<br/><br/>Continue anyway?',
       ()=>doSvWithdrawal(planId,amt,charge),
       {title:'⚠️ Early Withdrawal Charge',danger:true,confirmLabel:'Withdraw Anyway'}
     );
@@ -10870,6 +10911,7 @@ async function renderSvAdmin(tab,btn,plansArg,cfgArg){
       <div style="margin-bottom:11px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Default Interest Rate (% per month)</label><input class="inp" id="svc-rate" type="number" value="${cfg.interestRate||5}" placeholder="e.g. 5"/></div>
       <div style="margin-bottom:11px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Min Savings Amount (NGN)</label><input class="inp" id="svc-min" type="number" value="${cfg.minAmount||500}"/></div>
       <div style="margin-bottom:11px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Max Savings Amount (NGN)</label><input class="inp" id="svc-max" type="number" value="${cfg.maxAmount||5000000}"/></div>
+      <div style="margin-bottom:11px;background:#fef3c7;border:1px solid #fde68a;border-radius:10px;padding:12px"><label style="font-size:12px;font-weight:600;color:#92400e;margin-bottom:5px;display:block">Early Withdrawal Charge for Fixed Savings (%)</label><input class="inp" id="svc-early-charge" type="number" min="0" max="100" step="0.1" value="${cfg.earlyWithdrawalChargePct??5}" placeholder="e.g. 5, or 0 for free"/><p style="font-size:11px;color:#a16207;margin-top:6px">Charged on the amount withdrawn when a user withdraws from a Fixed Savings plan before it matures. Set to 0 to make early withdrawal free.</p></div>
       <div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Fixed Savings Plan Options</label>
       <div id="svc-fixed-plans-edit">
         ${(cfg.plans||[{label:'3 Months',months:3,rate:5},{label:'6 Months',months:6,rate:10},{label:'12 Months',months:12,rate:12}]).map((p,i)=>`
@@ -10919,6 +10961,8 @@ async function saveSvConfig(){
   const rate=parseFloat(document.getElementById('svc-rate')?.value)||5;
   const minAmt=parseFloat(document.getElementById('svc-min')?.value)||500;
   const maxAmt=parseFloat(document.getElementById('svc-max')?.value)||5000000;
+  const earlyChargeInput=document.getElementById('svc-early-charge')?.value;
+  const earlyWithdrawalChargePct=earlyChargeInput===''||earlyChargeInput==null?5:Math.max(0,parseFloat(earlyChargeInput));
   const plans=[];
   let i=0;
   while(document.getElementById('sp-label-'+i)){
@@ -10928,7 +10972,7 @@ async function saveSvConfig(){
     if(label&&months&&r)plans.push({label,months,rate:r});
     i++;
   }
-  await db.collection('settings').doc('savingsConfig').set({interestRate:rate,minAmount:minAmt,maxAmount:maxAmt,plans},{ merge:true });
+  await db.collection('settings').doc('savingsConfig').set({interestRate:rate,minAmount:minAmt,maxAmount:maxAmt,earlyWithdrawalChargePct,plans},{ merge:true });
   toast('✅ Savings configuration saved!');
 }
 
