@@ -2843,15 +2843,18 @@ let processed = 0;
 for(const doc of activeLoans.docs){
 const ln = doc.data();
 if(!forced && ln.lastDeductionDate === todayStr) continue; // already done today (skip unless forced)
-const totalRepay = ln.totalRepayable || ((ln.approvedAmount||ln.amount)*1.24);
-const daily = Math.round((totalRepay/30)*100)/100;
+const periods=ln.repaymentPeriods||30;
+const frequencyDays=ln.repaymentFrequencyDays||1;
+const rate=ln.interestRate!=null?ln.interestRate:24;
+const totalRepay = ln.totalRepayable || ((ln.approvedAmount||ln.amount)*(1+rate/100));
+const daily = Math.round((totalRepay/periods)*100)/100;
 let sch = ln.repaymentSchedule || [];
 if(!sch.length){
 const baseDate =
 (ln.activatedAt?.toDate ? ln.activatedAt.toDate() : null) ||
 (ln.approvedAt?.toDate ? ln.approvedAt.toDate() : null) ||
 (ln.createdAt?.toDate ? ln.createdAt.toDate() : null) || new Date();
-sch = generateRepaymentSchedule(baseDate, totalRepay);
+sch = generateRepaymentSchedule(baseDate, totalRepay, periods, frequencyDays);
 }
 const overdue = sch.filter(s => !s.paid && s.dueDate <= todayStr);
 if(!overdue.length) continue;
@@ -2883,7 +2886,7 @@ bal -= dayAmt;
 const idx = sch.findIndex(s => s.day === day.day);
 if(idx > -1){ sch[idx].paid = true; sch[idx].paidAt = todayStr; sch[idx].deductedOn = todayStr; }
 changed = true;
-var _uLR=(await db.collection('users').doc(ln.userId).get()).data();await db.collection('transactions').add({userId:ln.userId,userName:(_uLR&&_uLR.name)||ln.userId,type:'loan_repayment',amount:dayAmt,description:'Loan Repayment &mdash; Day '+day.day+'/30 &mdash; '+((_uLR&&_uLR.name)||''),status:'success',loanId:doc.id,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+var _uLR=(await db.collection('users').doc(ln.userId).get()).data();await db.collection('transactions').add({userId:ln.userId,userName:(_uLR&&_uLR.name)||ln.userId,type:'loan_repayment',amount:dayAmt,description:'Loan Repayment &mdash; Day '+day.day+'/'+periods+' &mdash; '+((_uLR&&_uLR.name)||''),status:'success',loanId:doc.id,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
 processed++;
 }catch(e){ break; }
 }
@@ -2900,7 +2903,7 @@ dailyRepayment: daily
 if(allPaid){
 await db.collection('financeNotifications').add({
 userId: ln.userId, title: 'Loan Fully Repaid!',
-body: 'All 30 daily payments for your NGN '+fmt(ln.approvedAmount||ln.amount)+' loan are complete. Loan closed!',
+body: 'All '+periods+' payments for your NGN '+fmt(ln.approvedAmount||ln.amount)+' loan are complete. Loan closed!',
 read: false, createdAt: firebase.firestore.FieldValue.serverTimestamp()
 });
 }
@@ -5510,14 +5513,19 @@ return tb-ta;
 if(!loans.length){el.innerHTML=`<div class="card" style="padding:32px;text-align:center;color:var(--g400)"><div style="font-size:36px;margin-bottom:10px">&#127974;</div><p style="font-size:14px;margin-bottom:14px">No loan applications yet</p><button onclick="openM('m-loan-apply')" class="btn-g" style="padding:11px 22px;border-radius:10px;font-size:14px">Apply for Loan</button></div>`;return;}
 el.innerHTML=loans.map(ln=>{
 const amt=ln.approvedAmount||ln.amount;
-const totalR=ln.totalRepayable||(amt*1.24);
-const daily=ln.dailyRepayment||(totalR/30);
+const periods=ln.repaymentPeriods||30;
+const periodNoun=ln.repaymentPeriodNoun||'Day';
+const rate=ln.interestRate!=null?ln.interestRate:24;
+const totalR=ln.totalRepayable||(amt*(1+rate/100));
+const interest=totalR-amt;
+const daily=ln.dailyRepayment||(totalR/periods);
 const paid=ln.repaymentSchedule?ln.repaymentSchedule.filter(s=>s.paid).length:0;
 const paidAmt=paid*daily;
 const remaining=totalR-paidAmt;
-const daysLeft=30-paid;
-const pct=Math.round((paid/30)*100);
+const daysLeft=periods-paid;
+const pct=Math.round((paid/periods)*100);
 const isActive=ln.status==='active'||ln.status==='approved';
+const leftLabel=periodNoun==='Week'?'WEEKS LEFT':'DAYS LEFT';
 return`<div class="fin-entry" style="${isActive?'border-left:3px solid #dc2626':''}" onclick="${isActive?`openLoanDash('${ln.id}')`:''}" ${isActive?'style="cursor:pointer"':''}>
 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
 <div style="font-size:18px">&#127974;</div>
@@ -5527,10 +5535,10 @@ return`<div class="fin-entry" style="${isActive?'border-left:3px solid #dc2626':
 <div style="font-size:11px;color:var(--g400);margin-bottom:8px">${ln.purpose||''}</div>
 ${isActive?`
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px">
-<div style="background:#f8fafc;border-radius:9px;padding:8px"><div style="font-size:9px;color:var(--g400);margin-bottom:2px">INTEREST (24%)</div><div style="font-size:13px;font-weight:700;color:#dc2626">NGN ${fmt(amt*0.24)}</div></div>
+<div style="background:#f8fafc;border-radius:9px;padding:8px"><div style="font-size:9px;color:var(--g400);margin-bottom:2px">INTEREST (${rate}%)</div><div style="font-size:13px;font-weight:700;color:#dc2626">NGN ${fmt(interest)}</div></div>
 <div style="background:#f8fafc;border-radius:9px;padding:8px"><div style="font-size:9px;color:var(--g400);margin-bottom:2px">TOTAL REPAY</div><div style="font-size:13px;font-weight:700">NGN ${fmt(totalR)}</div></div>
-<div style="background:#f8fafc;border-radius:9px;padding:8px"><div style="font-size:9px;color:var(--g400);margin-bottom:2px">DAILY PAYMENT</div><div style="font-size:13px;font-weight:700;color:#2563eb">NGN ${fmt(daily)}</div></div>
-<div style="background:#f8fafc;border-radius:9px;padding:8px"><div style="font-size:9px;color:var(--g400);margin-bottom:2px">DAYS LEFT</div><div style="font-size:13px;font-weight:700;color:#7c3aed">${daysLeft}/30</div></div>
+<div style="background:#f8fafc;border-radius:9px;padding:8px"><div style="font-size:9px;color:var(--g400);margin-bottom:2px">${periodNoun.toUpperCase()} PAYMENT</div><div style="font-size:13px;font-weight:700;color:#2563eb">NGN ${fmt(daily)}</div></div>
+<div style="background:#f8fafc;border-radius:9px;padding:8px"><div style="font-size:9px;color:var(--g400);margin-bottom:2px">${leftLabel}</div><div style="font-size:13px;font-weight:700;color:#7c3aed">${daysLeft}/${periods}</div></div>
 </div>
 <div style="margin-bottom:8px">
 <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--g500);margin-bottom:4px"><span>Repayment Progress</span><span style="font-weight:700;color:var(--green-d)">${pct}%</span></div>
@@ -6481,23 +6489,33 @@ const pImg = document.getElementById('pr-av-img');
 const pLtr = document.getElementById('pr-av-letter');
 if(pImg && photoURL){pImg.src = photoURL; pImg.style.display='block'; if(pLtr) pLtr.style.display='none';}
 }
-function calcLoanDetails(amount){
-const charge = amount * 0.24;                        // 24% total interest
+// Repayment plan definitions. 'daily-30' reproduces the exact original
+// loan math (24% flat, 30 daily installments) — it stays the default for
+// any code path that doesn't explicitly choose a plan, so nothing already
+// relying on the old behavior changes.
+const LOAN_REPAYMENT_PLANS={
+  'daily-30':{label:'Daily Repayment: 30 Days',frequency:'daily',periods:30,frequencyDays:1,rate:24,periodNoun:'Day'},
+  'weekly-4wk':{label:'Weekly Repayment: 1 Month (4 Weeks)',frequency:'weekly',periods:4,frequencyDays:7,rate:24,periodNoun:'Week'},
+  'weekly-8wk':{label:'Weekly Repayment: 2 Months (8 Weeks)',frequency:'weekly',periods:8,frequencyDays:7,rate:36,periodNoun:'Week'}
+};
+function calcLoanDetails(amount,planKey){
+const plan=LOAN_REPAYMENT_PLANS[planKey]||LOAN_REPAYMENT_PLANS['daily-30'];
+const charge = amount * (plan.rate/100);              // flat interest for the chosen plan
 const totalRepay = amount + charge;                   // principal + interest
-const dailyRepay = totalRepay / 30;                   // 30-day daily collection
-const docFee = 5000;                                  // documentation fee
-const minBalance = amount * 0.05;                     // 5% of loan amount
-return {charge, totalRepay, dailyRepay, docFee, minBalance};
+const dailyRepay = totalRepay / plan.periods;          // per-installment amount (kept name for backward compatibility)
+const docFee = amount * 0.10;                         // documentation fee — 10% of loan amount, deducted from wallet at approval
+const minBalance = amount * 0.15;                     // 15% required to apply: 10% doc fee (deducted) + 5% required savings (stays in account)
+return {charge, totalRepay, dailyRepay, docFee, minBalance, plan, planKey:planKey||'daily-30'};
 }
-function generateRepaymentSchedule(approvedDate, totalRepay){
+function generateRepaymentSchedule(approvedDate, totalRepay, periods=30, frequencyDays=1){
 const schedule = [];
 const start = new Date(approvedDate);
 start.setHours(0,0,0,0);
-const daily = totalRepay / 30;
-for(let d=1; d<=30; d++){
+const perPeriod = totalRepay / periods;
+for(let d=1; d<=periods; d++){
 const due = new Date(start);
-due.setDate(due.getDate() + d);
-schedule.push({day: d, dueDate: due.toISOString().split('T')[0], amount: Math.round(daily*100)/100, paid: false});
+due.setDate(due.getDate() + (d*frequencyDays));
+schedule.push({day: d, dueDate: due.toISOString().split('T')[0], amount: Math.round(perPeriod*100)/100, paid: false});
 }
 return schedule;
 }
@@ -6516,7 +6534,9 @@ const marital = document.getElementById('ln-marital')?.value;
 const age = document.getElementById('ln-age')?.value.trim();
 const nin = document.getElementById('ln-nin')?.value.trim();
 const phone = document.getElementById('ln-phone')?.value.trim();
-const duration = document.getElementById('ln-duration')?.value;
+const planKey = document.getElementById('ln-plan')?.value||'daily-30';
+const plan = LOAN_REPAYMENT_PLANS[planKey]||LOAN_REPAYMENT_PLANS['daily-30'];
+const duration = plan.label;
 const social = document.getElementById('ln-social')?.value.trim();
 const g1name = document.getElementById('ln-g1name')?.value.trim();
 const g1phone = document.getElementById('ln-g1phone')?.value.trim();
@@ -6554,9 +6574,9 @@ if(!passport2File){toast('Passport photograph 2 is required');return;}
 if(!ninPhotoFile){toast('Upload your NIN slip/card photo');document.getElementById('ln-ninphoto').click();return;}
 if(!g1NinPhotoFile){toast('Upload guarantor NIN slip/card photo');document.getElementById('ln-g1ninphoto').click();return;}
 if(!g1PhotoFile){toast('Upload guarantor passport photo');document.getElementById('ln-g1photo').click();return;}
-const minBal = amt * 0.05;
+const minBal = amt * 0.15;
 if((UD?.balance||0) < minBal){
-toast(`You need at least NGN ${fmt(minBal)} (5% of loan) in your wallet`);
+toast(`You need at least NGN ${fmt(minBal)} (15% of loan) in your wallet to apply — NGN ${fmt(amt*0.10)} documentation fee + NGN ${fmt(amt*0.05)} required savings`);
 return;
 }
 const existing = await db.collection('loans').where('userId','==',CU.uid).where('status','in',['pending','approved','active']).get();
@@ -6596,7 +6616,7 @@ const ninPhotoB64 = await compressImg(ninPhotoFile);
 const g1NinPhotoB64 = await compressImg(g1NinPhotoFile);
 const g1PhotoB64 = await compressImg(g1PhotoFile);
 if(btn)btn.textContent='Submitting...';
-const details = calcLoanDetails(amt);
+const details = calcLoanDetails(amt,planKey);
 await db.collection('loans').add({
 userId: CU.uid, userEmail: CU.email, userName: UD?.name||'',
 fullName: fullname, amount: amt, purpose, address, stateOfResidence: stateResidence, stateOfOrigin: stateOrigin,
@@ -6608,20 +6628,24 @@ guarantor1: {name:g1name,phone:g1phone,stateOfResidence:g1state,address:g1addr,l
 status: 'pending',
 interestCharge: details.charge, totalRepayable: details.totalRepay,
 dailyRepayment: Math.round(details.dailyRepay*100)/100,
-docFee: details.docFee, interestRate: 24,
-loanTerm: 30,
+docFee: details.docFee, interestRate: plan.rate,
+loanTerm: plan.periods*plan.frequencyDays,
+repaymentPlanKey: planKey,
+repaymentFrequency: plan.frequency,
+repaymentPeriods: plan.periods,
+repaymentFrequencyDays: plan.frequencyDays,
+repaymentPeriodNoun: plan.periodNoun,
 createdAt: firebase.firestore.FieldValue.serverTimestamp(),
 disbursementAfter: '48 hours of approval',
 gracePeriodDays: 5
 });
-await addFinanceNotif(CU.uid,'Loan Application Submitted','Your loan application of NGN '+fmt(amt)+' has been submitted. A documentation fee of NGN 5,000 is required before processing. Admin will review within 48 hours.');
+await addFinanceNotif(CU.uid,'Loan Application Submitted','Your loan application of NGN '+fmt(amt)+' ('+plan.label+') has been submitted. If approved, a documentation fee of 10% (NGN '+fmt(amt*0.10)+') will be deducted from your wallet automatically. Admin will review within 48 hours.');
 closeM('m-loan-apply');
-toast('Application submitted! Pay NGN 5,000 doc fee to continue.');
+toast('Application submitted! A 10% documentation fee will be deducted from your wallet if approved.',5000);
 setTimeout(()=>{
-const d = calcLoanDetails(amt);
-const dailyFmt = Math.round(d.dailyRepay * 100) / 100;
-const msg = 'LOAN SUMMARY\n\nAmount: NGN ' + fmt(amt) + '\nInterest (24%): NGN ' + fmt(d.charge) + '\nTotal Repayable: NGN ' + fmt(d.totalRepay) + '\nDaily Collection: NGN ' + dailyFmt + '\nLoan Term: 30 days\n\nIMPORTANT: Pay NGN 5,000 documentation fee to ZMONIE account before your loan is processed. Chat support on WhatsApp.';
-alert(msg);
+const d = calcLoanDetails(amt,planKey);
+const perPeriodFmt = Math.round(d.dailyRepay * 100) / 100;
+toast('Loan Summary ('+plan.label+') — Interest ('+plan.rate+'%): NGN '+fmt(d.charge)+' · Total Repayable: NGN '+fmt(d.totalRepay)+' · Per '+plan.periodNoun+': NGN '+fmt(perPeriodFmt)+' · Doc Fee if approved (10%): NGN '+fmt(d.docFee),7000);
 }, 800);
 }catch(er){
 let errMsg = er.message||'Unknown error';
@@ -6759,13 +6783,36 @@ async function approveLoan(loanId, userId){
 const amt = parseFloat(document.getElementById('la-amt-'+loanId)?.value || document.getElementById('ln-appamt-'+loanId)?.value || 0);
 const note = (document.getElementById('la-note-'+loanId)?.value || document.getElementById('ln-note-'+loanId)?.value||'').trim();
 if(!amt||amt<=0){toast('Enter approved amount');return;}
-if(!confirm('Approve loan of NGN '+fmt(amt)+' ? Wallet will be credited 48 hours from now.'))return;
+const docFee=Math.round(amt*0.10*100)/100;
+const uSnap=await db.collection('users').doc(userId).get();
+const applicantBal=(uSnap.exists&&uSnap.data().balance)||0;
+if(applicantBal<docFee){
+toast('❌ Cannot approve: applicant only has NGN '+fmt(applicantBal)+' in wallet, but the 10% documentation fee is NGN '+fmt(docFee)+'. They need to fund their wallet first.');
+return;
+}
+// Older loans (submitted before repayment plans existed) won't have a
+// stored planKey — default to daily-30 so their approval math is
+// identical to what it always was.
+const loanSnap=await db.collection('loans').doc(loanId).get();
+const loanData=loanSnap.exists?loanSnap.data():{};
+const planKey=loanData.repaymentPlanKey||'daily-30';
+const plan=LOAN_REPAYMENT_PLANS[planKey]||LOAN_REPAYMENT_PLANS['daily-30'];
+customConfirm(
+`Approve loan of NGN ${fmt(amt)} (${plan.label})?<br/><br/>NGN ${fmt(docFee)} (10% documentation fee) will be deducted from the applicant's wallet immediately. Wallet will be credited with the loan amount 48 hours from now.`,
+async()=>{
 const now = new Date();
 const disbursementDate = new Date(now.getTime() + 48*60*60*1000);
-const dueDate = new Date(disbursementDate.getTime() + 30*24*60*60*1000);
+const dueDate = new Date(disbursementDate.getTime() + plan.periods*plan.frequencyDays*24*60*60*1000);
 const graceDue = new Date(dueDate.getTime() + 5*24*60*60*1000);
-const totalRepay = amt * 1.24;
-const schedule = generateRepaymentSchedule(disbursementDate, totalRepay);
+const totalRepay = amt * (1+plan.rate/100);
+const schedule = generateRepaymentSchedule(disbursementDate, totalRepay, plan.periods, plan.frequencyDays);
+// Deduct the 10% documentation fee from the applicant's wallet right now.
+await db.collection('users').doc(userId).update({balance:firebase.firestore.FieldValue.increment(-docFee)});
+await db.collection('transactions').add({
+userId,userName:(UD&&UD.name)||userId,type:'debit',amount:docFee,
+description:'Loan Documentation Fee (10% of NGN '+fmt(amt)+' approved loan)',
+status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()
+});
 await db.collection('loans').doc(loanId).update({
 status: 'approved',
 approvedAmount: amt, approvedAt: firebase.firestore.FieldValue.serverTimestamp(),
@@ -6774,36 +6821,46 @@ disbursementDate: firebase.firestore.Timestamp.fromDate(disbursementDate),
 dueDate: firebase.firestore.Timestamp.fromDate(dueDate),
 graceDueDate: firebase.firestore.Timestamp.fromDate(graceDue),
 totalRepayable: totalRepay,
-dailyRepayment: Math.round((totalRepay/30)*100)/100,
+dailyRepayment: Math.round((totalRepay/plan.periods)*100)/100,
 repaymentSchedule: schedule,
-docFeeRequired: true
+repaymentPlanKey: planKey, interestRate: plan.rate,
+repaymentPeriods: plan.periods, repaymentFrequencyDays: plan.frequencyDays, repaymentPeriodNoun: plan.periodNoun,
+docFee, docFeePaid: true, docFeeDeductedAt: firebase.firestore.FieldValue.serverTimestamp()
 });
-await addFinanceNotif(userId,'Loan Approved! Pay Documentation Fee',
-`Your loan of NGN ${fmt(amt)} has been approved! STEP 1: Pay NGN 5,000 documentation fee to complete processing. STEP 2: Funds will be credited to your wallet within 48 hours. Total repayable: NGN ${fmt(totalRepay)} in 30 daily installments of NGN ${fmt(totalRepay/30)}.`+(note?' Note: '+note:''));
-toast('Loan approved! User will be notified to pay doc fee.');
+await addFinanceNotif(userId,'Loan Approved!',
+`Your loan of NGN ${fmt(amt)} has been approved! A documentation fee of NGN ${fmt(docFee)} (10%) has been deducted from your wallet. Your loan amount will be credited to your wallet within 48 hours. Total repayable: NGN ${fmt(totalRepay)} in ${plan.periods} ${plan.frequency} installments of NGN ${fmt(totalRepay/plan.periods)}.`+(note?' Note: '+note:''));
+toast('✅ Loan approved! NGN '+fmt(docFee)+' documentation fee deducted from applicant wallet.');
 loadAdmin();
+},
+{title:'Approve Loan',confirmLabel:'Approve & Deduct Fee'}
+);
 }
 async function activateLoan(loanId, userId, amount){
-const totalRepay = amount * 1.24;
 const lSnap = await db.collection('loans').doc(loanId).get();
 const lnData = lSnap.data() || {};
+// Older loans predating repayment plans default to the original 24%/30-day math.
+const rate = lnData.interestRate!=null?lnData.interestRate:24;
+const periods = lnData.repaymentPeriods||30;
+const frequencyDays = lnData.repaymentFrequencyDays||1;
+const periodNoun = lnData.repaymentPeriodNoun||'Day';
+const totalRepay = lnData.totalRepayable || (amount * (1+rate/100));
 const now = new Date();
 let schedule = lnData.repaymentSchedule;
 if(!schedule || !schedule.length){
-schedule = generateRepaymentSchedule(now, totalRepay);
+schedule = generateRepaymentSchedule(now, totalRepay, periods, frequencyDays);
 }
 await db.collection('loans').doc(loanId).update({
 status: 'active',
 activatedAt: firebase.firestore.FieldValue.serverTimestamp(),
 totalRepayable: totalRepay,
 approvedAmount: amount,
-dailyRepayment: Math.round((totalRepay/30)*100)/100,
+dailyRepayment: Math.round((totalRepay/periods)*100)/100,
 repaymentSchedule: schedule,
 lastDeductionDate: null
 });
 await db.collection('users').doc(userId).update({balance: firebase.firestore.FieldValue.increment(amount)});
 await db.collection('transactions').add({userId,userName:(UD&&UD.name)||userId,type:'loan_disbursement',amount,description:'Loan Disbursed to Wallet',status:'success',createdAt:firebase.firestore.FieldValue.serverTimestamp()});
-await addFinanceNotif(userId,'Loan Disbursed to Wallet!',`NGN ${fmt(amount)} has been added to your wallet. Daily repayment of NGN ${fmt(totalRepay/30)} starts tomorrow. 30-day repayment period.`);
+await addFinanceNotif(userId,'Loan Disbursed to Wallet!',`NGN ${fmt(amount)} has been added to your wallet. ${periodNoun} repayment of NGN ${fmt(totalRepay/periods)} starts soon. ${periods}-${periodNoun.toLowerCase()} repayment period.`);
 toast('Loan activated and wallet credited!');
 loadAdmin();
 }
@@ -7163,15 +7220,24 @@ reader.readAsDataURL(file);
 }
 function updateLoanCalc(){
 const amt = parseFloat(document.getElementById('ln-amt')?.value||'0');
+const planKey = document.getElementById('ln-plan')?.value||'daily-30';
 const res = document.getElementById('loan-calc-result');
 if(!res) return;
 if(!amt || amt < 1){res.style.display='none';return;}
-const d = calcLoanDetails(amt);
+const d = calcLoanDetails(amt,planKey);
 res.style.display='block';
+const interestLabel=document.getElementById('lc-interest-label');
+if(interestLabel)interestLabel.textContent='INTEREST ('+d.plan.rate+'%)';
+const dailyLabel=document.getElementById('lc-daily-label');
+if(dailyLabel)dailyLabel.textContent='PER '+d.plan.periodNoun.toUpperCase();
 document.getElementById('lc-interest').textContent = 'NGN '+fmt(d.charge);
 document.getElementById('lc-total').textContent = 'NGN '+fmt(d.totalRepay);
 document.getElementById('lc-daily').textContent = 'NGN '+(d.dailyRepay).toFixed(2);
 document.getElementById('lc-minbal').textContent = 'NGN '+fmt(d.minBalance);
+const docfeeEl=document.getElementById('lc-docfee');
+if(docfeeEl)docfeeEl.textContent='NGN '+fmt(d.docFee);
+const savingsEl=document.getElementById('lc-savings');
+if(savingsEl)savingsEl.textContent='NGN '+fmt(amt*0.05);
 }
 async function showAdminSchedule(loanId){
 const snap = await db.collection('loans').doc(loanId).get();
@@ -7300,36 +7366,48 @@ const snap=await db.collection('loans').doc(loanId).get();
 if(!snap.exists){el.innerHTML='<p style="padding:20px;color:#dc2626">Loan not found.</p>';return;}
 const ln=snap.data();
 const amt=ln.approvedAmount||ln.amount;
-const interest=amt*0.24;
-const totalR=ln.totalRepayable||(amt*1.24);
-const daily=ln.dailyRepayment||(totalR/30);
+// Older loans (pre-repayment-plans) default to the original daily-30 @ 24% terms.
+const periods=ln.repaymentPeriods||30;
+const periodNoun=ln.repaymentPeriodNoun||'Day';
+const rate=ln.interestRate!=null?ln.interestRate:24;
+const totalR=ln.totalRepayable||(amt*(1+rate/100));
+// Interest shown is always derived from the actual stored total, never
+// recalculated from a rate — this is what the total repayable already
+// reflects, so it can never drift out of sync with it.
+const interest=totalR-amt;
+const daily=ln.dailyRepayment||(totalR/periods);
 const sch=ln.repaymentSchedule||[];
 const paid=sch.filter(s=>s.paid).length;
 const paidAmt=paid*daily;
 const remaining=totalR-paidAmt;
-const daysLeft=30-paid;
-const pct=Math.round((paid/30)*100);
+const daysLeft=periods-paid;
+const pct=Math.round((paid/periods)*100);
 const dueDate=ln.dueDate?.toDate?ln.dueDate.toDate():null;
 const today=new Date();
 const overdue=dueDate&&today>dueDate&&ln.status==='active';
+const freqLabel=periodNoun==='Week'?'Weekly Repayment':'Daily Repayment';
+const remainingLabel=periodNoun==='Week'?'Weeks Remaining':'Days Remaining';
+const paidLabel=periodNoun==='Week'?'Weeks Paid':'Days Paid';
+const scheduleLabel=periodNoun==='Week'?'Weekly Schedule':'Daily Schedule';
 el.innerHTML=`
 <div style="background:linear-gradient(135deg,#1e1b4b,#312e81);border-radius:14px;padding:16px;margin-bottom:14px;color:#fff">
 <div style="font-size:10px;color:rgba(167,139,250,.7);margin-bottom:4px;text-transform:uppercase;letter-spacing:.5px">Loan Amount</div>
 <div style="font-size:28px;font-weight:800;margin-bottom:2px">NGN ${fmt(amt)}</div>
 <div style="font-size:11px;color:rgba(255,255,255,.5)">${ln.purpose||''} &middot; Applied ${fdateShort(ln.createdAt)}</div>
 <span style="margin-top:8px;display:inline-block;font-size:10px;font-weight:700;padding:4px 10px;border-radius:50px;background:rgba(255,255,255,.15)">${(ln.status||'').toUpperCase()}</span>
+<span style="margin-top:8px;margin-left:6px;display:inline-block;font-size:10px;font-weight:700;padding:4px 10px;border-radius:50px;background:rgba(167,139,250,.25)">${freqLabel}</span>
 </div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px">
-<div style="background:#fef2f2;border-radius:12px;padding:12px"><div style="font-size:9px;color:#dc2626;font-weight:700;text-transform:uppercase;margin-bottom:4px">Interest (24%)</div><div style="font-size:18px;font-weight:800;color:#dc2626">NGN ${fmt(interest)}</div></div>
+<div style="background:#fef2f2;border-radius:12px;padding:12px"><div style="font-size:9px;color:#dc2626;font-weight:700;text-transform:uppercase;margin-bottom:4px">Interest (${rate}%)</div><div style="font-size:18px;font-weight:800;color:#dc2626">NGN ${fmt(interest)}</div></div>
 <div style="background:#f8fafc;border-radius:12px;padding:12px;border:1px solid #e2e8f0"><div style="font-size:9px;color:var(--g500);font-weight:700;text-transform:uppercase;margin-bottom:4px">Total Repayable</div><div style="font-size:18px;font-weight:800">NGN ${fmt(totalR)}</div></div>
-<div style="background:#dbeafe;border-radius:12px;padding:12px"><div style="font-size:9px;color:#1d4ed8;font-weight:700;text-transform:uppercase;margin-bottom:4px">Daily Payment</div><div style="font-size:18px;font-weight:800;color:#1d4ed8">NGN ${fmt(daily)}</div></div>
-<div style="background:${overdue?'#fef2f2':'#f0fdf4'};border-radius:12px;padding:12px"><div style="font-size:9px;color:${overdue?'#dc2626':'#15803d'};font-weight:700;text-transform:uppercase;margin-bottom:4px">Days Remaining</div><div style="font-size:18px;font-weight:800;color:${overdue?'#dc2626':'#15803d'}">${daysLeft}</div></div>
+<div style="background:#dbeafe;border-radius:12px;padding:12px"><div style="font-size:9px;color:#1d4ed8;font-weight:700;text-transform:uppercase;margin-bottom:4px">${periodNoun} Payment</div><div style="font-size:18px;font-weight:800;color:#1d4ed8">NGN ${fmt(daily)}</div></div>
+<div style="background:${overdue?'#fef2f2':'#f0fdf4'};border-radius:12px;padding:12px"><div style="font-size:9px;color:${overdue?'#dc2626':'#15803d'};font-weight:700;text-transform:uppercase;margin-bottom:4px">${remainingLabel}</div><div style="font-size:18px;font-weight:800;color:${overdue?'#dc2626':'#15803d'}">${daysLeft}</div></div>
 </div>
 <div style="background:#fff;border:1px solid #eef0f3;border-radius:12px;padding:14px;margin-bottom:14px">
 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px"><div style="font-size:13px;font-weight:700">Repayment Progress</div><div style="font-size:13px;font-weight:800;color:var(--green-d)">${pct}%</div></div>
 <div style="height:10px;background:#f1f5f9;border-radius:50px;overflow:hidden;margin-bottom:12px"><div style="height:100%;background:linear-gradient(90deg,#16a34a,#22c55e);border-radius:50px;width:${pct}%"></div></div>
 <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;margin-bottom:12px">
-<div style="background:#dcfce7;border-radius:9px;padding:10px"><div style="font-size:16px;font-weight:800;color:#15803d">${paid}</div><div style="font-size:9px;color:#15803d">Days Paid</div></div>
+<div style="background:#dcfce7;border-radius:9px;padding:10px"><div style="font-size:16px;font-weight:800;color:#15803d">${paid}</div><div style="font-size:9px;color:#15803d">${paidLabel}</div></div>
 <div style="background:#fef3c7;border-radius:9px;padding:10px"><div style="font-size:16px;font-weight:800;color:#92400e">${daysLeft}</div><div style="font-size:9px;color:#92400e">Remaining</div></div>
 <div style="background:#dbeafe;border-radius:9px;padding:10px"><div style="font-size:13px;font-weight:800;color:#1d4ed8">NGN ${fmt(paidAmt)}</div><div style="font-size:9px;color:#1d4ed8">Paid</div></div>
 </div>
@@ -7337,7 +7415,7 @@ el.innerHTML=`
 <div style="display:flex;justify-content:space-between;padding-top:8px;font-size:13px"><span style="color:var(--g500)">Remaining Balance</span><strong style="color:#dc2626">NGN ${fmt(remaining)}</strong></div>
 ${dueDate?`<div style="font-size:11px;color:${overdue?'#dc2626':'var(--g400)'};margin-top:8px;text-align:center;font-weight:${overdue?'700':'400'}">${overdue?'&#9888; OVERDUE &mdash; ':'Due: '}${dueDate.toLocaleDateString('en-NG',{weekday:'short',day:'numeric',month:'long',year:'numeric'})}</div>`:''}
 </div>
-${sch.length?`<div style="font-size:13px;font-weight:700;margin-bottom:10px">&#128197; Daily Schedule</div>
+${sch.length?`<div style="font-size:13px;font-weight:700;margin-bottom:10px">&#128197; ${scheduleLabel}</div>
 <div style="max-height:260px;overflow-y:auto;border:1px solid #eef0f3;border-radius:10px">
 ${sch.map(s=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:9px 12px;border-bottom:1px solid #f8fafc;background:${s.paid?'#f0fdf4':'#fff'}">
 <div style="display:flex;align-items:center;gap:8px">
@@ -7354,7 +7432,7 @@ ${s.adminNote&&!s.cashPayment?'<div style="font-size:9px;color:var(--g400)">'+s.
 </div>
 </div>`).join('')}
 </div>`:''}
-<div style="margin-top:14px;padding:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;font-size:12px;color:#92400e;line-height:1.7">&#9889; NGN ${fmt(daily)} is automatically deducted from your wallet daily. Keep your wallet funded to avoid default.</div>`;
+<div style="margin-top:14px;padding:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;font-size:12px;color:#92400e;line-height:1.7">&#9889; NGN ${fmt(daily)} is automatically deducted from your wallet ${periodNoun==='Week'?'weekly':'daily'}. Keep your wallet funded to avoid default.</div>`;
 }catch(er){el.innerHTML='<p style="padding:20px;color:#dc2626">Error: '+er.message+'</p>';}
 }
 async function openInvDash(invId){
@@ -7425,13 +7503,17 @@ for(const doc of loans.docs){
 const ln=doc.data();
 // Skip if already deducted today (fast guard)
 if(ln.lastDeductionDate===todayStr)continue;
-const totalRepay=ln.totalRepayable||((ln.approvedAmount||ln.amount||0)*1.24);
-const dailyFallback=Math.round((totalRepay/30)*100)/100;
+const periods=ln.repaymentPeriods||30;
+const frequencyDays=ln.repaymentFrequencyDays||1;
+const periodNoun=ln.repaymentPeriodNoun||'Day';
+const rate=ln.interestRate!=null?ln.interestRate:24;
+const totalRepay=ln.totalRepayable||((ln.approvedAmount||ln.amount||0)*(1+rate/100));
+const periodFallback=Math.round((totalRepay/periods)*100)/100;
 let sch=ln.repaymentSchedule||[];
 if(!sch.length){
 const activatedAt=ln.activatedAt?.toDate?ln.activatedAt.toDate():(ln.activatedAt?new Date(ln.activatedAt):null)||new Date();
-sch=generateRepaymentSchedule(activatedAt,totalRepay);
-await doc.ref.update({repaymentSchedule:sch,dailyRepayment:dailyFallback,totalRepayable:totalRepay});
+sch=generateRepaymentSchedule(activatedAt,totalRepay,periods,frequencyDays);
+await doc.ref.update({repaymentSchedule:sch,dailyRepayment:periodFallback,totalRepayable:totalRepay});
 }
 const overdueDays=sch.filter(s=>!s.paid && s.dueDate<=todayStr);
 if(!overdueDays.length)continue;
@@ -7439,10 +7521,10 @@ const udSnap=await db.collection('users').doc(CU.uid).get();
 let bal=udSnap.data()?.balance||0;
 for(const day of overdueDays){
 if(day.paidAt && localDateStr(new Date(day.paidAt))===todayStr)continue;
-const dayAmt=day.amount||dailyFallback; // fallback if amount missing on schedule entry
+const dayAmt=day.amount||periodFallback; // fallback if amount missing on schedule entry
 if(bal<dayAmt){
 await addFinanceNotif(CU.uid,'&#10060; Loan Repayment Failed',
-`Day ${day.day} payment of NGN ${fmt(dayAmt)} could not be deducted &mdash; wallet balance NGN ${fmt(bal)} is insufficient. Fund your wallet to avoid default.`);
+`${periodNoun} ${day.day} payment of NGN ${fmt(dayAmt)} could not be deducted &mdash; wallet balance NGN ${fmt(bal)} is insufficient. Fund your wallet to avoid default.`);
 break; // stop trying further days for this loan
 }
 await db.collection('users').doc(CU.uid).update({balance:firebase.firestore.FieldValue.increment(-dayAmt)});
@@ -7451,21 +7533,21 @@ const idx=sch.findIndex(s=>s.day===day.day);
 if(idx>-1){ sch[idx].paid=true; sch[idx].paidAt=new Date().toISOString(); sch[idx].deductedOn=todayStr; }
 await db.collection('transactions').add({
 userId:CU.uid,type:'loan_repayment',amount:dayAmt,
-description:`Loan Repayment &mdash; Day ${day.day}/30 (NGN ${fmt(dayAmt)})`,
+description:`Loan Repayment &mdash; ${periodNoun} ${day.day}/${periods} (NGN ${fmt(dayAmt)})`,
 status:'success',loanId:doc.id,
 createdAt:firebase.firestore.FieldValue.serverTimestamp()
 });
 const remaining=sch.filter(s=>!s.paid).length;
 if(remaining>0){
 await addFinanceNotif(CU.uid,'&#9989; Loan Repayment Deducted',
-`NGN ${fmt(dayAmt)} deducted for Day ${day.day}/30. ${remaining} day(s) remaining.`);
+`NGN ${fmt(dayAmt)} deducted for ${periodNoun} ${day.day}/${periods}. ${remaining} ${periodNoun.toLowerCase()}(s) remaining.`);
 }
 }
 const allPaid=sch.every(s=>s.paid);
 await doc.ref.update({repaymentSchedule:sch,status:allPaid?'repaid':'active',lastDeductionDate:todayStr});
 if(allPaid){
 await addFinanceNotif(CU.uid,'&#127881; Loan Fully Repaid!',
-`All 30 daily payments for your NGN ${fmt(ln.approvedAmount||ln.amount)} loan are complete. Loan is now closed!`);
+`All ${periods} ${periodNoun.toLowerCase()} payments for your NGN ${fmt(ln.approvedAmount||ln.amount)} loan are complete. Loan is now closed!`);
 }
 }
 UD=(await db.collection('users').doc(CU.uid).get()).data();
@@ -9951,7 +10033,7 @@ date: tx.createdAt?.toDate ? tx.createdAt.toDate().toISOString() : null
 }
 };
 }</script>
-<!-- LOAN APPLICATION MODAL --><div class="modal" id="m-loan-apply"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">Apply for Loan</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">30-day term &middot; 24% flat interest &middot; Daily repayment</p></div><button onclick="closeM('m-loan-apply')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><!-- Loan Rules Banner --><div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:11px;font-weight:800;color:#c2410c;margin-bottom:8px;text-transform:uppercase">LOAN TERMS - READ CAREFULLY</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px"><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c">24%</div><div style="font-size:10px;color:#92400e">Total Interest</div></div><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c">30 Days</div><div style="font-size:10px;color:#92400e">Max Duration</div></div><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c">NGN 5,000</div><div style="font-size:10px;color:#92400e">Doc Fee Required</div></div><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c">48hrs</div><div style="font-size:10px;color:#92400e">Disbursement</div></div></div><div style="font-size:11px;color:#92400e;line-height:1.7">&bull; You must have 5% of loan amount in your wallet<br/>&bull; Documentation fee of NGN 5,000 must be paid before processing<br/>&bull; Daily repayment collection for 30 days<br/>&bull; 3-5 days grace period after due date<br/>&bull; Default triggers guarantor notification and recovery</div></div><!-- Live Calculator --><div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">LIVE LOAN CALCULATOR</div><div style="margin-bottom:8px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Loan Amount (NGN) *</label><input class="inp" type="number" id="ln-amt" placeholder="e.g. 50000" min="1000" oninput="updateLoanCalc()"/></div><div id="loan-calc-result" style="display:none;background:#fff;border-radius:9px;padding:11px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px">INTEREST (24%)</div><div style="font-weight:800;font-size:14px;color:#dc2626" id="lc-interest">&mdash;</div></div><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px">TOTAL REPAY</div><div style="font-weight:800;font-size:14px;color:var(--black)" id="lc-total">&mdash;</div></div><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px">DAILY PAYMENT</div><div style="font-weight:800;font-size:14px;color:#2563eb" id="lc-daily">&mdash;</div></div><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px">MIN BALANCE REQ</div><div style="font-weight:800;font-size:14px;color:#7c3aed" id="lc-minbal">&mdash;</div></div></div></div></div><!-- Personal Information --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;border-left:4px solid var(--green)">&#128100; Personal Information</div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Full Legal Name *</label><input class="inp" id="ln-fullname" placeholder="As shown on your ID"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Home Address *</label><input class="inp" id="ln-address" placeholder="Full home address"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Current State of Residence *</label><input class="inp" id="ln-state-residence" placeholder="e.g. Lagos"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">State of Origin *</label><input class="inp" id="ln-state-origin" placeholder="e.g. Enugu"/></div></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Work/Business Address *</label><input class="inp" id="ln-workaddr" placeholder="Office or business address"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Nearest Bus Stop/Landmark *</label><input class="inp" id="ln-landmark" placeholder="e.g. Near First Bank, Ikeja"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Occupation *</label><input class="inp" id="ln-employment" placeholder="e.g. Teacher, Self-employed trader..."/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Marital Status *</label><select class="inp" id="ln-marital"><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Age *</label><input class="inp" type="number" id="ln-age" placeholder="e.g. 32" min="18" max="100"/></div></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">NIN (National Identification Number) *</label><input class="inp" id="ln-nin" placeholder="11-digit NIN" maxlength="11" inputmode="numeric"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">NIN Slip/Card Photo * <span style="font-weight:400;color:var(--g400)">(upload from phone gallery)</span></label><div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer" id="ln-ninphoto-drop" onclick="document.getElementById('ln-ninphoto').click()"><div id="ln-ninphoto-preview"><div style="font-size:28px;margin-bottom:6px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Tap to upload your NIN slip/card photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div></div><input type="file" id="ln-ninphoto" accept="image/*" style="display:none" onchange="previewImg('ln-ninphoto','ln-ninphoto-preview','ln-ninphoto-drop')"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Purpose of Loan *</label><input class="inp" id="ln-purpose" placeholder="e.g. Business capital, Medical emergency..."/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Phone Number *</label><input class="inp" type="tel" id="ln-phone" placeholder="080XXXXXXXX"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Social Media Handle * <span style="font-weight:400;color:var(--g400)">(Facebook, Instagram, or any social media)</span></label><input class="inp" id="ln-social" placeholder="e.g. facebook.com/yourname or @yourhandle"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Repayment Duration</label><select class="inp" id="ln-duration"><option value="30 days">30 Days (Maximum)</option></select></div><!-- Documents --><div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9">&#128248; Required Documents</div><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Passport Photograph 1 *</label><div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer;transition:border-color .2s" id="passport-drop" onclick="document.getElementById('ln-passport').click()"><div id="passport-preview"><div style="font-size:28px;margin-bottom:6px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Tap to upload passport photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div></div><input type="file" id="ln-passport" accept="image/*" style="display:none" onchange="previewImg('ln-passport','passport-preview','passport-drop')"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Passport Photograph 2 *</label><div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer;transition:border-color .2s" id="passport2-drop" onclick="document.getElementById('ln-passport2').click()"><div id="passport2-preview"><div style="font-size:28px;margin-bottom:6px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Tap to upload a second passport photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div></div><input type="file" id="ln-passport2" accept="image/*" style="display:none" onchange="previewImg('ln-passport2','passport2-preview','passport2-drop')"/></div><!-- Guarantor --><div style="background:#faf5ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:14px;margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:#5b21b6;margin-bottom:12px">&#128100; Guarantor (Required)</div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Full Name *</label><input class="inp" id="ln-g1name" placeholder="Full legal name"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Phone Number *</label><input class="inp" type="tel" id="ln-g1phone" placeholder="080XXXXXXXX"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Current State of Residence *</label><input class="inp" id="ln-g1state" placeholder="e.g. Lagos"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Home Address *</label><input class="inp" id="ln-g1addr" placeholder="Home address"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Nearest Bus Stop / Landmark *</label><input class="inp" id="ln-g1landmark" placeholder="e.g. Near First Bank, Ikeja"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Occupation *</label><input class="inp" id="ln-g1occupation" placeholder="e.g. Teacher, Engineer, Trader"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Work Address *</label><input class="inp" id="ln-g1workaddr" placeholder="Guarantor office/work address"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Age *</label><input class="inp" type="number" id="ln-g1age" placeholder="e.g. 40" min="18" max="100"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">NIN (National Identification Number) *</label><input class="inp" id="ln-g1nin" placeholder="11-digit NIN" maxlength="11" inputmode="numeric"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">NIN Slip/Card Photo * <span style="font-weight:400;color:var(--g400)">(upload from phone gallery)</span></label><div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="ln-g1ninphoto-drop" onclick="document.getElementById('ln-g1ninphoto').click()"><div id="ln-g1ninphoto-preview"><div style="font-size:24px;margin-bottom:4px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Upload guarantor NIN slip/card photo</div></div></div><input type="file" id="ln-g1ninphoto" accept="image/*" style="display:none" onchange="previewImg('ln-g1ninphoto','ln-g1ninphoto-preview','ln-g1ninphoto-drop')"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Guarantor Passport Photograph * <span style="font-weight:400;color:var(--g400)">(upload from phone gallery)</span></label><div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="ln-g1photo-drop" onclick="document.getElementById('ln-g1photo').click()"><div id="ln-g1photo-preview"><div style="font-size:24px;margin-bottom:4px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Upload guarantor passport photo</div></div></div><input type="file" id="ln-g1photo" accept="image/*" style="display:none" onchange="previewImg('ln-g1photo','ln-g1photo-preview','ln-g1photo-drop')"/></div></div><button onclick="submitLoan()" id="ln-submit-btn" class="btn-g" style="width:100%;padding:14px;border-radius:11px;font-size:15px;font-weight:700">Submit Loan Application</button><p style="text-align:center;font-size:11px;color:var(--g400);margin-top:10px">By submitting, you agree to pay NGN 5,000 documentation fee and repay daily for 30 days</p></div></div><!-- INVESTMENT MODAL --><div class="modal" id="m-invest-apply"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:12px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">Invest &amp; Earn</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Complete all sections carefully</p></div><button onclick="closeM('m-invest-apply')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><!-- Plans info --><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px"><div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #86efac;border-radius:12px;padding:12px"><div style="font-size:10px;font-weight:800;color:#15803d;margin-bottom:6px;text-transform:uppercase">Plan 1</div><div style="font-size:11px;color:var(--g700);line-height:1.8">NGN10,000&ndash;NGN500,000<br/><strong>10% monthly</strong><br/>6 months</div></div><div style="background:linear-gradient(135deg,#faf5ff,#ede9fe);border:1.5px solid #c4b5fd;border-radius:12px;padding:12px"><div style="font-size:10px;font-weight:800;color:#6d28d9;margin-bottom:6px;text-transform:uppercase">Plan 2</div><div style="font-size:11px;color:var(--g700);line-height:1.8">NGN500,001+<br/><strong>10% monthly</strong><br/>1 year+</div></div></div><!-- -- SECTION 1: Personal Information -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;border-left:4px solid var(--green)">&#128100; Personal Information</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Surname *</label><input class="inp" id="inv-surname" placeholder="e.g. Adeleke"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Second Name *</label><input class="inp" id="inv-secondname" placeholder="e.g. Emmanuel"/></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Date *</label><input class="inp" type="date" id="inv-date"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Date of Birth *</label><input class="inp" type="date" id="inv-dob"/></div></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Gender *</label><div style="display:flex;gap:8px"><label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px 13px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s" id="inv-gen-m-lbl"><input type="radio" name="inv-gender" value="Male" id="inv-gen-m" style="accent-color:var(--green)" onchange="invGenderStyle()"/> Male
+<!-- LOAN APPLICATION MODAL --><div class="modal" id="m-loan-apply"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:10px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">Apply for Loan</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Choose a repayment plan below &middot; Daily or Weekly</p></div><button onclick="closeM('m-loan-apply')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><!-- Loan Rules Banner --><div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:11px;font-weight:800;color:#c2410c;margin-bottom:8px;text-transform:uppercase">LOAN TERMS - READ CAREFULLY</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:8px"><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c" id="lc-plan-rate">24-36%</div><div style="font-size:10px;color:#92400e">Interest (by plan)</div></div><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c" id="lc-plan-term">Up to 8 Weeks</div><div style="font-size:10px;color:#92400e">Max Duration</div></div><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c">10%</div><div style="font-size:10px;color:#92400e">Doc Fee (on approval)</div></div><div style="background:#fff;border-radius:8px;padding:8px;text-align:center"><div style="font-size:16px;font-weight:800;color:#c2410c">48hrs</div><div style="font-size:10px;color:#92400e">Disbursement</div></div></div><div style="font-size:11px;color:#92400e;line-height:1.7">&bull; You must have at least 15% of the loan amount in your wallet to apply<br/>&bull; Of that 15%: 10% is a documentation fee deducted from your wallet if approved, and 5% is required savings that stays in your account<br/>&bull; Choose Daily (30 days, 24%) or Weekly (4 weeks, 24% / 8 weeks, 36%) repayment<br/>&bull; 3-5 days grace period after due date<br/>&bull; Default triggers guarantor notification and recovery</div></div><!-- Live Calculator --><div style="background:#f0fdf4;border:1.5px solid #86efac;border-radius:11px;padding:13px;margin-bottom:14px"><div style="font-size:12px;font-weight:700;color:#15803d;margin-bottom:8px">LIVE LOAN CALCULATOR</div><div style="margin-bottom:8px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Loan Amount (NGN) *</label><input class="inp" type="number" id="ln-amt" placeholder="e.g. 50000" min="1000" oninput="updateLoanCalc()"/></div><div style="margin-bottom:8px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Repayment Plan *</label><select class="inp" id="ln-plan" onchange="updateLoanCalc()"><option value="daily-30">Daily Repayment: 30 Days &mdash; 24% Interest</option><option value="weekly-4wk">Weekly Repayment: 1 Month (4 Weeks) &mdash; 24% Interest</option><option value="weekly-8wk">Weekly Repayment: 2 Months (8 Weeks) &mdash; 36% Interest</option></select></div><div id="loan-calc-result" style="display:none;background:#fff;border-radius:9px;padding:11px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px" id="lc-interest-label">INTEREST</div><div style="font-weight:800;font-size:14px;color:#dc2626" id="lc-interest">&mdash;</div></div><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px">TOTAL REPAY</div><div style="font-weight:800;font-size:14px;color:var(--black)" id="lc-total">&mdash;</div></div><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px" id="lc-daily-label">PER INSTALLMENT</div><div style="font-weight:800;font-size:14px;color:#2563eb" id="lc-daily">&mdash;</div></div><div><div style="font-size:10px;color:var(--g400);margin-bottom:2px">MIN BALANCE REQ (15%)</div><div style="font-weight:800;font-size:14px;color:#7c3aed" id="lc-minbal">&mdash;</div></div></div><div style="margin-top:10px;padding-top:10px;border-top:1px solid #f1f5f9;font-size:11px;color:var(--g500);display:grid;grid-template-columns:1fr 1fr;gap:6px"><div>Doc Fee (10%, deducted): <strong id="lc-docfee">&mdash;</strong></div><div>Required Savings (5%, stays): <strong id="lc-savings">&mdash;</strong></div></div></div></div><!-- Personal Information --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;border-left:4px solid var(--green)">&#128100; Personal Information</div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Full Legal Name *</label><input class="inp" id="ln-fullname" placeholder="As shown on your ID"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Home Address *</label><input class="inp" id="ln-address" placeholder="Full home address"/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Current State of Residence *</label><input class="inp" id="ln-state-residence" placeholder="e.g. Lagos"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">State of Origin *</label><input class="inp" id="ln-state-origin" placeholder="e.g. Enugu"/></div></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Work/Business Address *</label><input class="inp" id="ln-workaddr" placeholder="Office or business address"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Nearest Bus Stop/Landmark *</label><input class="inp" id="ln-landmark" placeholder="e.g. Near First Bank, Ikeja"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Occupation *</label><input class="inp" id="ln-employment" placeholder="e.g. Teacher, Self-employed trader..."/></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Marital Status *</label><select class="inp" id="ln-marital"><option value="">Select</option><option>Single</option><option>Married</option><option>Divorced</option><option>Widowed</option></select></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Age *</label><input class="inp" type="number" id="ln-age" placeholder="e.g. 32" min="18" max="100"/></div></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">NIN (National Identification Number) *</label><input class="inp" id="ln-nin" placeholder="11-digit NIN" maxlength="11" inputmode="numeric"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">NIN Slip/Card Photo * <span style="font-weight:400;color:var(--g400)">(upload from phone gallery)</span></label><div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer" id="ln-ninphoto-drop" onclick="document.getElementById('ln-ninphoto').click()"><div id="ln-ninphoto-preview"><div style="font-size:28px;margin-bottom:6px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Tap to upload your NIN slip/card photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div></div><input type="file" id="ln-ninphoto" accept="image/*" style="display:none" onchange="previewImg('ln-ninphoto','ln-ninphoto-preview','ln-ninphoto-drop')"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Purpose of Loan *</label><input class="inp" id="ln-purpose" placeholder="e.g. Business capital, Medical emergency..."/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Phone Number *</label><input class="inp" type="tel" id="ln-phone" placeholder="080XXXXXXXX"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Social Media Handle * <span style="font-weight:400;color:var(--g400)">(Facebook, Instagram, or any social media)</span></label><input class="inp" id="ln-social" placeholder="e.g. facebook.com/yourname or @yourhandle"/></div><!-- Documents --><div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #f1f5f9">&#128248; Required Documents</div><div style="margin-bottom:12px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Passport Photograph 1 *</label><div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer;transition:border-color .2s" id="passport-drop" onclick="document.getElementById('ln-passport').click()"><div id="passport-preview"><div style="font-size:28px;margin-bottom:6px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Tap to upload passport photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div></div><input type="file" id="ln-passport" accept="image/*" style="display:none" onchange="previewImg('ln-passport','passport-preview','passport-drop')"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Passport Photograph 2 *</label><div style="border:2px dashed #d1d5db;border-radius:11px;padding:14px;text-align:center;cursor:pointer;transition:border-color .2s" id="passport2-drop" onclick="document.getElementById('ln-passport2').click()"><div id="passport2-preview"><div style="font-size:28px;margin-bottom:6px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Tap to upload a second passport photo</div><div style="font-size:11px;color:var(--g300);margin-top:3px">JPG, PNG &bull; Max 3MB</div></div></div><input type="file" id="ln-passport2" accept="image/*" style="display:none" onchange="previewImg('ln-passport2','passport2-preview','passport2-drop')"/></div><!-- Guarantor --><div style="background:#faf5ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:14px;margin-bottom:16px"><div style="font-size:13px;font-weight:700;color:#5b21b6;margin-bottom:12px">&#128100; Guarantor (Required)</div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Full Name *</label><input class="inp" id="ln-g1name" placeholder="Full legal name"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Phone Number *</label><input class="inp" type="tel" id="ln-g1phone" placeholder="080XXXXXXXX"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Current State of Residence *</label><input class="inp" id="ln-g1state" placeholder="e.g. Lagos"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Home Address *</label><input class="inp" id="ln-g1addr" placeholder="Home address"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Nearest Bus Stop / Landmark *</label><input class="inp" id="ln-g1landmark" placeholder="e.g. Near First Bank, Ikeja"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Occupation *</label><input class="inp" id="ln-g1occupation" placeholder="e.g. Teacher, Engineer, Trader"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Work Address *</label><input class="inp" id="ln-g1workaddr" placeholder="Guarantor office/work address"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">Age *</label><input class="inp" type="number" id="ln-g1age" placeholder="e.g. 40" min="18" max="100"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:4px;display:block">NIN (National Identification Number) *</label><input class="inp" id="ln-g1nin" placeholder="11-digit NIN" maxlength="11" inputmode="numeric"/></div><div style="margin-bottom:9px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">NIN Slip/Card Photo * <span style="font-weight:400;color:var(--g400)">(upload from phone gallery)</span></label><div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="ln-g1ninphoto-drop" onclick="document.getElementById('ln-g1ninphoto').click()"><div id="ln-g1ninphoto-preview"><div style="font-size:24px;margin-bottom:4px">&#129706;</div><div style="font-size:12px;color:var(--g400)">Upload guarantor NIN slip/card photo</div></div></div><input type="file" id="ln-g1ninphoto" accept="image/*" style="display:none" onchange="previewImg('ln-g1ninphoto','ln-g1ninphoto-preview','ln-g1ninphoto-drop')"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Guarantor Passport Photograph * <span style="font-weight:400;color:var(--g400)">(upload from phone gallery)</span></label><div style="border:2px dashed #c4b5fd;border-radius:11px;padding:12px;text-align:center;cursor:pointer;background:#faf5ff" id="ln-g1photo-drop" onclick="document.getElementById('ln-g1photo').click()"><div id="ln-g1photo-preview"><div style="font-size:24px;margin-bottom:4px">&#129331;</div><div style="font-size:12px;color:var(--g400)">Upload guarantor passport photo</div></div></div><input type="file" id="ln-g1photo" accept="image/*" style="display:none" onchange="previewImg('ln-g1photo','ln-g1photo-preview','ln-g1photo-drop')"/></div></div><button onclick="submitLoan()" id="ln-submit-btn" class="btn-g" style="width:100%;padding:14px;border-radius:11px;font-size:15px;font-weight:700">Submit Loan Application</button><p style="text-align:center;font-size:11px;color:var(--g400);margin-top:10px">By submitting, you agree to a 10% documentation fee (deducted from your wallet if approved) and repayment on your chosen schedule</p></div></div><!-- INVESTMENT MODAL --><div class="modal" id="m-invest-apply"><div class="mbox" style="max-height:92vh;overflow-y:auto"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;position:sticky;top:0;background:#fff;padding-bottom:12px;border-bottom:1px solid #f1f5f9;z-index:1"><div><h3 style="font-size:17px;font-weight:700">Invest &amp; Earn</h3><p style="font-size:11px;color:var(--g400);margin-top:2px">Complete all sections carefully</p></div><button onclick="closeM('m-invest-apply')" style="background:var(--g100);border:none;width:30px;height:30px;border-radius:50%;cursor:pointer;color:var(--g600);flex-shrink:0">&#10005;</button></div><!-- Plans info --><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:18px"><div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1.5px solid #86efac;border-radius:12px;padding:12px"><div style="font-size:10px;font-weight:800;color:#15803d;margin-bottom:6px;text-transform:uppercase">Plan 1</div><div style="font-size:11px;color:var(--g700);line-height:1.8">NGN10,000&ndash;NGN500,000<br/><strong>10% monthly</strong><br/>6 months</div></div><div style="background:linear-gradient(135deg,#faf5ff,#ede9fe);border:1.5px solid #c4b5fd;border-radius:12px;padding:12px"><div style="font-size:10px;font-weight:800;color:#6d28d9;margin-bottom:6px;text-transform:uppercase">Plan 2</div><div style="font-size:11px;color:var(--g700);line-height:1.8">NGN500,001+<br/><strong>10% monthly</strong><br/>1 year+</div></div></div><!-- -- SECTION 1: Personal Information -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;border-left:4px solid var(--green)">&#128100; Personal Information</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Surname *</label><input class="inp" id="inv-surname" placeholder="e.g. Adeleke"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Second Name *</label><input class="inp" id="inv-secondname" placeholder="e.g. Emmanuel"/></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Date *</label><input class="inp" type="date" id="inv-date"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Date of Birth *</label><input class="inp" type="date" id="inv-dob"/></div></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Gender *</label><div style="display:flex;gap:8px"><label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px 13px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s" id="inv-gen-m-lbl"><input type="radio" name="inv-gender" value="Male" id="inv-gen-m" style="accent-color:var(--green)" onchange="invGenderStyle()"/> Male
   </label><label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px 13px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s" id="inv-gen-f-lbl"><input type="radio" name="inv-gender" value="Female" id="inv-gen-f" style="accent-color:var(--green)" onchange="invGenderStyle()"/> Female
   </label><label style="flex:1;display:flex;align-items:center;gap:8px;padding:11px 13px;border:1.5px solid var(--g200);border-radius:10px;cursor:pointer;font-size:13px;font-weight:500;transition:all .15s" id="inv-gen-n-lbl"><input type="radio" name="inv-gender" value="Prefer not to say" id="inv-gen-n" style="accent-color:var(--green)" onchange="invGenderStyle()"/> Other
   </label></div></div><!-- -- SECTION 2: Location -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#eff6ff,#dbeafe);border-radius:10px;border-left:4px solid #2563eb">&#128205; Location</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px"><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">State of Origin *</label><input class="inp" id="inv-state" placeholder="e.g. Lagos"/></div><div><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Local Government *</label><input class="inp" id="inv-lga" placeholder="e.g. Ikeja"/></div></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Country *</label><select class="inp" id="inv-country"><option value="">Select country</option><option selected>Nigeria</option><option>Ghana</option><option>United Kingdom</option><option>United States</option><option>Canada</option><option>Other</option></select></div><!-- -- SECTION 3: Address -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border-radius:10px;border-left:4px solid #ea580c">&#127968; Address</div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Home Address *</label><input class="inp" id="inv-homeaddr" placeholder="Full home address"/></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Work Address <span style="font-weight:400;color:var(--g400)">(optional)</span></label><input class="inp" id="inv-workaddr" placeholder="Office / business address"/></div><!-- -- SECTION 4: Investment Details -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#faf5ff,#ede9fe);border-radius:10px;border-left:4px solid #7c3aed">&#128203; Investment Details</div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Investment Amount (NGN) *</label><input class="inp" type="number" id="inv-amt" placeholder="e.g. 50000" min="10000"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Preferred Duration *</label><select class="inp" id="inv-duration"><option value="">Select duration</option><option>6 Months (Plan 1)</option><option>1 Year (Plan 2)</option><option>1 Year+ (by agreement)</option><option>Flexible (Admin decides)</option></select></div><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Additional Notes <span style="font-weight:400;color:var(--g400)">(optional)</span></label><textarea class="inp" id="inv-note" placeholder="Any special instructions..."></textarea></div><!-- -- SECTION 5: Payment Details -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;border-left:4px solid var(--green)">&#128179; Payment Details</div><div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:11px;padding:12px;margin-bottom:12px"><p style="font-size:12px;color:#15803d;line-height:1.7">Your 10% monthly interest will be paid to the account number below. Make sure it is correct.</p></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Bank Name *</label><input class="inp" id="inv-bank" placeholder="e.g. Zenith Bank, Opay, Moniepoint"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Account Number *</label><input class="inp" type="tel" id="inv-acctnum" placeholder="10-digit account number" maxlength="10"/></div><div style="margin-bottom:16px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Account Name *</label><input class="inp" id="inv-acctname" placeholder="Account holder name"/></div><!-- -- SECTION 6: Investor Photo -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:10px;border-left:4px solid var(--green)">&#128248; Investor Passport Photo *</div><div style="margin-bottom:16px"><div style="border:2px dashed #d1d5db;border-radius:12px;padding:18px;text-align:center;cursor:pointer;transition:all .2s;background:#fafafa" id="inv-passport-drop" onclick="document.getElementById('inv-passport').click()"><div id="inv-passport-preview"><div style="font-size:36px;margin-bottom:8px">&#129331;</div><div style="font-size:13px;font-weight:600;color:var(--g600)">Tap to upload your photo</div><div style="font-size:11px;color:var(--g400);margin-top:4px">Clear face photo &bull; JPG, PNG &bull; Max 3MB</div></div></div><input type="file" id="inv-passport" accept="image/*" style="display:none" onchange="previewInvImg('inv-passport','inv-passport-preview','inv-passport-drop')"/></div><!-- -- SECTION 7: Next of Kin -- --><div style="font-size:13px;font-weight:800;color:var(--black);margin-bottom:12px;padding:10px 14px;background:linear-gradient(135deg,#fff7ed,#ffedd5);border-radius:10px;border-left:4px solid #ea580c">&#128106; Next of Kin (Required)</div><div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:13px;padding:14px;margin-bottom:16px"><div style="font-size:11px;color:#92400e;background:#fef3c7;border-radius:8px;padding:8px 10px;margin-bottom:12px;line-height:1.6">Per ZMONIE policy, all investors must provide a next of kin aged 18+ who may be contacted in case of emergency or account claim. Family/children of investors can use the Security Number to claim funds.</div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Full Name *</label><input class="inp" id="inv-nok-name" placeholder="Next of kin full name"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Phone Number *</label><input class="inp" type="tel" id="inv-nok-phone" placeholder="080XXXXXXXX"/></div><div style="margin-bottom:10px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Date of Birth * <span style="font-weight:400;color:var(--g400)">(Must be 18+)</span></label><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px">
