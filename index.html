@@ -8919,7 +8919,9 @@ if(outstanding<=0){toast('Balance already cleared');return;}
 const uSnap=await db.collection('users').doc(CU.uid).get();
 const walBal=uSnap.data().balance||0;
 if(walBal<outstanding){toast('Insufficient balance to clear NGN '+fmt(outstanding)+'. Fund your wallet.');return;}
-if(!confirm('Clear entire outstanding balance of NGN '+fmt(outstanding)+' now?'))return;
+customConfirm(
+`Clear entire outstanding balance of <strong>NGN ${fmt(outstanding)}</strong> now?<br/><br/>This will be deducted from your wallet immediately and your EasyBuy plan will be marked complete.`,
+async()=>{
 try{
 await db.collection('users').doc(CU.uid).update({balance:firebase.firestore.FieldValue.increment(-outstanding)});
 const sch=(eb.repaymentSchedule||[]).map(s=>({...s,paid:true,paidAt:ebLocalDate()}));
@@ -8943,6 +8945,9 @@ if(balEl)balEl.innerHTML=bHid?fmtCsym()+'****':fmtC(UD.balance||0);
 toast('Balance cleared! EasyBuy plan completed.');
 closeM('m-easybuy-detail');loadEasyBuyDash();
 }catch(e){toast('Error: '+friendlyError(e));}
+},
+{title:'Clear EasyBuy Balance',confirmLabel:'Clear Now'}
+);
 }
 async function recordUserEbCashRepay(ebId){
 const snap=await db.collection('easyBuy').doc(ebId).get();
@@ -9053,7 +9058,8 @@ items.map(e=>'<div class="card" style="padding:14px;margin-bottom:8px">'+
 '<button onclick="adminEbAction(\''+e.id+'\',\'rejected\')" style="flex:1;padding:8px;background:#fee2e2;border:1px solid #fca5a5;color:#dc2626;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#10007; Reject</button>':'')+
 (status==='active'?
 '<button onclick="adminEbCashRepay(\''+e.id+'\',\''+e.userId+'\',\''+e.product+'\')" style="flex:1;padding:8px;background:#fef3c7;border:1px solid #fde047;color:#92400e;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#128181; Cash Pay</button>'+
-'<button onclick="adminEbMarkDone(\''+e.id+'\',\''+e.userId+'\',\''+e.product+'\')" style="flex:1;padding:8px;background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#10003; Mark Done</button>':'')+
+'<button onclick="adminEbMarkDone(\''+e.id+'\',\''+e.userId+'\',\''+e.product+'\')" style="flex:1;padding:8px;background:#dbeafe;border:1px solid #93c5fd;color:#1d4ed8;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#10003; Mark Done</button>'+
+((e.balance||0)>0.01?'<button onclick="adminForceClearEasyBuy(\''+e.id+'\')" style="flex:1;padding:8px;background:#16a34a;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">&#9889; Deduct NGN '+fmt(e.balance||0)+'</button>':''):'')+
 '</div></div>'
 ).join('')+'</div>';
 }
@@ -9209,6 +9215,46 @@ await db.collection('notifications').add({userId,title:'EasyBuy Cash Payment Rec
 toast(allPaid?'Plan completed!':paid+' day(s) marked paid. Balance: NGN '+fmt(newBal));
 aTab('easybuy');
 }catch(e){toast('Error: '+e.message);}
+}
+async function adminForceClearEasyBuy(ebId){
+customConfirm(
+'Deduct the remaining balance from the applicant\'s wallet and mark this EasyBuy plan complete?<br/><br/>This cannot be undone. Make sure the applicant actually has this amount available or has agreed to this.',
+async()=>{
+try{
+const snap=await db.collection('easyBuy').doc(ebId).get();
+if(!snap.exists){toast('Record not found');return;}
+const eb=snap.data();
+if(eb.status!=='active'){toast('This plan is not currently active');return;}
+const outstanding=eb.balance||0;
+if(outstanding<=0){toast('Balance already cleared');return;}
+const uSnap=await db.collection('users').doc(eb.userId).get();
+const bal=(uSnap.exists&&uSnap.data().balance)||0;
+if(bal<outstanding){
+toast('❌ Cannot complete: applicant only has NGN '+fmt(bal)+' in wallet, but the remaining balance is NGN '+fmt(outstanding)+'.');
+return;
+}
+const sch=(eb.repaymentSchedule||[]).map(s=>s.paid?s:({...s,paid:true,paidAt:ebLocalDate(),settledByAdmin:true}));
+await db.collection('users').doc(eb.userId).update({balance:firebase.firestore.FieldValue.increment(-outstanding)});
+await db.collection('easyBuy').doc(ebId).update({
+repaymentSchedule:sch,balance:0,status:'completed',
+completedAt:firebase.firestore.FieldValue.serverTimestamp(),completedByAdmin:CU.email
+});
+await db.collection('transactions').add({
+userId:eb.userId,userName:eb.userName||eb.userId,type:'debit',amount:outstanding,
+description:'EasyBuy Balance Cleared (by Admin) &mdash; '+eb.product,
+status:'success',ebId,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+});
+await db.collection('notifications').add({
+userId:eb.userId,title:'EasyBuy Fully Cleared!',
+body:'Your remaining balance of NGN '+fmt(outstanding)+' for '+eb.product+' has been settled. Plan completed!',
+read:false,createdAt:firebase.firestore.FieldValue.serverTimestamp()
+});
+toast('✅ Balance cleared. NGN '+fmt(outstanding)+' deducted from applicant wallet.');
+aTab('easybuy');
+}catch(e){toast('Error: '+e.message);}
+},
+{title:'Force Clear EasyBuy Balance',confirmLabel:'Deduct & Complete'}
+);
 }
 async function adminEbMarkDone(ebId,userId,product){
 if(!confirm('Mark EasyBuy plan for '+product+' as COMPLETED?'))return;
