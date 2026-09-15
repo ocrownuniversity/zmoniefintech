@@ -3,6 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
 <meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><meta name="theme-color" content="#16a34a"/><meta name="mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-capable" content="yes"/><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/><meta name="apple-mobile-web-app-title" content="ZMONIE"/><meta name="application-name" content="ZMONIE"/><meta name="description" content="Zmonie - Buy airtime, data, pay bills, apply for loans, EasyBuy buy now pay later, invest and earn 10% monthly. Nigeria VTU fintech platform, fast and secure 24/7."/><link rel="manifest" href="manifest.json"/><link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/><link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/><title>ZMONIE - Save Smart Platform</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://js.puter.com/v2/"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -68,6 +69,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--black);over
 .tx-fail svg{width:26px;height:26px}
 .tx-msg{font-size:14px;font-weight:700;color:var(--black);text-align:center}
 .tx-sub{font-size:11.5px;color:var(--g500);text-align:center;margin-top:-8px}
+.ai-typing-dots{display:inline-block;animation:aityping 1.1s infinite;letter-spacing:2px;font-weight:900}
+@keyframes aityping{0%,100%{opacity:.3}50%{opacity:1}}
 
 .bnav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1.5px solid #eef0f3;display:flex;z-index:100;padding:8px 0 calc(8px + env(safe-area-inset-bottom,0px))}
 .bni{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;padding:4px 0;color:var(--g400);transition:color .2s}
@@ -456,7 +459,7 @@ Need help? Chat on WhatsApp
 <!-- ======== REGISTER ======== --><div id="pg-reg" class="page" style="position:fixed;inset:0;overflow-y:auto;background:#0a0f0a"><div style="position:fixed;inset:0;background:linear-gradient(160deg,#051a08 0%,#0d3318 45%,#061208 100%);z-index:0"></div><div style="position:relative;z-index:1;min-height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;padding:0 0 max(24px,env(safe-area-inset-bottom)) 0"><div style="text-align:center;padding:max(48px,env(safe-area-inset-top)) 24px 22px;animation:slideDown .7s cubic-bezier(.4,0,.2,1) both"><div style="width:58px;height:58px;background:linear-gradient(135deg,#16a34a,#22c55e);border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;box-shadow:0 8px 24px rgba(22,163,74,.35)"><span style="font-weight:900;font-size:24px;color:#fff">Z</span></div><div style="font-size:24px;font-weight:900;color:#fff;letter-spacing:-.03em;margin-bottom:4px">Create Account</div><div style="font-size:13px;color:rgba(255,255,255,.45)">Join thousands of ZMONIE users</div></div><div style="flex:1;background:#fff;border-radius:28px 28px 0 0;padding:24px 22px;animation:slideUp .7s cubic-bezier(.4,0,.2,1) .1s both"><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px"><div><label style="font-size:11px;font-weight:700;color:#374151;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em">First Name</label><input class="inp" id="rg-fn" placeholder="John" style="font-size:14px;padding:12px 14px;border-radius:11px;border:1.5px solid #e5e7eb;background:#f9fafb"/></div><div><label style="font-size:11px;font-weight:700;color:#374151;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em">Last Name</label><input class="inp" id="rg-ln" placeholder="Doe" style="font-size:14px;padding:12px 14px;border-radius:11px;border:1.5px solid #e5e7eb;background:#f9fafb"/></div></div><div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;color:#374151;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em">Email Address</label><input class="inp" type="email" id="rg-em" placeholder="you@example.com" style="font-size:14px;padding:12px 14px;border-radius:11px;border:1.5px solid #e5e7eb;background:#f9fafb"/></div><div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;color:#374151;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em">Phone Number</label><input class="inp" type="tel" id="rg-ph" placeholder="080XXXXXXXX" style="font-size:14px;padding:12px 14px;border-radius:11px;border:1.5px solid #e5e7eb;background:#f9fafb"/></div><div style="margin-bottom:12px"><label style="font-size:11px;font-weight:700;color:#374151;margin-bottom:5px;display:block;text-transform:uppercase;letter-spacing:.04em">Password</label>
 <input class="inp" type="password" id="rg-pw" placeholder="Min. 6 characters"/></div><!-- Referral Code (optional) --><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:5px;display:block">Referral Code <span style="font-weight:400;color:var(--g400)">(optional)</span></label><input class="inp" id="rg-referral" placeholder="e.g. ZM1A2B3C4D" style="text-transform:uppercase" oninput="this.value=this.value.toUpperCase()"/></div><!-- Profile Photo Upload --><div style="margin-bottom:14px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Profile Photo <span style="color:#dc2626;font-weight:600">* Required</span></label><div style="display:flex;align-items:center;gap:12px"><div id="rg-photo-preview" style="width:60px;height:60px;border-radius:50%;background:#f1f5f9;display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden;flex-shrink:0;border:2px dashed #fca5a5">&#128247;</div><div style="flex:1"><label for="rg-photo" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:var(--green-xl);border:1.5px solid #86efac;border-radius:10px;cursor:pointer;font-size:13px;font-weight:600;color:var(--green-d)"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
   Choose Photo
-  </label><input type="file" id="rg-photo" accept="image/*" style="display:none" onchange="previewRegPhoto(event)"/><div style="font-size:11px;color:#dc2626;margin-top:5px;font-weight:600">Required &middot; JPG or PNG &middot; Max 3MB</div></div></div></div><div style="margin-bottom:18px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Set Transaction PIN (4 digits)</label><div style="display:flex;gap:10px;justify-content:center"><input class="pbox" type="password" maxlength="1" id="rp1" oninput="pn('rp1','rp2')"/><input class="pbox" type="password" maxlength="1" id="rp2" oninput="pn('rp2','rp3')"/><input class="pbox" type="password" maxlength="1" id="rp3" oninput="pn('rp3','rp4')"/><input class="pbox" type="password" maxlength="1" id="rp4"/></div></div><div id="rc-widget-reg" style="display:none;justify-content:center;margin-bottom:14px"></div><button onclick="doReg()" class="btn-g" style="width:100%;padding:15px;border-radius:13px;font-size:16px;font-weight:700;margin-bottom:12px;letter-spacing:.01em;box-shadow:0 6px 20px rgba(22,163,74,.35)">Create Account</button><p style="text-align:center;margin-top:10px;font-size:13px;color:#6b7280">Already have an account? <button onclick="goPg('pg-login')" style="background:none;border:none;color:#16a34a;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Sign In</button></p><div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:16px;line-height:1.9"><button onclick="openM('m-terms')" style="background:none;border:none;color:#6b7280;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;text-decoration:underline">Terms &amp; Conditions</button>&nbsp;·&nbsp;<button onclick="openM('m-privacy')" style="background:none;border:none;color:#6b7280;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;text-decoration:underline">Privacy Policy</button></div></div></div></div><!-- ======== DASHBOARD (Moniepoint layout) ======== --><div id="pg-dash" class="page"><div style="max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;padding-bottom:80px"><!-- Header: profile + icons --><div style="background:#fff;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eef0f3"><div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid #dcfce7;cursor:pointer" id="d-avatar-wrap" onclick="goPg('pg-profile')"><img id="d-avatar-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none"/><div id="d-avatar-letter" style="width:100%;height:100%;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff">U</div></div><div><div style="font-size:11px;color:var(--g400);font-weight:500">Welcome back</div><div style="font-size:15px;font-weight:700;letter-spacing:-.01em" id="d-name">Loading...</div></div></div><div style="display:flex;align-items:center;gap:12px"><a href="tel:08068886569" style="width:34px;height:34px;background:var(--green-xl);border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--green-d)"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.21 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></a><button onclick="goPg('pg-notif')" style="position:relative;background:var(--green-xl);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--green-d)"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="badge" id="nbadge" style="display:none">0</span></button></div></div><!-- Wallet Card (Finance Dashboard) --><div style="padding:14px 14px 0"><div class="wallet-card"><div style="position:relative;z-index:1"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="font-size:11px;color:rgba(255,255,255,.55);font-weight:500;text-transform:uppercase;letter-spacing:.5px">Wallet Balance</div><div style="display:flex;align-items:center;gap:6px"><button onclick="togBal()" style="background:rgba(255,255,255,.1);border:none;cursor:pointer;width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><select id="dash-currency-sel" onchange="setDispCurrency(this.value,true);const cs=document.getElementById('currency-sel');if(cs)cs.value=this.value;" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:7px;font-size:11px;font-weight:700;padding:4px 6px;cursor:pointer;font-family:'Inter',sans-serif;outline:none"><option value="NGN">&#8358; NGN</option><option value="USD">$ USD</option><option value="GBP">&pound; GBP</option><option value="EUR">&euro; EUR</option><option value="CAD">CA$ CAD</option><option value="AED">AED</option><option value="GHS">GHS</option><option value="KES">KSh KES</option><option value="ZAR">R ZAR</option><option value="CNY">&yen; CNY</option><option value="SAR">SAR</option></select></div></div><div style="font-size:30px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:4px" id="d-bal">NGN 0.00</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:16px" id="d-accnum">Loading account...</div><div style="display:flex;gap:8px"><button onclick="openM('m-fund')" class="btn-g" style="flex:1;padding:10px;border-radius:10px;font-size:13px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;box-shadow:none;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+  </label><input type="file" id="rg-photo" accept="image/*" style="display:none" onchange="previewRegPhoto(event)"/><div style="font-size:11px;color:#dc2626;margin-top:5px;font-weight:600">Required &middot; JPG or PNG &middot; Max 3MB</div></div></div></div><div style="margin-bottom:18px"><label style="font-size:12px;font-weight:600;color:var(--g600);margin-bottom:8px;display:block">Set Transaction PIN (4 digits)</label><div style="display:flex;gap:10px;justify-content:center"><input class="pbox" type="password" maxlength="1" id="rp1" oninput="pn('rp1','rp2')"/><input class="pbox" type="password" maxlength="1" id="rp2" oninput="pn('rp2','rp3')"/><input class="pbox" type="password" maxlength="1" id="rp3" oninput="pn('rp3','rp4')"/><input class="pbox" type="password" maxlength="1" id="rp4"/></div></div><div id="rc-widget-reg" style="display:none;justify-content:center;margin-bottom:14px"></div><button onclick="doReg()" class="btn-g" style="width:100%;padding:15px;border-radius:13px;font-size:16px;font-weight:700;margin-bottom:12px;letter-spacing:.01em;box-shadow:0 6px 20px rgba(22,163,74,.35)">Create Account</button><p style="text-align:center;margin-top:10px;font-size:13px;color:#6b7280">Already have an account? <button onclick="goPg('pg-login')" style="background:none;border:none;color:#16a34a;font-weight:700;cursor:pointer;font-family:Inter,sans-serif">Sign In</button></p><div style="text-align:center;font-size:11px;color:#9ca3af;margin-top:16px;line-height:1.9"><button onclick="openM('m-terms')" style="background:none;border:none;color:#6b7280;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;text-decoration:underline">Terms &amp; Conditions</button>&nbsp;·&nbsp;<button onclick="openM('m-privacy')" style="background:none;border:none;color:#6b7280;font-size:11px;cursor:pointer;font-family:Inter,sans-serif;text-decoration:underline">Privacy Policy</button></div></div></div></div><!-- ======== DASHBOARD (Moniepoint layout) ======== --><div id="pg-dash" class="page"><div style="max-width:480px;margin:0 auto;background:var(--bg);min-height:100vh;padding-bottom:80px"><!-- Header: profile + icons --><div style="background:#fff;padding:13px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eef0f3"><div style="display:flex;align-items:center;gap:10px"><div style="width:40px;height:40px;border-radius:50%;overflow:hidden;flex-shrink:0;border:2px solid #dcfce7;cursor:pointer" id="d-avatar-wrap" onclick="goPg('pg-profile')"><img id="d-avatar-img" src="" alt="" style="width:100%;height:100%;object-fit:cover;display:none"/><div id="d-avatar-letter" style="width:100%;height:100%;background:linear-gradient(135deg,#16a34a,#22c55e);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;color:#fff">U</div></div><div><div style="font-size:11px;color:var(--g400);font-weight:500">Welcome back</div><div style="font-size:15px;font-weight:700;letter-spacing:-.01em" id="d-name">Loading...</div></div></div><div style="display:flex;align-items:center;gap:12px"><button onclick="openSupport()" style="width:34px;height:34px;background:var(--green-xl);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--green-d)" title="Support"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 18v-6a9 9 0 0118 0v6"/><path d="M21 19a2 2 0 01-2 2h-1a2 2 0 01-2-2v-3a2 2 0 012-2h3zM3 19a2 2 0 002 2h1a2 2 0 002-2v-3a2 2 0 00-2-2H3z"/></svg></button><a href="tel:08068886569" style="width:34px;height:34px;background:var(--green-xl);border-radius:50%;display:flex;align-items:center;justify-content:center;text-decoration:none;color:var(--green-d)"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.01 1.21 2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.08 6.08l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg></a><button onclick="goPg('pg-notif')" style="position:relative;background:var(--green-xl);border:none;width:34px;height:34px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--green-d)"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg><span class="badge" id="nbadge" style="display:none">0</span></button></div></div><!-- Wallet Card (Finance Dashboard) --><div style="padding:14px 14px 0"><div class="wallet-card"><div style="position:relative;z-index:1"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><div style="font-size:11px;color:rgba(255,255,255,.55);font-weight:500;text-transform:uppercase;letter-spacing:.5px">Wallet Balance</div><div style="display:flex;align-items:center;gap:6px"><button onclick="togBal()" style="background:rgba(255,255,255,.1);border:none;cursor:pointer;width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:rgba(255,255,255,.6)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button><select id="dash-currency-sel" onchange="setDispCurrency(this.value,true);const cs=document.getElementById('currency-sel');if(cs)cs.value=this.value;" style="background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:7px;font-size:11px;font-weight:700;padding:4px 6px;cursor:pointer;font-family:'Inter',sans-serif;outline:none"><option value="NGN">&#8358; NGN</option><option value="USD">$ USD</option><option value="GBP">&pound; GBP</option><option value="EUR">&euro; EUR</option><option value="CAD">CA$ CAD</option><option value="AED">AED</option><option value="GHS">GHS</option><option value="KES">KSh KES</option><option value="ZAR">R ZAR</option><option value="CNY">&yen; CNY</option><option value="SAR">SAR</option></select></div></div><div style="font-size:30px;font-weight:800;color:#fff;letter-spacing:-.02em;margin-bottom:4px" id="d-bal">NGN 0.00</div><div style="font-size:11px;color:rgba(255,255,255,.4);margin-bottom:16px" id="d-accnum">Loading account...</div><div style="display:flex;gap:8px"><button onclick="openM('m-fund')" class="btn-g" style="flex:1;padding:10px;border-radius:10px;font-size:13px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);color:#fff;box-shadow:none;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
   Add Money
   </button><button onclick="goPg('pg-hist')" style="flex:1;padding:10px;border-radius:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.85);font-size:13px;font-weight:600;cursor:pointer;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;gap:5px"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
   History
@@ -4478,9 +4481,84 @@ if(UD)UD.pendingPromo={promoId,code,bonus,pct,desc};
 }
 
 // ==========================================================
-// FEATURE 11: CUSTOMER SUPPORT CHAT
+// FEATURE 11: CUSTOMER SUPPORT CHAT (AI-first, powered by Puter.js — free,
+// no API key, no Cloud Function needed. See <script src="https://js.puter.com/v2/">
+// in <head>.)
 // ==========================================================
+const ZMONIE_AI_KNOWLEDGE = `You are the ZMONIE AI Support Assistant, embedded in the ZMONIE fintech app's in-app chat. You are the FIRST line of support — a customer talks to you before they can reach a human agent. Be warm, concise, and genuinely helpful. Use short paragraphs or a short numbered/bulleted list when it helps clarity. Do not be robotic or overly formal — sound like a helpful, competent support rep who knows the app inside and out.
+
+ABOUT ZMONIE:
+ZMONIE is a Nigerian digital wallet / fintech app. Every user has an NGN wallet balance and a unique account number (their registered phone number) that other ZMONIE users can send money to.
+
+CORE WALLET FEATURES (top of the dashboard):
+- Wallet Balance card: shows NGN balance, account number, and buttons for "Add Money" (fund wallet via Paystack/Flutterwave or a bank transfer to a dedicated funding account), "History" (full transaction statement, with filters and a downloadable statement), and "Profile".
+
+SERVICES GRID (in this order): Withdraw, Airtime, Data, Cable TV, Electricity, Contribution, Transfer, Fixed Savings, Loan, Insights, QR Pay, More (opens the full "All Services" list, which also includes Split Pay).
+- Withdraw: move money out of the wallet to a bank account.
+- Airtime: buy airtime for MTN, Airtel, Glo, or 9mobile by entering a phone number and amount (presets or custom amount). Cashback is earned on VTU purchases (currently ~1%, shown live at purchase time).
+- Data: buy data bundles for MTN, Airtel, Glo, or 9mobile. Plans are shown as tappable cards grouped by category (Daily/Weekly/Monthly/SME/etc.), with a "HOT" tab showing everything.
+- Cable TV: subscribe to DSTV, GOtv, StarTimes, or Showmax. Tap the provider logo at the top to switch providers, enter the Smart Card / IUC number, then pick a package card (each shows the package name, duration, and price).
+- Electricity: pay prepaid or postpaid electricity bills for any of the 12 major Nigerian discos (Eko/EKEDC, Ikeja/IKEDC, Abuja/AEDC, Kano/KEDC, Port Harcourt/PHEDC, Jos/JEDC, Ibadan/IBEDC, Kaduna/KAEDC, Enugu/EEDC, Benin/BEDC, Yola/YEDC, Aba/APLE). Users should verify their meter number first to see the customer name before paying; unverified meters can still be paid but the app warns the user to double-check the number.
+- Contribution / Fixed Savings: savings features — Fixed Savings locks money for a period; Contribution is a group/rotating savings style feature.
+- Transfer: send money instantly to another ZMONIE user (enter their 11-digit account number/phone, the app looks up and shows the recipient's name before you confirm) or send to an external bank account (bank transfer, processed within ~24 hours).
+- Loan: quick loans reviewed within 24 hours, amount credited to wallet on approval. Flat interest is charged and the loan has an agreed repayment period (e.g. 7/14/30 days), sometimes with a short grace period. A guarantor may be required.
+- Insights: a spending analytics/breakdown page showing where the user's money is going (by category — airtime, data, transfers, bills, etc.).
+- QR Pay: pay or get paid by scanning/generating a QR code.
+- Split Pay: split a bill or payment between multiple people.
+- Investment: separate feature (accessible from the Finance section) — users invest wallet funds for a monthly return, with capital locked for a term; a next-of-kin is required for KYC/safety.
+- Result Checker: buy WAEC or JAMB result-checker PINs (JAMB also supports UTME/Direct Entry/Result Checker sub-types).
+- Recharge Card / ePIN generator: generate bulk recharge card PINs for a network, value, and quantity.
+- Betting: fund a betting wallet (e.g. Bet9ja and other supported betting companies) directly from the ZMONIE wallet.
+- EasyBuy: a "buy now, pay small-small" installment plan requiring a guarantor (with the guarantor's passport photo and occupation) and a one-time non-refundable documentation fee, deducted from the wallet on submission. Applications are reviewed in 24–48 hours.
+- Rewards: Cashback balance (earned automatically on VTU purchases) and a Referral balance (earned when someone signs up with the user's referral link/code). Rewards balance can sometimes be applied toward a purchase.
+- Virtual Cards: users can request/manage a virtual card for online payments (feature may be rolled out gradually).
+
+ACCOUNT & SECURITY:
+- Every user sets a 4-digit Transaction PIN, required to confirm every money-moving action (transfer, bill payment, withdrawal, etc.).
+- Users can optionally set a separate 6-digit Login PIN (or use fingerprint/Face ID where supported) to unlock the app quickly on their device instead of typing email + password every time.
+- Forgot PIN: the user submits a reset request from Profile → Forgot PIN; an admin reviews and approves it, after which the user is prompted to set a brand-new PIN.
+- Users can change their display currency for viewing amounts (NGN, USD, GBP, EUR, etc.) — this is cosmetic only; the real wallet balance is always held and settled in NGN.
+- Dark mode is available in Profile settings.
+- Promo codes can be applied (Profile → Promo Code) for a bonus on the next wallet funding.
+
+SUPPORT & CONTACT:
+- This AI chat is the first point of contact. After chatting for a bit, the user can tap "Talk to a Human Agent" to escalate to a real support agent, who will see the full conversation history (including this AI chat) and reply in the same chat thread.
+- Other ways to reach the team: WhatsApp/Call 08068886569, or email zmonieservice@gmail.com (support hours roughly 8am–8pm daily).
+
+HOW YOU SHOULD BEHAVE:
+- Try to fully resolve the user's question yourself using the knowledge above — most "how do I..." and "why didn't this work" questions can be answered directly.
+- If the user sends a screenshot, look at it carefully (e.g. an error message, a stuck "pending" transaction, a wrong balance shown, a payment provider prompt) and use what's visible to give specific, useful guidance.
+- If a problem clearly needs account-specific action (e.g. reversing a wrongly-debited transaction, approving a stuck withdrawal, investigating a payment that never reflects, unlocking a suspended account, PIN reset approval), tell the user plainly that this needs a human agent to check their account, and suggest they tap "Talk to a Human Agent" below.
+- Never ask the user for their PIN, password, OTP, full card number, or other secrets — ZMONIE staff (and you) never need these. If a user pastes one, tell them to keep it private and never share it with anyone, including "support".
+- Keep replies short and skimmable (a phone chat bubble, not an essay) — a few sentences, or a short list for step-by-step instructions.
+- If asked something totally unrelated to ZMONIE, gently redirect back to how you can help with the app.`;
+function extractPuterText(res){
+if(!res)return'';
+if(typeof res==='string')return res;
+if(res.message&&typeof res.message.content==='string')return res.message.content;
+if(Array.isArray(res.message?.content)){
+return res.message.content.map(c=>c.text||'').join(' ').trim();
+}
+if(typeof res.toString==='function'){const s=res.toString();if(s&&s!=='[object Object]')return s;}
+return'';
+}
+window._supportChatHistory = window._supportChatHistory || [];
+async function getAiSupportReplyLocal(userMessage,imageFile){
+if(typeof puter==='undefined'||!puter?.ai?.chat){throw new Error('AI library not loaded');}
+if(imageFile){
+const recent=window._supportChatHistory.slice(-6).map(h=>(h.role==='user'?'Customer: ':'You (AI): ')+h.content).join('\n');
+const prompt=ZMONIE_AI_KNOWLEDGE+(recent?('\n\nRecent conversation so far:\n'+recent):'')+'\n\nCustomer message: '+(userMessage||'(no text — see the attached screenshot)');
+const res=await puter.ai.chat(prompt,imageFile);
+return extractPuterText(res);
+}else{
+const messages=[{role:'system',content:ZMONIE_AI_KNOWLEDGE},...window._supportChatHistory.slice(-10),{role:'user',content:userMessage}];
+const res=await puter.ai.chat(messages);
+return extractPuterText(res);
+}
+}
 let _supportTicketId=null;
+let _supportMode='ai'; // 'ai' | 'human'
+let _supportAiTurns=0;
 function openSupport(){if(!CU){goPg('pg-login');return;}goPg('pg-support');loadSupportChat();
 // Fix keyboard pushing content on mobile
 setTimeout(()=>{
@@ -4493,7 +4571,7 @@ function sendSupportImage(e){
 const file=e.target.files[0];if(!file)return;
 const reader=new FileReader();
 reader.onload=function(ev){
-_suppImgData={data:ev.target.result,name:file.name,type:file.type};
+_suppImgData={data:ev.target.result,name:file.name,type:file.type,file:file};
 const prev=document.getElementById('supp-img-preview');
 const img=document.getElementById('supp-img-prev-img');
 if(prev&&img){img.src=ev.target.result;prev.style.display='inline-block';}
@@ -4506,6 +4584,23 @@ const inp=document.getElementById('supp-img-input');
 if(prev)prev.style.display='none';
 if(inp)inp.value='';
 }
+function updateSupportHeader(){
+const sub=document.getElementById('support-hdr-sub');
+const humanBtn=document.getElementById('support-human-btn');
+if(_supportMode==='human'){
+if(sub)sub.textContent='Connected to a human agent \u2014 we typically reply within a few minutes';
+if(humanBtn)humanBtn.style.display='none';
+}else{
+if(sub)sub.textContent='We typically reply within a few minutes';
+if(humanBtn){
+humanBtn.style.display='block';
+humanBtn.disabled=false;
+humanBtn.style.opacity='1';
+humanBtn.style.cursor='pointer';
+humanBtn.textContent='\u{1F64B} Talk to a Human Agent';
+}
+}
+}
 async function loadSupportChat(){
 const msgs=document.getElementById('support-msgs');if(!msgs)return;
 try{
@@ -4513,20 +4608,55 @@ try{
 _supportTicketId=CU.uid;
 const ticketSnap=await db.collection('supportTickets').doc(_supportTicketId).get();
 if(ticketSnap.exists){
+const tData=ticketSnap.data()||{};
+_supportMode=tData.mode||'human'; // tickets created before this feature default to human (already-known agent thread)
 const msgSnap=await db.collection('supportTickets').doc(_supportTicketId).collection('messages').orderBy('createdAt').get();
 const existing=msgSnap.docs.map(d=>d.data());
+_supportAiTurns=existing.filter(m=>m.from==='user').length;
+window._supportChatHistory=existing.filter(m=>m.from==='user'||m.from==='bot').map(m=>({role:m.from==='user'?'user':'assistant',content:m.text||(m.image?'(sent an image)':'')})).slice(-10);
 if(existing.length>=1){
 msgs.innerHTML=existing.map(m=>renderSupportMsg(m)).join('');
 msgs.scrollTop=msgs.scrollHeight;
 }
+}else{
+_supportMode='ai';_supportAiTurns=0;
 }
 }catch(e){console.error('[Support]',e);}
+updateSupportHeader();
+}
+function showAiTyping(){
+const msgs=document.getElementById('support-msgs');if(!msgs)return;
+const div=document.createElement('div');
+div.id='ai-typing-indicator';
+div.style.cssText='align-self:flex-start;max-width:60%';
+div.innerHTML='<div style="background:var(--green-xl);color:var(--green-d);border-radius:2px 12px 12px 12px;padding:10px 13px;font-size:13px"><div style="font-size:10px;font-weight:700;margin-bottom:3px">&#128100; ZMONIE Support</div><span class="ai-typing-dots">&bull;&bull;&bull;</span></div>';
+msgs.appendChild(div);msgs.scrollTop=msgs.scrollHeight;
+}
+function hideAiTyping(){document.getElementById('ai-typing-indicator')?.remove();}
+async function escalateToHuman(){
+_supportMode='human';
+try{
+await db.collection('supportTickets').doc(CU.uid).set({mode:'human',status:'open'},{merge:true});
+}catch(e){}
+const sysMsg={from:'system',text:'\u{1F64B} Connecting you to a human agent... Our team will reply here shortly.',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+try{await db.collection('supportTickets').doc(CU.uid).collection('messages').add(sysMsg);}catch(e){}
+const msgs=document.getElementById('support-msgs');
+if(msgs){const div=document.createElement('div');div.innerHTML=renderSupportMsg({...sysMsg,createdAt:{toDate:()=>new Date()}});msgs.appendChild(div.firstChild);msgs.scrollTop=msgs.scrollHeight;}
+updateSupportHeader();
 }
 function renderSupportMsg(m){
 const isUser=m.from==='user';
+const isBot=m.from==='bot';
+const isSystem=m.from==='system';
 const img=m.image?`<img src="${m.image}" style="max-width:200px;border-radius:8px;margin-top:${m.text?'6px':'0'};display:block" onclick="window.open('${m.image}','_blank')"/>`:'';
 const txt=m.text?`<div>${m.text}</div>`:'';
-return`<div style="max-width:82%;align-self:${isUser?'flex-end':'flex-start'}"><div style="background:${isUser?'var(--green)':'var(--green-xl)'};color:${isUser?'#fff':'var(--green-d)'};border-radius:${isUser?'12px 12px 2px 12px':'2px 12px 12px 12px'};padding:10px 13px;font-size:13px">${isUser?'':('<div style="font-size:10px;font-weight:700;margin-bottom:3px">ZMONIE Support</div>')}${txt}${img}</div><div style="font-size:10px;color:var(--g400);margin-top:3px;text-align:${isUser?'right':'left'}">${(m.createdAt?.toDate?m.createdAt.toDate():new Date()).toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
+if(isSystem){
+return `<div style="align-self:center;max-width:90%;background:#f1f5f9;color:var(--g500);border-radius:20px;padding:7px 14px;font-size:11.5px;text-align:center;font-weight:600">${m.text||''}</div>`;
+}
+const bubbleBg=isUser?'var(--green)':'var(--green-xl)';
+const bubbleColor=isUser?'#fff':'var(--green-d)';
+const label=isUser?'':'&#128100; ZMONIE Support';
+return`<div style="max-width:82%;align-self:${isUser?'flex-end':'flex-start'}"><div style="background:${bubbleBg};color:${bubbleColor};border-radius:${isUser?'12px 12px 2px 12px':'2px 12px 12px 12px'};padding:10px 13px;font-size:13px">${isUser?'':('<div style="font-size:10px;font-weight:700;margin-bottom:3px">'+label+'</div>')}${txt}${img}</div><div style="font-size:10px;color:var(--g400);margin-top:3px;text-align:${isUser?'right':'left'}">${(m.createdAt?.toDate?m.createdAt.toDate():new Date()).toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit'})}</div></div>`;
 }
 async function sendSupportMsg(){
 const inp=document.getElementById('support-input');
@@ -4543,19 +4673,47 @@ const imgData=_suppImgData;clearSuppImg();
 try{
 // One continuous thread per user: the ticket doc ID is always the user's UID.
 _supportTicketId=CU.uid;
-await db.collection('supportTickets').doc(_supportTicketId).set({
+const ticketRef=db.collection('supportTickets').doc(_supportTicketId);
+const ticketExists=(await ticketRef.get()).exists;
+const ticketData={
 userId:CU.uid,userName:UD?.name||'',userPhone:UD?.phone||'',
-status:'open',createdAt:firebase.firestore.FieldValue.serverTimestamp()
-},{merge:true});
+status:'open',
+createdAt:firebase.firestore.FieldValue.serverTimestamp()
+};
+if(!ticketExists) ticketData.mode='ai';
+await ticketRef.set(ticketData,{merge:true});
 const msgData={from:'user',text:text||'',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
 if(imgData){msgData.image=imgData.data;msgData.imageName=imgData.name;}
 await db.collection('supportTickets').doc(_supportTicketId).collection('messages').add(msgData);
 await db.collection('supportTickets').doc(_supportTicketId).update({
-lastMessage:text||(imgData?'📷 Image':''),lastMessageAt:firebase.firestore.FieldValue.serverTimestamp(),status:'open'
+lastMessage:text||(imgData?'\u{1F4F7} Image':''),lastMessageAt:firebase.firestore.FieldValue.serverTimestamp(),status:'open'
 });
 const msgs=document.getElementById('support-msgs');
 if(msgs){const div=document.createElement('div');div.innerHTML=renderSupportMsg({from:'user',text:text||'',image:imgData?.data,createdAt:{toDate:()=>new Date()}});msgs.appendChild(div.firstChild);msgs.scrollTop=msgs.scrollHeight;}
-
+_supportAiTurns++;
+updateSupportHeader();
+if(_supportMode==='ai'){
+showAiTyping();
+try{
+const reply=(await getAiSupportReplyLocal(text||'',imgData?.file||null))||"I'm sorry, I couldn't process that. Would you like to talk to a human agent instead?";
+hideAiTyping();
+window._supportChatHistory.push({role:'user',content:text||'(sent an image)'});
+window._supportChatHistory.push({role:'assistant',content:reply});
+const botMsg={from:'bot',text:reply,createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+await db.collection('supportTickets').doc(_supportTicketId).collection('messages').add(botMsg);
+await db.collection('supportTickets').doc(_supportTicketId).update({lastMessage:reply.slice(0,120),lastMessageAt:firebase.firestore.FieldValue.serverTimestamp()});
+if(msgs){const div=document.createElement('div');div.innerHTML=renderSupportMsg({...botMsg,createdAt:{toDate:()=>new Date()}});msgs.appendChild(div.firstChild);msgs.scrollTop=msgs.scrollHeight;}
+}catch(aiErr){
+hideAiTyping();
+console.error('[AI Support] error:',aiErr);
+const fallback={from:'system',text:'Our AI assistant is temporarily unavailable. Connecting you to a human agent...',createdAt:firebase.firestore.FieldValue.serverTimestamp()};
+await db.collection('supportTickets').doc(_supportTicketId).collection('messages').add(fallback).catch(()=>{});
+_supportMode='human';
+await db.collection('supportTickets').doc(_supportTicketId).set({mode:'human'},{merge:true}).catch(()=>{});
+if(msgs){const div=document.createElement('div');div.innerHTML=renderSupportMsg({...fallback,createdAt:{toDate:()=>new Date()}});msgs.appendChild(div.firstChild);msgs.scrollTop=msgs.scrollHeight;}
+}
+updateSupportHeader();
+}
 }catch(e){toast('Error: '+friendlyError(e));}
 }
 
@@ -10825,14 +10983,15 @@ date: tx.createdAt?.toDate ? tx.createdAt.toDate().toISOString() : null
 <div id="pg-support" class="page"><div style="max-width:480px;margin:0 auto;background:var(--bg);height:100vh;display:flex;flex-direction:column;position:fixed;top:0;left:0;right:0;z-index:100">
 <div class="hdr" style="display:flex;align-items:center;gap:12px;flex-shrink:0;position:relative;z-index:2">
 <button onclick="goPg('pg-dash')" style="background:var(--green-xl);border:none;cursor:pointer;width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;color:var(--green-d)"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg></button>
-<div style="flex:1"><div style="font-size:16px;font-weight:700">ZMONIE Support</div><div style="font-size:11px;color:var(--g400)">We typically reply within a few minutes</div></div>
+<div style="flex:1"><div style="font-size:16px;font-weight:700">ZMONIE Support</div><div style="font-size:11px;color:var(--g400)" id="support-hdr-sub">We typically reply within a few minutes</div></div>
 <div style="width:10px;height:10px;background:#16a34a;border-radius:50%;animation:pulse 2s infinite"></div>
 </div>
-<div id="support-msgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;-webkit-overflow-scrolling:touch">
-<div style="background:var(--green-xl);border-radius:0 12px 12px 12px;padding:12px;font-size:13px;color:var(--green-d);max-width:80%;align-self:flex-start">
-<div style="font-weight:700;margin-bottom:4px">ZMONIE Support</div>
-Welcome! How can we help you today? Describe your issue and we will get back to you shortly.</div></div>
+<div id="support-msgs" style="flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;justify-content:flex-end;gap:10px;-webkit-overflow-scrolling:touch">
+<div style="background:var(--green-xl);border-radius:0 12px 12px 12px;padding:12px;font-size:13px;color:var(--green-d);max-width:85%;align-self:flex-start">
+<div style="font-weight:700;margin-bottom:4px">&#128100; ZMONIE Support</div>
+Hi! How can we help you today? I can help with wallet funding, transfers, airtime, data, cable TV, electricity, loans, savings, betting, rewards and more &mdash; and you can send a screenshot too. Describe your issue and I'll do my best to sort it, or connect you to a teammate if needed.</div></div>
 <div id="support-input-bar" style="padding:10px 12px;border-top:1px solid var(--g100);background:#fff;flex-shrink:0;padding-bottom:max(10px,env(safe-area-inset-bottom))">
+<button id="support-human-btn" onclick="escalateToHuman()" style="display:block;width:100%;margin-bottom:9px;padding:9px;border-radius:10px;background:#fff7ed;border:1.5px solid #fed7aa;color:#c2410c;font-size:12px;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif">&#128075; Talk to a Human Agent</button>
 <div id="rc-widget-support" style="display:none;justify-content:center;margin-bottom:10px"></div>
 <div style="display:flex;gap:8px;align-items:flex-end">
 <label for="supp-img-input" style="width:36px;height:36px;background:var(--green-xl);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0" title="Send image">
